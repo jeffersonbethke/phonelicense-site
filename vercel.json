@@ -1,0 +1,10 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.phonelicense.co" }],
+      "destination": "https://phonelicense.co/:path*",
+      "permanent": true
+    }
+  ]
+}
