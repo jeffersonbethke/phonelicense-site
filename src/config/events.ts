@@ -177,3 +177,112 @@ export function showScarcity(e: EventConfig): boolean {
     (e.state === 'earlybird' || e.state === 'almostfull' || e.state === 'onsale')
   );
 }
+
+// ── State-driven display copy (keeps event pages free of conditionals) ──
+
+const unitWord = (e: EventConfig) => (e.kind === 'workshop' ? 'couples' : 'families');
+const nextEdition = (e: EventConfig) => String(Number(e.edition) + 1);
+
+export interface SeatChipView {
+  copy: string;
+  tone: 'blue' | 'amber' | 'red';
+  fill: number | null;
+}
+
+/** Seat chip copy + fill fraction. Only renders real numbers when truthful. */
+export function seatChipView(e: EventConfig): SeatChipView | null {
+  const sc = showScarcity(e);
+  const fill = sc ? (e.capacity! - e.seatsRemaining!) / e.capacity! : null;
+  const rem = e.seatsRemaining;
+  const u = unitWord(e);
+  switch (e.state) {
+    case 'interest':
+      return { copy: 'Doors open soon · first-access list forming', tone: 'blue', fill: null };
+    case 'earlybird':
+      return { copy: sc ? `Early-bird open · ${rem} of ${e.capacity} ${u} remaining` : 'Early-bird open now', tone: 'blue', fill };
+    case 'onsale':
+      return { copy: sc ? `On sale · ${rem} of ${e.capacity} ${u} remaining` : 'On sale now', tone: 'blue', fill };
+    case 'almostfull':
+      return { copy: sc ? `Almost full · only ${rem} ${u} left` : 'Almost full', tone: 'amber', fill };
+    case 'soldout':
+      return { copy: `Sold out · ${nextEdition(e)} waitlist now open`, tone: 'red', fill: null };
+    case 'replay':
+      return null;
+  }
+}
+
+/** Format an ISO date like 2026-07-31 → "July 31". */
+export function prettyDate(iso?: string): string {
+  if (!iso) return '';
+  const M = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const [, m, d] = iso.split('-').map(Number);
+  return `${M[(m || 1) - 1]} ${d}`;
+}
+
+export interface PriceView {
+  amount: string;
+  struck?: string;
+  note: string;
+  pin?: { label: string; tone: 'blue' | 'amber' | 'red' };
+}
+
+export function priceView(e: EventConfig): PriceView {
+  const u = e.priceUnit;
+  switch (e.state) {
+    case 'interest':
+      return { amount: `$${e.price}`, note: e.earlyBirdPrice ? `${u} · early-bird $${e.earlyBirdPrice}` : u };
+    case 'earlybird':
+      return {
+        amount: `$${e.earlyBirdPrice ?? e.price}`,
+        struck: e.earlyBirdPrice ? `$${e.price}` : undefined,
+        note: u,
+        pin: { label: `Early-bird · ends ${prettyDate(e.earlyBirdDeadline)}`, tone: 'blue' },
+      };
+    case 'onsale':
+      return { amount: `$${e.price}`, note: u };
+    case 'almostfull':
+      return { amount: `$${e.price}`, note: u, pin: { label: 'Final release', tone: 'blue' } };
+    case 'soldout':
+      return { amount: `$${e.price}`, note: `${e.edition} sold out`, pin: { label: 'Sold out', tone: 'red' } };
+    case 'replay':
+      return { amount: 'Replay', note: 'available now' };
+  }
+}
+
+/** State-driven final-CTA headline. */
+export function finalHeadline(e: EventConfig): string {
+  if (e.state === 'soldout') return `The room is full. Get first in line for ${nextEdition(e)}.`;
+  return 'Get a year ahead — together.';
+}
+
+/** Short line for the sticky mobile CTA bar. */
+export function stickyLine(e: EventConfig): string {
+  const v = seatChipView(e);
+  if (e.state === 'soldout') return `${e.edition} sold out · ${nextEdition(e)} waitlist`;
+  if (e.state === 'earlybird' && e.earlyBirdPrice) return `Early-bird $${e.earlyBirdPrice}`;
+  if (e.state === 'interest') return `${e.city} · ${e.dateDisplay} · first access`;
+  return v?.copy ?? e.dateDisplay;
+}
+
+/** A downloadable .ics calendar file as a data URI (all-day event). */
+export function icsDataUri(e: EventConfig): string {
+  const dt = e.dateISO.replace(/-/g, '');
+  const [y, m, d] = e.dateISO.split('-').map(Number);
+  const end = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + 1));
+  const endStr = `${end.getUTCFullYear()}${String(end.getUTCMonth() + 1).padStart(2, '0')}${String(end.getUTCDate()).padStart(2, '0')}`;
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Phone License//Events//EN',
+    'BEGIN:VEVENT',
+    `UID:${e.slug}-${e.edition}@phonelicense.co`,
+    `DTSTART;VALUE=DATE:${dt}`,
+    `DTEND;VALUE=DATE:${endStr}`,
+    `SUMMARY:${e.title} ${e.edition}`,
+    `LOCATION:${e.venue}, ${e.city}`,
+    `DESCRIPTION:${e.title} — phonelicense.co/${e.slug}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+  return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(lines.join('\r\n'));
+}

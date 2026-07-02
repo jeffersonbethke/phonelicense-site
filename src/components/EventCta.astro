@@ -53,9 +53,9 @@ const formVariant = variant === 'white' ? 'dark' : variant;
 
 {
   isReplay && (
-    <a href={`/${e.slug}`} class={`btn btn-${variant}`}>
+    <KajabiLink href={e.ticketsUrl} value={e.price} name={`${e.title} ${e.edition} replay`} variant={variant}>
       Watch the replay →
-    </a>
+    </KajabiLink>
   )
 }
 

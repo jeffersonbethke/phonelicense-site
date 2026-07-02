@@ -1,0 +1,401 @@
+---
+/**
+ * Shared summit template — /summit-spring and /summit-fall both render this,
+ * passing their slug. Everything (theme, date, sessions, state, price) comes
+ * from /config/events + /config/event-content, so future editions are a config
+ * edit, not a new page.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import SectionHead from './SectionHead.astro';
+import SeatChip from './SeatChip.astro';
+import EventCta from './EventCta.astro';
+import StickyCta from './StickyCta.astro';
+import { events, seatChipView, priceView, stickyLine, icsDataUri } from '../config/events';
+import { summit as s } from '../config/event-content';
+
+interface Props {
+  slug: 'summit-fall' | 'summit-spring';
+}
+const { slug } = Astro.props;
+const e = events[slug];
+const seasonLabel = e.season === 'fall' ? 'Fall' : 'Spring';
+const chip = seatChipView(e);
+const price = priceView(e);
+const conf = events['conference'];
+const inclusions = [
+  'One seat covers your whole family',
+  'The full live half-day',
+  'Your family policy, built live',
+  'The replay to keep',
+];
+---
+
+<Base title={`The Parent Summit — ${seasonLabel} ${e.edition} · Phone License`} viewContent="Summit">
+  <Nav yearMark={`${seasonLabel} ’${e.edition.slice(2)}`} cta={{ label: 'Tickets', href: '#tickets' }} anchors={[
+    { label: 'Sessions', href: '#sessions' },
+    { label: 'Guests', href: '#guests' },
+    { label: 'Tickets', href: '#tickets' },
+  ]} />
+
+  <main>
+    {/* ── Hero ── */}
+    <section class="section hero">
+      <div class="wrap">
+        <span class="pill mono">A twice-a-year live summit · {seasonLabel} {e.edition} Edition</span>
+        <h1>{e.themeLine}<span class="accent">.</span></h1>
+        <p class="lede">{s.heroLede}</p>
+        <ul class="dots">
+          <li>{e.dateDisplay}</li>
+          {e.timeDisplay && <li>{e.timeDisplay}</li>}
+          <li>Live + replay</li>
+        </ul>
+        <div class="hero-cta">
+          <EventCta event={e} variant="primary" />
+          <a href="#sessions" class="btn btn-ghost">See the sessions →</a>
+        </div>
+        {chip && <div class="hero-chip"><SeatChip copy={chip.copy} tone={chip.tone} fill={chip.fill} /></div>}
+        <p class="note mono">One seat covers your whole family</p>
+        <a class="ics" href={icsDataUri(e)} download={`phone-license-${e.slug}-${e.edition}.ics`}>＋ Add to calendar</a>
+      </div>
+    </section>
+
+    {/* ── Sessions ── */}
+    <section class="section band-2" id="sessions">
+      <div class="wrap">
+        <SectionHead eyebrow="The morning">Four hours. One topic. Fully live.</SectionHead>
+        <div class="sessions">
+          {s.sessions.map((sess) => (
+            <div class="srow">
+              <span class="time mono">{sess.time}</span>
+              <span class="srow-h">{sess.h}</span>
+              {sess.note && <span class="srow-note mono">{sess.note}</span>}
+            </div>
+          ))}
+        </div>
+        <div class="notes">
+          <div class="card note-card"><h4>Replay included</h4><p>Can’t make it live? Every seat comes with the replay.</p></div>
+          <div class="card note-card"><h4>All-Access members</h4><p>Your seat’s already included — just show up.</p></div>
+        </div>
+      </div>
+    </section>
+
+    {/* ── Rotating curriculum ── */}
+    <section class="section band-ink">
+      <div class="wrap">
+        <SectionHead eyebrow="A new topic every time">Spring and fall. <span class="accent on-dark">A new topic every time.</span></SectionHead>
+        <p class="future-lead">On the board for future editions:</p>
+        <div class="chips">
+          {s.futureTopics.map((t) => <span class="chip-topic">{t}</span>)}
+        </div>
+      </div>
+    </section>
+
+    {/* ── Guests ── */}
+    <section class="section" id="guests">
+      <div class="wrap">
+        <SectionHead eyebrow="Past & invited guests">Voices worth a morning.</SectionHead>
+        <p class="guest-note">Past and invited — confirmed guests are announced per edition.</p>
+        <div class="guests">
+          {s.guests.map((g) => (
+            <div class="card guest">
+              <span class="gcircle">{g.name.split(' ').map((n) => n[0]).join('')}</span>
+              <div><h4>{g.name}</h4><p>{g.work}</p></div>
+            </div>
+          ))}
+          <div class="card guest hl">
+            <span class="gcircle">PL</span>
+            <div><h4>Your hosts</h4><p>Jeff &amp; Alyssa Bethke and Dr. Darren Whitehead</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* ── Pricing ── */}
+    <section class="section band-2" id="tickets">
+      <div class="wrap">
+        <SectionHead eyebrow="Tickets">One seat. Your whole family.</SectionHead>
+        <div class="pricecard card">
+          {price.pin && <span class="pin">{price.pin.label}</span>}
+          <p class="mono">Family seat</p>
+          <p class="amount">{price.amount}<span class="unit">{price.note}</span></p>
+          <ul class="incl">{inclusions.map((x) => <li>{x}</li>)}</ul>
+          <EventCta event={e} variant="dark" />
+        </div>
+        <p class="allaccess">All-Access member? <b>Your seat’s already included.</b></p>
+      </div>
+    </section>
+
+    {/* ── Conference teaser ── */}
+    <section class="section">
+      <div class="wrap teaser band-ink">
+        <p class="mono">The annual briefing</p>
+        <h2>The summit is the update. <span class="accent on-dark">The workshop is the full picture.</span></h2>
+        <p>Once a year, both of you in one room for the whole day — {conf.dateDisplay}, {conf.city}.</p>
+        <a href="/conference" class="btn btn-primary">See the {conf.edition} Workshop →</a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+
+  <StickyCta title={`Summit · ${seasonLabel} ${e.edition}`} line={stickyLine(e)}>
+    <a href="#tickets" class="btn btn-primary">Tickets</a>
+  </StickyCta>
+</Base>
+
+<style>
+  .hero {
+    text-align: center;
+    padding-block: 64px 40px;
+  }
+  .pill {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+    color: var(--blue-deep);
+  }
+  .hero h1 {
+    margin-top: 18px;
+    text-transform: none;
+  }
+  .hero .lede {
+    max-width: 600px;
+    margin: 16px auto 0;
+  }
+  .dots {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 20px;
+    margin-top: 20px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .dots li {
+    position: relative;
+  }
+  .dots li:not(:first-child)::before {
+    content: '·';
+    position: absolute;
+    left: -12px;
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 26px;
+  }
+  .hero-chip {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .note {
+    margin-top: 20px;
+    color: var(--muted);
+  }
+  .ics {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--blue-deep);
+  }
+
+  .sessions {
+    margin-top: 32px;
+  }
+  .srow {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+  }
+  .srow .time {
+    color: var(--blue-deep);
+    width: 52px;
+    flex: none;
+  }
+  .srow-h {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+  }
+  .srow-note {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 10px;
+  }
+  .notes {
+    display: grid;
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .note-card {
+    padding: 20px;
+  }
+  .note-card h4 {
+    margin-bottom: 6px;
+  }
+  .note-card p {
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+
+  .future-lead {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.66);
+    margin-top: 24px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .chip-topic {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--r-pill);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .guest-note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .guests {
+    display: grid;
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .guest {
+    display: flex;
+    gap: 14px;
+    padding: 20px;
+    align-items: center;
+  }
+  .guest.hl {
+    background: var(--blue-tint);
+    border-color: var(--blue-tint-2);
+  }
+  .gcircle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--ink);
+    flex: none;
+  }
+  .guest h4 {
+    font-size: 17px;
+  }
+  .guest p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .pricecard {
+    position: relative;
+    max-width: 440px;
+    margin: 32px auto 0;
+    padding: 32px 28px;
+    text-align: center;
+  }
+  .pin {
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--blue);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: var(--r-pill);
+    white-space: nowrap;
+  }
+  .amount {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 46px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin: 8px 0 18px;
+    line-height: 1;
+  }
+  .amount .unit {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .incl {
+    list-style: none;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .incl li {
+    padding-left: 24px;
+    position: relative;
+  }
+  .incl li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--blue-deep);
+  }
+  .pricecard :global(.btn),
+  .pricecard :global(.leadform) {
+    width: 100%;
+    margin-inline: auto;
+  }
+  .allaccess {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--muted);
+  }
+
+  .teaser {
+    border-radius: var(--r-lg);
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .teaser h2 {
+    color: #fff;
+    margin: 12px 0;
+  }
+  .teaser p {
+    color: rgba(255, 255, 255, 0.72);
+    margin-bottom: 22px;
+  }
+
+  @media (min-width: 720px) {
+    .notes,
+    .guests {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

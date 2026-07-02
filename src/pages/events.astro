@@ -1,0 +1,262 @@
+---
+/**
+ * PHASE 4 — /events hub. A season announcement, not a store. Flagship workshop
+ * card + two summit cards, badges straight from /config/events, a rhythm band,
+ * and a first-access capture. Every surface renders from config alone.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import StatusBadge from '../components/StatusBadge.astro';
+import EventCta from '../components/EventCta.astro';
+import { events, promotedEvent } from '../config/events';
+
+const conf = events['conference'];
+const fall = events['summit-fall'];
+const spring = events['summit-spring'];
+const promo = promotedEvent() ?? conf;
+
+const photo: Record<string, string> = {
+  conference: '/assets/room-wide.jpg',
+  'summit-fall': '/assets/group-circle.jpg',
+  'summit-spring': '/assets/tables-laughing.jpg',
+};
+
+const summits = [spring, fall].filter(Boolean);
+---
+
+<Base title="Live Events — The 2026 Season · Phone License" viewContent="Events Hub">
+  <Nav cta={{ label: 'Get first access', href: '#first-access' }} />
+
+  <main>
+    <section class="section hero">
+      <div class="wrap">
+        <p class="eyebrow">Phone License Live</p>
+        <h1>The 2026 <span class="accent">Season.</span></h1>
+        <p class="lede">
+          Three live events a year — two virtual summits and one in-person
+          workshop. Then next year, we do it again — because it will all have changed.
+        </p>
+        <p class="strip mono">Spring Summit → Fall Summit → The Workshop</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap cards">
+        {/* Flagship workshop */}
+        <a class="ecard flagship" href={`/${conf.slug}`} style={`--img:url('${photo[conf.slug]}')`}>
+          <div class="scrim"></div>
+          <div class="ecard-in">
+            <div class="ecard-top">
+              <span class="mono">In-person workshop · once a year</span>
+              <StatusBadge state={conf.state} />
+            </div>
+            <h2>{conf.title} <span class="ed">{conf.edition}</span></h2>
+            <p class="ecard-meta">
+              One day. Both of you. One aligned plan for the year — then supper in Leipers Fork.
+            </p>
+            <p class="ecard-foot">
+              <span class="price">${conf.price} <span>/ couple</span></span>
+              <span class="go">See the day →</span>
+            </p>
+          </div>
+        </a>
+
+        {/* Summits */}
+        <div class="summits">
+          {summits.map((s) => (
+            <a class="ecard" href={`/${s.slug}`} style={`--img:url('${photo[s.slug]}')`}>
+              <div class="scrim"></div>
+              <div class="ecard-in">
+                <div class="ecard-top">
+                  <span class="mono">Live virtual summit</span>
+                  <StatusBadge state={s.state} />
+                </div>
+                <h3>{s.season === 'spring' ? 'Spring' : 'Fall'} Summit <span class="ed">{s.edition}</span></h3>
+                <p class="ecard-meta">{s.themeLine}</p>
+                <p class="ecard-foot">
+                  <span class="price">${s.price} <span>/ family</span></span>
+                  <span class="go">{s.state === 'replay' ? 'Watch the replay →' : 'Get your seat →'}</span>
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* Rhythm band */}
+    <section class="section band-2">
+      <div class="wrap">
+        <div class="section-head center" style="margin-bottom:28px">
+          <p class="eyebrow">The annual rhythm</p>
+          <h2>New apps every year. <span class="accent">New season every year.</span></h2>
+        </div>
+        <div class="years">
+          <span class="yr">2025</span>
+          <span class="yr now">2026 · you are here</span>
+          <span class="yr">2027</span>
+          <span class="yr">2028</span>
+        </div>
+      </div>
+    </section>
+
+    {/* First-access capture */}
+    <section class="section" id="first-access">
+      <div class="wrap capture band-ink">
+        <div>
+          <p class="eyebrow">First access, every year</p>
+          <h2>Never hear about it late.</h2>
+          <p class="lede">
+            Get first access to every event, every year — the summits and the
+            workshop. One list, one email per event.
+          </p>
+        </div>
+        <EventCta event={promo} variant="white" />
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .hero {
+    text-align: center;
+    padding-block: 72px 40px;
+  }
+  .hero .lede {
+    max-width: 620px;
+    margin: 18px auto 0;
+  }
+  .hero h1 {
+    font-size: clamp(52px, 13vw, 112px);
+  }
+  .strip {
+    margin-top: 24px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+  }
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .ecard {
+    position: relative;
+    display: block;
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    min-height: 300px;
+    background-image: var(--img);
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .ecard:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  .flagship {
+    min-height: 420px;
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 15, 16, 0.15) 0%, rgba(15, 15, 16, 0.85) 100%);
+  }
+  .ecard-in {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ecard-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .ecard-top .mono {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .ecard h2,
+  .ecard h3 {
+    color: #fff;
+  }
+  .ecard .ed {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+  }
+  .ecard-meta {
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 46ch;
+  }
+  .ecard-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+  }
+  .price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+  }
+  .price span {
+    font-size: 13px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .go {
+    font-weight: 600;
+    color: #fff;
+  }
+  .summits {
+    display: grid;
+    gap: 20px;
+  }
+  .years {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .yr {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    padding: 8px 16px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+    color: var(--muted);
+  }
+  .yr.now {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .capture {
+    border-radius: var(--r-lg);
+    padding: 48px 32px;
+    display: grid;
+    gap: 28px;
+    align-items: center;
+  }
+  .capture .lede {
+    color: rgba(255, 255, 255, 0.72);
+    margin-top: 12px;
+  }
+  @media (min-width: 720px) {
+    .summits {
+      grid-template-columns: 1fr 1fr;
+    }
+    .capture {
+      grid-template-columns: 1fr 420px;
+    }
+  }
+</style>
