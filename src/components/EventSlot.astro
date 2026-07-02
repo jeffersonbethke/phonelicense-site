@@ -1,0 +1,68 @@
+---
+/**
+ * The config-driven "next event" card that appears on every thank-you state
+ * (quiz results, PDF download, church confirmation). Renders the next upcoming
+ * event from /config/events, or nothing if none is upcoming.
+ */
+import { nextEvent, badgeFor } from '../config/events';
+import StatusBadge from './StatusBadge.astro';
+
+const ev = nextEvent();
+---
+
+{
+  ev && (
+    <a class="evslot card" href={`/${ev.slug}`}>
+      <div class="top">
+        <span class="mono">{ev.kind === 'workshop' ? 'In-person workshop' : 'Live virtual summit'}</span>
+        <StatusBadge state={ev.state} />
+      </div>
+      <h4>{ev.title} <span class="ed">{ev.edition}</span></h4>
+      <p class="meta">
+        {ev.dateDisplay}
+        {ev.timeDisplay ? ` · ${ev.timeDisplay}` : ''} · {ev.city}
+      </p>
+      <span class="go">See the event →</span>
+    </a>
+  )
+}
+
+<style>
+  .evslot {
+    display: block;
+    padding: 20px;
+    text-decoration: none;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .evslot:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  h4 {
+    margin-bottom: 6px;
+  }
+  .ed {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .meta {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .go {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--blue-deep);
+  }
+</style>

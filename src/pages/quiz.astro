@@ -1,0 +1,412 @@
+---
+/**
+ * PHASE 1 — /quiz · The Smartphone Readiness Assessment.
+ *
+ * Q1 sets First Phone vs Reset. 8 scored questions, one per screen. Email gate
+ * (parent first name + email only — COPPA). Then a result keyed on band × path,
+ * a tailored $49 pitch → Kajabi, a quiet church link, and the config event slot.
+ *
+ * Question screens are server-rendered (static). The result is built client-side
+ * from /config/quiz after scoring — copy still lives entirely in config.
+ */
+import Base from '../layouts/Base.astro';
+import BrandMark from '../components/BrandMark.astro';
+import EventSlot from '../components/EventSlot.astro';
+import { pathQuestion, questions } from '../config/quiz';
+
+const allQuestions = [pathQuestion, ...questions];
+const total = allQuestions.length;
+---
+
+<Base
+  title="The Smartphone Readiness Assessment — Phone License"
+  description="A calm, 3-minute assessment for parents. Find out where your child is — whether it’s their first phone or a fresh start on the one they already have."
+  viewContent="Readiness Assessment"
+>
+  <div class="quiz-top">
+    <a href="/" class="home"><BrandMark label /></a>
+    <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax={total} aria-valuenow="0">
+      <span id="bar"></span>
+    </div>
+  </div>
+
+  <main class="quiz">
+    <div class="wrap stage">
+      {
+        allQuestions.map((q, i) => (
+          <section class="screen" data-step={i} data-qid={q.id} data-kind={q.kind ?? 'scored'} hidden>
+            <p class="eyebrow">Question {i + 1} of {total}</p>
+            <h2 tabindex="-1">{q.prompt}</h2>
+            {q.help && <p class="help">{q.help}</p>}
+            <div class="choices">
+              {q.choices.map((c) => (
+                <button
+                  type="button"
+                  class="choice"
+                  data-points={c.points}
+                  data-label={c.label}
+                  data-meta={c.meta ?? ''}
+                  data-path={c.path ?? ''}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+            {i > 0 && <button type="button" class="back" data-back>← Back</button>}
+          </section>
+        ))
+      }
+
+      {/* Email gate — before results */}
+      <section class="screen gate" data-step={total} hidden>
+        <p class="eyebrow">Almost there</p>
+        <h2 tabindex="-1">Where should we send your results?</h2>
+        <p class="help">
+          Your personalized readiness plan, plus a couple of genuinely useful
+          tips. No spam — unsubscribe anytime. We never ask for your child’s name.
+        </p>
+        <form id="gate-form" novalidate>
+          <label class="field">
+            <span class="sr-only">First name</span>
+            <input type="text" name="name" autocomplete="given-name" placeholder="Your first name" required />
+          </label>
+          <label class="field">
+            <span class="sr-only">Email</span>
+            <input type="email" name="email" autocomplete="email" placeholder="Email address" required />
+          </label>
+          <button type="submit" class="btn btn-primary" id="gate-submit">See my results →</button>
+          <p class="err" id="gate-err" role="alert" hidden></p>
+        </form>
+        <button type="button" class="back" data-back>← Back</button>
+      </section>
+
+      {/* Results — built client-side, then the shared slots below */}
+      <section class="screen result" data-step="result" hidden>
+        <div id="result-dynamic"></div>
+
+        <div class="result-foot">
+          <a class="church-link" href="/churches">Doing this as a church or group? →</a>
+          <div class="ev-wrap">
+            <p class="mono ev-label">The course is day one · this is every year after</p>
+            <EventSlot />
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .quiz-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    max-width: 760px;
+    margin-inline: auto;
+  }
+  .home {
+    flex: none;
+  }
+  .progress {
+    flex: 1;
+    height: 6px;
+    background: var(--line);
+    border-radius: var(--r-pill);
+    overflow: hidden;
+  }
+  #bar {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--blue);
+    border-radius: var(--r-pill);
+    transition: width 0.3s ease;
+  }
+  .quiz {
+    padding-block: 24px 80px;
+  }
+  .stage {
+    max-width: 620px;
+  }
+  .screen {
+    animation: fade 0.28s ease;
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .screen h2 {
+    margin: 10px 0 0;
+    outline: none;
+  }
+  .help {
+    color: var(--muted);
+    margin-top: 12px;
+    font-size: 15.5px;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .choice {
+    text-align: left;
+    padding: 18px 20px;
+    font-family: var(--font-body);
+    font-size: 16.5px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease,
+      transform 0.12s ease;
+  }
+  .choice:hover {
+    border-color: var(--blue);
+    background: var(--blue-tint);
+  }
+  .choice:active {
+    transform: scale(0.99);
+  }
+  .back {
+    margin-top: 24px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  .back:hover {
+    color: var(--ink);
+  }
+  /* Gate */
+  #gate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 26px;
+    max-width: 420px;
+  }
+  .field input {
+    width: 100%;
+    padding: 15px 16px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+  }
+  .field input:focus-visible {
+    border-color: var(--blue);
+  }
+  .err {
+    color: var(--red-pin);
+    font-size: 13px;
+  }
+  /* Result */
+  .result-foot {
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .church-link {
+    color: var(--blue-deep);
+    font-size: 15px;
+  }
+  .ev-label {
+    margin-bottom: 12px;
+  }
+</style>
+
+<script>
+  import {
+    bandFor,
+    bandTag,
+    pathTag,
+    getResult,
+    type Path,
+  } from '../config/quiz';
+  import { offers } from '../config/offers';
+  import { submitLead } from '../lib/lead';
+  import { appendUtms } from '../lib/utm';
+
+  const stage = document.querySelector<HTMLElement>('.stage')!;
+  const screens = Array.from(stage.querySelectorAll<HTMLElement>('.screen'));
+  const bar = document.getElementById('bar')!;
+  const progress = document.getElementById('progress')!;
+  const total = screens.filter((s) => s.dataset.qid || s.classList.contains('gate')).length;
+  progress.setAttribute('aria-valuemax', String(total));
+
+  type Answer = { label: string; meta: string; points: number; path: string };
+  const answers: Record<string, Answer> = {};
+  const history: number[] = [];
+  let current = 0;
+
+  function show(index: number) {
+    screens.forEach((s, i) => (s.hidden = i !== index));
+    current = index;
+    const answered = Math.min(index, total);
+    bar.style.width = `${(answered / total) * 100}%`;
+    progress.setAttribute('aria-valuenow', String(answered));
+    // Move focus to the screen heading for screen-reader + keyboard users.
+    const h = screens[index].querySelector<HTMLElement>('h2, #result-dynamic');
+    h?.focus?.();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Choice buttons
+  stage.querySelectorAll<HTMLButtonElement>('.choice').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const screen = btn.closest<HTMLElement>('.screen')!;
+      const qid = screen.dataset.qid!;
+      answers[qid] = {
+        label: btn.dataset.label || '',
+        meta: btn.dataset.meta || '',
+        points: Number(btn.dataset.points || 0),
+        path: btn.dataset.path || '',
+      };
+      history.push(current);
+      show(current + 1);
+    });
+  });
+
+  // Back buttons
+  stage.querySelectorAll<HTMLButtonElement>('[data-back]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const prev = history.pop();
+      if (prev !== undefined) show(prev);
+    });
+  });
+
+  // Gate submit → score → lead → result
+  const form = document.getElementById('gate-form') as HTMLFormElement;
+  const errEl = document.getElementById('gate-err')!;
+  const submitBtn = document.getElementById('gate-submit') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const name = String(data.get('name') || '').trim();
+    const email = String(data.get('email') || '').trim();
+
+    if (!name || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      errEl.textContent = 'Please add your first name and a valid email.';
+      errEl.hidden = false;
+      return;
+    }
+    errEl.hidden = true;
+
+    const path = (answers['has_phone']?.path || 'first-phone') as Path;
+    const score = Object.values(answers).reduce((s, a) => s + a.points, 0);
+    const band = bandFor(score);
+
+    const tags = [`Quiz - ${bandTag[band]}`, pathTag[path]];
+    const fields: Record<string, unknown> = {
+      quiz_path: pathTag[path],
+      quiz_band: bandTag[band],
+      quiz_score: score,
+      child_age_range: answers['age']?.meta || '',
+      biggest_fear: answers['fear']?.meta || '',
+    };
+    for (const [qid, a] of Object.entries(answers)) fields[`q_${qid}`] = a.label;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Scoring…';
+
+    // Fire-and-forget — always proceed to the result.
+    await submitLead({ name, email, tags, fields, pixelName: 'Readiness Assessment' });
+
+    renderResult(path, band, name);
+    const resultScreen = screens.find((s) => s.dataset.step === 'result')!;
+    show(screens.indexOf(resultScreen));
+    bar.style.width = '100%';
+  });
+
+  function esc(s: string) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function renderResult(path: Path, band: ReturnType<typeof bandFor>, name: string) {
+    const r = getResult(path, band);
+    const course = offers.course;
+    const href = appendUtms(course.url);
+    const isTodo = course.url.startsWith('#');
+    const fill = (t: string) => esc(t.replace(/\{name\}/g, name));
+
+    const tips = r.tips.map((t) => `<li>${fill(t)}</li>`).join('');
+    const el = document.getElementById('result-dynamic')!;
+    el.setAttribute('tabindex', '-1');
+    el.innerHTML = `
+      <p class="eyebrow">${esc(r.eyebrow)}</p>
+      <h1 tabindex="-1">${fill(r.headline)}</h1>
+      <p class="lede summary">${fill(r.summary)}</p>
+      <div class="tips">
+        <p class="tips-head">A couple of things that’ll help right now:</p>
+        <ul>${tips}</ul>
+      </div>
+      <div class="pitch card">
+        <h3>${esc(r.pitchHead)}</h3>
+        <p>${esc(r.pitch)}</p>
+        <a href="${href}" class="btn btn-primary" data-kajabi
+           data-offer-value="${course.pixelValue}" data-offer-name="${esc(course.label)}"
+           ${isTodo ? 'data-todo="true"' : ''} rel="noopener">${esc(r.cta)}</a>
+      </div>`;
+  }
+</script>
+
+<style is:global>
+  #result-dynamic h1 {
+    margin: 8px 0 0;
+    outline: none;
+  }
+  #result-dynamic .summary {
+    margin-top: 16px;
+  }
+  #result-dynamic .tips {
+    margin-top: 28px;
+  }
+  #result-dynamic .tips-head {
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  #result-dynamic .tips ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-left: 20px;
+  }
+  #result-dynamic .tips li {
+    line-height: 1.5;
+  }
+  #result-dynamic .pitch {
+    margin-top: 32px;
+    padding: 26px;
+    background: var(--blue-tint);
+    border-color: var(--blue-tint-2);
+  }
+  #result-dynamic .pitch h3 {
+    margin-bottom: 10px;
+  }
+  #result-dynamic .pitch p {
+    margin-bottom: 20px;
+  }
+</style>

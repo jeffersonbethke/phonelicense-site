@@ -22,7 +22,7 @@ this list at the end of every phase.
 | Summit + All-Access offer URLs | Phase 4 | `offers.ts` |
 | Calendly URL / mailto for church "planning something bigger" | Phase 5 | `.env` → `PUBLIC_CALENDLY_URL` |
 | Optional GA4 Measurement ID | any | `.env` → `PUBLIC_GA4_ID` |
-| Final quiz copy + weighted scoring (7–9 Qs, 3 score bands, both-path results, $49 pitch) | Phase 1 | `src/config/quiz.ts` |
+| Final quiz copy + weighted scoring — **DRAFT in place, needs Jeff's review/replace** | Phase 1 ✅ built | `src/config/quiz.ts` |
 | Free "Family Phone Contract" PDF (or ask Claude to draft) | Phase 2 | `public/` |
 
 ## 🟢 Placeholders that CANNOT ship as-is (from design README)
