@@ -8,5 +8,8 @@ export default defineConfig({
   trailingSlash: 'ignore',
   build: {
     format: 'directory', // /quiz -> /quiz/index.html (clean URLs)
+    // Inline all CSS into each page's <head> so there's no render-blocking
+    // stylesheet round-trip on the CDN (per-page CSS is only ~15KB).
+    inlineStylesheets: 'always',
   },
 });
