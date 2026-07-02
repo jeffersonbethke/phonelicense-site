@@ -34,7 +34,7 @@ const total = allQuestions.length;
     <div class="wrap stage">
       {
         allQuestions.map((q, i) => (
-          <section class="screen" data-step={i} data-qid={q.id} data-kind={q.kind ?? 'scored'} hidden>
+          <section class="screen" data-step={i} data-qid={q.id} data-kind={q.kind ?? 'scored'} hidden={i !== 0}>
             <p class="eyebrow">Question {i + 1} of {total}</p>
             <h2 tabindex="-1">{q.prompt}</h2>
             {q.help && <p class="help">{q.help}</p>}
@@ -293,6 +293,9 @@ const total = allQuestions.length;
       if (prev !== undefined) show(prev);
     });
   });
+
+  // Reveal the first question on load (all screens start hidden).
+  show(0);
 
   // Gate submit → score → lead → result
   const form = document.getElementById('gate-form') as HTMLFormElement;

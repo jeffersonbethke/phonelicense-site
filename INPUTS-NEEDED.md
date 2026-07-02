@@ -23,7 +23,8 @@ this list at the end of every phase.
 | Calendly URL / mailto for church "planning something bigger" | Phase 5 | `.env` → `PUBLIC_CALENDLY_URL` |
 | Optional GA4 Measurement ID | any | `.env` → `PUBLIC_GA4_ID` |
 | Final quiz copy + weighted scoring — **DRAFT in place, needs Jeff's review/replace** | Phase 1 ✅ built | `src/config/quiz.ts` |
-| Free "Family Phone Contract" PDF (or ask Claude to draft) | Phase 2 | `public/` |
+| Free "Family Phone Contract" PDF — delivered by Kajabi email on `Lead - Contract PDF` tag (or ask Claude to draft) | Phase 2 ✅ built | Kajabi automation |
+| **Premium Kit** offer URL + confirm price (drafted at $79) | Phase 2 ✅ built | `offers.ts` |
 
 ## 🟢 Placeholders that CANNOT ship as-is (from design README)
 
