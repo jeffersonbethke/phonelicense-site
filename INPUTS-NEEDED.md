@@ -1,8 +1,30 @@
 # Inputs still needed — Phone License site
 
-The site is built to run on placeholders. Drop real values into `.env` and
-`/src/config/*` as they arrive — **no code changes required**. Claude re-surfaces
-this list at the end of every phase.
+**Build status: all 6 phases complete** (foundation, quiz, sales homepage, event
+promo layer, event pages, churches, tracking + polish). Live site is untouched —
+everything is on the `astro-rebuild` branch / preview until you cut over.
+
+**Lighthouse (mobile, production conditions):** homepage, quiz, conference all
+**Perf 100 · A11y 94–98 · Best Practices 96 · SEO 100.** (Previews show SEO ~60
+only because Vercel adds a `noindex` header to preview URLs — gone in production.)
+
+The site runs on placeholders. Drop real values into `.env` and `/src/config/*`
+as they arrive — **no code changes required**. See `/admin/config` for a
+plain-English guide.
+
+## ✅ How to verify tracking once the Pixel ID is in
+1. Add `PUBLIC_META_PIXEL_ID` to `.env`, redeploy.
+2. Install the **Meta Pixel Helper** Chrome extension.
+3. Visit the homepage → expect `PageView` + `ViewContent`.
+4. Submit any form → expect `Lead` (with an eventID).
+5. Click a buy button → expect `InitiateCheckout` with the offer value.
+   (Kajabi fires `Purchase` itself after checkout.)
+
+## 🚀 Go-live (when you're ready — your call, fully reversible)
+1. Fill real values in `.env` + `src/config/offers.ts` + confirm `src/config/events.ts`.
+2. Merge `astro-rebuild` → `main` (or run `vercel deploy --prod`).
+3. Vercel builds Astro and phonelicense.co serves the new site.
+   Rollback = redeploy the previous build (seconds).
 
 ## 🔴 Blocks going LIVE (fine for previews without them)
 
