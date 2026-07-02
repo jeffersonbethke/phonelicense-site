@@ -1,0 +1,398 @@
+---
+/**
+ * PHASE 5 — /churches · church & ministry licensing.
+ * Three tiers → Kajabi offers, 3-step how-it-works, curriculum preview, FAQ,
+ * a Free Leader Preview capture (→ webhook "Church - Lead"), and a
+ * "planning something bigger?" door to Calendly/mailto (env).
+ *
+ * Positioning: works for first-phone AND reset families — most groups are a mix.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import SectionHead from '../components/SectionHead.astro';
+import KajabiLink from '../components/KajabiLink.astro';
+import Faq from '../components/Faq.astro';
+import LeadForm from '../components/LeadForm.astro';
+import EventSlot from '../components/EventSlot.astro';
+import { offers } from '../config/offers';
+import { site } from '../config/site';
+
+const tiers = [
+  {
+    offer: 'church25' as const,
+    seats: 25,
+    blurb: 'A small group, a class, or a first pilot.',
+    features: ['25 family seats', 'Your church redemption code', 'Full course for every family'],
+  },
+  {
+    offer: 'church100' as const,
+    seats: 100,
+    blurb: 'A whole ministry or campus.',
+    features: ['100 family seats', 'Your church redemption code', 'Progress summaries for your group', 'Full course for every family'],
+    featured: true,
+  },
+  {
+    offer: 'church250' as const,
+    seats: 250,
+    blurb: 'A large church or multi-campus.',
+    features: ['250 family seats', 'Your church redemption code', 'Progress summaries for your group', 'Priority support'],
+  },
+];
+
+const steps = [
+  { n: '01', h: 'Choose your size', d: 'Pick a seat pack that fits your families. Seats never expire — buy once, redeem at your pace.' },
+  { n: '02', h: 'Get your church’s code', d: 'We issue a redemption code for your ministry. It’s yours to share however you like.' },
+  { n: '03', h: 'Families join free', d: 'Your families enter the code at checkout and get the full course at no cost to them.' },
+];
+
+const faqs = [
+  { q: 'Do the seats expire?', a: 'Never. Buy a pack once and redeem seats as families are ready — this month, next year, whenever. There’s no clock.' },
+  { q: 'How do families redeem a seat?', a: 'You get a single redemption code for your church. Families enter it at checkout and join free — Kajabi handles the seat count for you.' },
+  { q: 'Can we see how families are doing?', a: 'On the 100- and 250-seat tiers you get <b>progress summaries</b> for your group — enough to shepherd and encourage, never invasive.' },
+  { q: 'Does this work if kids already have phones?', a: 'Yes — <b>most groups are a mix.</b> It works for first-phone families and for reset families alike. Nothing gets confiscated; the phone gets re-issued under a new agreement they earn.' },
+  { q: 'Can we get printed materials?', a: 'Yes — a bulk <b>printed-kit add-on</b> is available for agreements, certificates, and leader guides. Mention it when you reach out and we’ll set it up.' },
+  { q: 'What if we need something custom?', a: 'Planning a denomination-wide or multi-site rollout? Let’s talk — see the “planning something bigger” option below.' },
+];
+---
+
+<Base
+  title="For Churches & Ministries — Phone License"
+  description="License Phone License for your whole ministry. Choose a seat pack, get your church’s code, and your families join free. Seats never expire."
+  viewContent="Churches"
+>
+  <Nav cta={{ label: 'Free leader preview', href: '#preview' }} />
+
+  <main>
+    {/* ── Hero ── */}
+    <section class="section hero">
+      <div class="wrap">
+        <p class="eyebrow">For churches &amp; ministries</p>
+        <h1>Give every family a <span class="accent">plan for the phone.</span></h1>
+        <p class="lede">
+          License Phone License for your whole ministry — first-phone families and
+          families starting over alike. Most groups are a mix, and it works for both.
+        </p>
+        <div class="cta-row">
+          <a href="#tiers" class="btn btn-primary">See the tiers →</a>
+          <a href="#preview" class="btn btn-ghost">Get the free leader preview</a>
+        </div>
+      </div>
+    </section>
+
+    {/* ── How it works ── */}
+    <section class="section band-2">
+      <div class="wrap">
+        <SectionHead eyebrow="How it works">Three steps. Then your families are in.</SectionHead>
+        <div class="steps">
+          {steps.map((s) => (
+            <div class="card step">
+              <span class="mono n">{s.n}</span>
+              <h4>{s.h}</h4>
+              <p>{s.d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ── Tiers ── */}
+    <section class="section" id="tiers">
+      <div class="wrap">
+        <SectionHead eyebrow="Licensing tiers">
+          Buy the seats once. <span class="accent">They never expire.</span>
+        </SectionHead>
+        <div class="tiers">
+          {tiers.map((t) => {
+            const o = offers[t.offer];
+            return (
+              <div class:list={['card tier', t.featured && 'featured']}>
+                {t.featured && <span class="ribbon">Most churches</span>}
+                <p class="mono seats">{t.seats} seats</p>
+                <p class="price">${o.price.toLocaleString()}<span>one-time · {t.seats} family seats</span></p>
+                <p class="blurb">{t.blurb}</p>
+                <ul class="incl">{t.features.map((f) => <li>{f}</li>)}</ul>
+                <KajabiLink offerId={t.offer} variant={t.featured ? 'primary' : 'dark'}>
+                  License {t.seats} seats
+                </KajabiLink>
+              </div>
+            );
+          })}
+        </div>
+        <p class="addon">
+          Want physical materials? A <b>bulk printed-kit add-on</b> (agreements,
+          certificates, leader guides) is available on any tier — just ask.
+        </p>
+      </div>
+    </section>
+
+    {/* ── Curriculum preview ── */}
+    <section class="section band-2">
+      <div class="wrap">
+        <SectionHead eyebrow="What families get">The same course — for your whole ministry.</SectionHead>
+        <div class="curric">
+          {[
+            ['Six video modules', 'Driver’s Ed for the device, watched parent + kid together.'],
+            ['Hands-on Road Tests', 'They configure the real device; parents verify.'],
+            ['The Family Agreement', 'A 9-section agreement each family signs.'],
+            ['The License + Ceremony', 'A real certificate and a handoff moment kids remember.'],
+          ].map(([h, d]) => (
+            <div class="card cpreview">
+              <h4>{h}</h4>
+              <p>{d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ── FAQ ── */}
+    <section class="section">
+      <div class="wrap">
+        <SectionHead eyebrow="Questions">What ministry leaders ask.</SectionHead>
+        <Faq items={faqs} name="church-faq" />
+      </div>
+    </section>
+
+    {/* ── Free Leader Preview ── */}
+    <section class="section band-ink" id="preview">
+      <div class="wrap preview-grid">
+        <div>
+          <p class="eyebrow on">Free leader preview</p>
+          <h2>See it before you bring it to your families.</h2>
+          <p class="lede on">
+            Get free preview access to the full course and the leader materials.
+            No cost, no commitment — we’ll email your access over.
+          </p>
+        </div>
+        <LeadForm
+          tags={['Church - Lead']}
+          button="Get my free preview"
+          variant="primary"
+          pixelName="Church Lead"
+          confirmTitle="You’re in, {name}."
+          confirmBody="Your preview access is on its way by email. Check your inbox."
+          nextLabel="While you wait — take the free quiz →"
+          nextHref="/quiz"
+        >
+          <div slot="extra-fields" class="extra">
+            <input type="text" name="church_name" placeholder="Church / ministry name" autocomplete="organization" required />
+            <select name="church_size" required aria-label="Approximate size">
+              <option value="" disabled selected>Approximate size…</option>
+              <option>Under 100</option>
+              <option>100–500</option>
+              <option>500–1,500</option>
+              <option>1,500+</option>
+            </select>
+            <input type="text" name="role" placeholder="Your role (e.g. Family Pastor)" required />
+          </div>
+          <span slot="fine">We’ll only use this to set up your preview. No spam.</span>
+        </LeadForm>
+      </div>
+    </section>
+
+    {/* ── Planning something bigger ── */}
+    <section class="section">
+      <div class="wrap bigger">
+        <div>
+          <p class="mono">Planning something bigger?</p>
+          <h3>Denomination, network, or multi-site?</h3>
+          <p>Let’s build a rollout that fits. We’ll help you scope seats, timing, and support.</p>
+        </div>
+        <a href={site.calendlyUrl} class="btn btn-dark">Let’s talk →</a>
+      </div>
+
+      <div class="wrap ev-slot">
+        <p class="mono ev-label">The course is day one · this is every year after</p>
+        <EventSlot />
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .hero {
+    text-align: center;
+    padding-block: 72px 44px;
+  }
+  .hero .lede {
+    max-width: 620px;
+    margin: 16px auto 0;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 26px;
+  }
+
+  .steps,
+  .tiers,
+  .curric {
+    display: grid;
+    gap: 20px;
+    margin-top: 36px;
+  }
+  .step {
+    padding: 24px;
+  }
+  .step .n {
+    color: var(--blue-deep);
+  }
+  .step h4 {
+    margin: 8px 0;
+  }
+  .step p,
+  .cpreview p {
+    color: var(--ink-2);
+  }
+
+  .tier {
+    padding: 28px;
+    position: relative;
+  }
+  .tier.featured {
+    border-color: var(--blue);
+    box-shadow: var(--shadow-md);
+  }
+  .ribbon {
+    position: absolute;
+    top: -11px;
+    left: 28px;
+    background: var(--blue);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: var(--r-pill);
+  }
+  .tier .seats {
+    color: var(--blue-deep);
+  }
+  .price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 38px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin: 6px 0 12px;
+    line-height: 1;
+  }
+  .price span {
+    display: block;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .blurb {
+    color: var(--muted);
+    font-size: 14.5px;
+    margin-bottom: 16px;
+  }
+  .incl {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .incl li {
+    padding-left: 24px;
+    position: relative;
+  }
+  .incl li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--blue-deep);
+  }
+  .tier :global(.btn) {
+    width: 100%;
+  }
+  .addon {
+    text-align: center;
+    max-width: 560px;
+    margin: 28px auto 0;
+    color: var(--muted);
+    font-size: 14.5px;
+  }
+
+  .cpreview {
+    padding: 22px;
+  }
+  .cpreview h4 {
+    margin-bottom: 6px;
+  }
+
+  .preview-grid {
+    display: grid;
+    gap: 28px;
+    align-items: center;
+  }
+  .eyebrow.on {
+    color: var(--blue-on-dark);
+  }
+  .lede.on {
+    color: rgba(255, 255, 255, 0.75);
+    margin-top: 12px;
+  }
+  .extra {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .extra input,
+  .extra select {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+  }
+
+  .bigger {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px;
+    background: var(--bg-2);
+    border-radius: var(--r-lg);
+  }
+  .bigger h3 {
+    margin: 6px 0;
+  }
+  .bigger p {
+    color: var(--muted);
+  }
+  .ev-slot {
+    margin-top: 32px;
+    max-width: 520px;
+  }
+  .ev-label {
+    margin-bottom: 12px;
+  }
+
+  @media (min-width: 720px) {
+    .steps,
+    .tiers {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .curric {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .preview-grid {
+      grid-template-columns: 1fr 420px;
+    }
+  }
+</style>
