@@ -135,7 +135,8 @@ const inclusions = [
     </section>
 
     {/* ── The Signing (emotional peak) ── */}
-    <section class="signing" style="--img:url('/assets/couple-embrace.jpg')">
+    <section class="signing">
+      <img class="signing-img" src="/assets/couple-embrace.jpg" alt="" loading="lazy" decoding="async" />
       <div class="scrim"></div>
       <div class="wrap signing-in">
         <p class="mono">4:30 PM · The Signing</p>
@@ -471,14 +472,19 @@ const inclusions = [
 
   .signing {
     position: relative;
-    background-image: var(--img);
-    background-size: cover;
-    background-position: center;
     min-height: 380px;
     display: flex;
     align-items: center;
     color: #fff;
     text-align: center;
+    background: var(--ink);
+  }
+  .signing-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .signing .scrim {
     position: absolute;
