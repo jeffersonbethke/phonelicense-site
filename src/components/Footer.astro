@@ -3,8 +3,44 @@
  * Site footer. `finePrint` reinforces the annual-rhythm positioning.
  */
 import BrandMark from './BrandMark.astro';
+import LeadForm from './LeadForm.astro';
 import { site, nav } from '../config/site';
+
+interface Props {
+  /** Hide the Contract-PDF capture band (e.g. on the quiz results flow). */
+  capture?: boolean;
+}
+const { capture = true } = Astro.props;
 ---
+
+{
+  capture && (
+    <section class="pdf-capture band-2">
+      <div class="wrap grid">
+        <div>
+          <p class="eyebrow">Free download</p>
+          <h3>The Family Phone Contract</h3>
+          <p class="sub">
+            The one-page agreement thousands of families sign before the phone
+            changes hands — first phone or a fresh start. We’ll email it over.
+          </p>
+        </div>
+        <LeadForm
+          tags={['Lead - Contract PDF']}
+          button="Email me the contract"
+          variant="dark"
+          pixelName="Contract PDF"
+          confirmTitle="On its way, {name}."
+          confirmBody="Check your inbox for the Family Phone Contract."
+          nextLabel="See if they’re ready — take the free quiz →"
+          nextHref="/quiz"
+        >
+          <span slot="fine">No spam · one email · unsubscribe anytime.</span>
+        </LeadForm>
+      </div>
+    </section>
+  )
+}
 
 <footer class="footer band-ink">
   <div class="wrap inner">
@@ -25,9 +61,29 @@ import { site, nav } from '../config/site';
 </footer>
 
 <style>
+  .pdf-capture {
+    padding-block: 56px;
+  }
+  .pdf-capture .grid {
+    display: grid;
+    gap: 28px;
+    align-items: center;
+  }
+  .pdf-capture h3 {
+    margin: 10px 0;
+  }
+  .pdf-capture .sub {
+    color: var(--muted);
+    max-width: 42ch;
+  }
+  @media (min-width: 820px) {
+    .pdf-capture .grid {
+      grid-template-columns: 1fr 420px;
+    }
+  }
   .footer {
     padding-block: 48px 28px;
-    margin-top: 40px;
+    margin-top: 0;
   }
   .inner {
     display: flex;

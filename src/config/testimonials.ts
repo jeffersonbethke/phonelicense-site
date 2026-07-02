@@ -21,4 +21,18 @@ export const testimonials: Testimonial[] = [
     detail: 'kids 9 & 13, Franklin TN',
     mock: true,
   },
+  {
+    quote:
+      'Our son had had a phone for two years and it was chaos. We reset the whole thing without taking it away — and he actually thanked us.',
+    name: 'Dana & Marcus T.',
+    detail: 'kids 8 & 11',
+    mock: true,
+  },
+  {
+    quote:
+      'It felt less like a course and more like a rite of passage. The certificate is on our fridge.',
+    name: 'Sarah & Ben K.',
+    detail: 'kids 12 & 15',
+    mock: true,
+  },
 ];

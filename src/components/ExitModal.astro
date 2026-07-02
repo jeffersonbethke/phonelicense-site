@@ -1,0 +1,139 @@
+---
+/**
+ * Exit-intent modal — SALES PAGE ONLY (never include on /quiz). Offers the free
+ * quiz as the one next step. Fires on desktop mouse-leave-to-top and a mobile
+ * scroll-up-after-scrolling-down heuristic. Dismissal persists for the session.
+ */
+---
+
+<div class="exit-modal" id="exit-modal" hidden>
+  <div class="scrim" data-exit-close></div>
+  <div class="dialog card" role="dialog" aria-modal="true" aria-labelledby="exit-title">
+    <button class="close" data-exit-close aria-label="Close">×</button>
+    <p class="eyebrow">Before you go</p>
+    <h3 id="exit-title">Not sure if they’re ready?</h3>
+    <p class="body">
+      Take the free 3-minute Readiness Assessment. Works whether it’s their first
+      phone or a fresh start on the one they already have — no email required to start.
+    </p>
+    <a href="/quiz" class="btn btn-primary">Take the free quiz →</a>
+    <button class="dismiss" data-exit-close>No thanks, keep reading</button>
+  </div>
+</div>
+
+<style>
+  .exit-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 15, 16, 0.45);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    animation: fade 0.2s ease;
+  }
+  .dialog {
+    position: relative;
+    max-width: 440px;
+    width: 100%;
+    padding: 32px 28px;
+    text-align: center;
+    animation: pop 0.24s ease;
+  }
+  .close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .dialog h3 {
+    margin: 8px 0 12px;
+  }
+  .body {
+    color: var(--ink-2);
+    margin-bottom: 22px;
+  }
+  .dialog .btn {
+    width: 100%;
+  }
+  .dismiss {
+    display: block;
+    margin: 14px auto 0;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 13.5px;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+  }
+</style>
+
+<script>
+  const KEY = 'pl_exit_seen';
+  const modal = document.getElementById('exit-modal');
+  if (modal && !sessionStorage.getItem(KEY)) {
+    let armed = false;
+    // Arm after a short delay so it never fires on immediate bounce.
+    setTimeout(() => (armed = true), 4000);
+
+    const open = () => {
+      if (!armed || sessionStorage.getItem(KEY)) return;
+      sessionStorage.setItem(KEY, '1');
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    };
+
+    // Desktop: pointer leaves toward the top of the viewport.
+    document.addEventListener('mouseout', (e) => {
+      if (!e.relatedTarget && (e as MouseEvent).clientY <= 0) open();
+    });
+
+    // Mobile: a decisive upward scroll after the user has scrolled down.
+    let lastY = window.scrollY;
+    let wentDown = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        const y = window.scrollY;
+        if (y > 600) wentDown = true;
+        if (wentDown && lastY - y > 60 && y < 400) open();
+        lastY = y;
+      },
+      { passive: true }
+    );
+
+    modal.querySelectorAll('[data-exit-close]').forEach((el) =>
+      el.addEventListener('click', close)
+    );
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) close();
+    });
+  }
+</script>

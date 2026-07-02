@@ -40,6 +40,16 @@ export const offers = {
     pixelValue: 49,
   },
 
+  // Second pricing tier shown on the sales page ("Premium Kit"). Its own Kajabi
+  // offer. TODO(inputs): confirm price + paste URL (or fold into the $24 bump).
+  premiumKit: {
+    id: 'premiumKit',
+    label: 'Phone License + Premium Kit',
+    price: 79,
+    url: TODO,
+    pixelValue: 79,
+  },
+
   // ── Inside Kajabi checkout (documented, not linked from this site) ──
   orderBump: { id: 'orderBump', label: 'Order bump', price: 24, url: '', pixelValue: 24, kajabiInternal: true },
   upsell: { id: 'upsell', label: 'One-click upsell', price: 199, url: '', pixelValue: 199, kajabiInternal: true },
