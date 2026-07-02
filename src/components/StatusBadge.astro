@@ -1,0 +1,51 @@
+---
+/**
+ * Event status badge — all six states via config/events badgeFor().
+ * Pass either an explicit `state` or a pre-derived `label`+`tone`.
+ */
+import { badgeFor, type EventState } from '../config/events';
+
+interface Props {
+  state?: EventState;
+  label?: string;
+  tone?: 'blue' | 'amber' | 'red' | 'neutral';
+}
+const { state } = Astro.props;
+const derived = state ? badgeFor(state) : null;
+const label = Astro.props.label ?? derived?.label ?? '';
+const tone = Astro.props.tone ?? derived?.tone ?? 'neutral';
+---
+
+<span class:list={['badge', `tone-${tone}`]}>{label}</span>
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: var(--r-pill);
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .tone-blue {
+    background: var(--blue-tint-2);
+    color: var(--blue-deep);
+  }
+  .tone-amber {
+    background: var(--amber-bg);
+    color: var(--amber-ink);
+  }
+  .tone-red {
+    background: color-mix(in oklab, var(--red-pin) 15%, white);
+    color: var(--red-pin);
+  }
+  .tone-neutral {
+    background: transparent;
+    border-color: var(--line-2);
+    color: var(--muted);
+  }
+</style>

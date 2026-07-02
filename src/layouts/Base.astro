@@ -1,0 +1,96 @@
+---
+/**
+ * Base page layout. Loads fonts + tokens, injects integration config for the
+ * client libs, boots the Meta Pixel (if configured), captures first-touch
+ * UTMs, and wires the delegated Kajabi-checkout click handler.
+ *
+ * Props: title, description, viewContent (fire ViewContent for key pages).
+ */
+import '../styles/tokens.css';
+import '../styles/global.css';
+import { site } from '../config/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  viewContent?: string | boolean;
+  ogImage?: string;
+}
+const {
+  title = `${site.name} — ${site.tagline}`,
+  description = 'Earn the phone. Keep the trust. A calm, parent-to-parent plan for the first phone — or a fresh start on the one they already have.',
+  viewContent = false,
+} = Astro.props;
+
+const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewContent : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    {/* Integration config for the client libs (safe if blank). */}
+    <script
+      is:inline
+      define:vars={{ webhookUrl: site.webhookUrl, pixelId: site.metaPixelId }}
+    >
+      window.__PL = { webhookUrl: webhookUrl, pixelId: pixelId };
+      window._plPixelId = pixelId;
+    </script>
+
+    {/* Meta Pixel — only boots when an id is configured. */}
+    {
+      site.metaPixelId && (
+        <script is:inline define:vars={{ pixelId: site.metaPixelId }}>
+          {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', pixelId);fbq('track','PageView');`}
+        </script>
+      )
+    }
+  </head>
+  <body>
+    <slot />
+
+    {/* Boot client libs: UTM capture, optional ViewContent, Kajabi clicks. */}
+    <script>
+      import { captureUtms, appendUtms } from '../lib/utm';
+      import { viewContent as fireViewContent, initiateCheckout } from '../lib/pixel';
+
+      // 1. First-touch UTM capture.
+      captureUtms();
+
+      // 2. Rewrite every Kajabi CTA href with persisted UTMs (skip TODO links).
+      document.querySelectorAll<HTMLAnchorElement>('a[data-kajabi]').forEach((a) => {
+        if (a.dataset.todo === 'true') return;
+        a.href = appendUtms(a.href);
+      });
+
+      // 3. Fire InitiateCheckout on Kajabi CTA clicks.
+      document.addEventListener('click', (e) => {
+        const a = (e.target as HTMLElement)?.closest?.('a[data-kajabi]');
+        if (!a) return;
+        const value = Number((a as HTMLElement).dataset.offerValue || 0);
+        const name = (a as HTMLElement).dataset.offerName || 'offer';
+        initiateCheckout(value, name);
+      });
+
+      // 4. ViewContent on key pages (opt-in via layout prop).
+      const vcName = document.documentElement.getAttribute('data-viewcontent');
+      if (vcName !== null) fireViewContent(vcName || undefined);
+    </script>
+
+    {vc !== null && <script is:inline define:vars={{ vc }}>{`document.documentElement.setAttribute('data-viewcontent', vc);`}</script>}
+  </body>
+</html>

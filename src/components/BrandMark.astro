@@ -1,0 +1,55 @@
+---
+/**
+ * Brand mark: 22px rounded square, blue→blue-deep gradient, white "L" check.
+ * `size` scales it; `label` renders the wordmark alongside.
+ */
+interface Props {
+  size?: number;
+  label?: boolean;
+}
+const { size = 22, label = false } = Astro.props;
+---
+
+<span class="brand" style={`--mark: ${size}px`}>
+  <span class="mark" aria-hidden="true"></span>
+  {label && <span class="word">Phone License</span>}
+  {!label && <span class="sr-only">Phone License</span>}
+</span>
+
+<style>
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .mark {
+    position: relative;
+    width: var(--mark);
+    height: var(--mark);
+    border-radius: calc(var(--mark) * 0.32);
+    background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+    flex: none;
+  }
+  /* White "L" check drawn with borders */
+  .mark::after {
+    content: '';
+    position: absolute;
+    left: 32%;
+    top: 22%;
+    width: 28%;
+    height: 44%;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    border-bottom-left-radius: 2px;
+  }
+  .word {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    font-size: 16px;
+  }
+  :global(.band-ink) .word {
+    color: #fff;
+  }
+</style>

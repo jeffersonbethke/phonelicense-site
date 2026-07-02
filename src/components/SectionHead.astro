@@ -1,0 +1,42 @@
+---
+/**
+ * Centered section header: eyebrow → h2 → optional lede.
+ * Use inside a .section. Max width ~720px per README rhythm.
+ */
+interface Props {
+  eyebrow?: string;
+  align?: 'center' | 'left';
+}
+const { eyebrow, align = 'center' } = Astro.props;
+---
+
+<div class:list={['section-head', align]}>
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  <h2><slot /></h2>
+  {
+    Astro.slots.has('lede') && (
+      <p class="lede">
+        <slot name="lede" />
+      </p>
+    )
+  }
+</div>
+
+<style>
+  .section-head {
+    max-width: var(--head-maxw);
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .section-head.center {
+    text-align: center;
+    align-items: center;
+  }
+  .section-head.left {
+    text-align: left;
+    align-items: flex-start;
+    margin-inline: 0;
+  }
+</style>

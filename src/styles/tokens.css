@@ -1,0 +1,46 @@
+/* Design tokens — lifted exactly from the design handoff README.
+   These ARE the design system (the old site had none to inherit). */
+
+:root {
+  /* ── Color ── */
+  --bg: #faf9f6; /* warm off-white page */
+  --bg-2: #f3f1ea; /* secondary band */
+  --surface: #ffffff; /* cards */
+  --ink: #0f0f10; /* near-black: dark bands, primary buttons, footer */
+  --ink-2: #3a3a3d; /* body text */
+  --muted: #6b6b66; /* secondary text */
+  --line: rgba(15, 15, 16, 0.08);
+  --line-2: rgba(15, 15, 16, 0.14);
+
+  --blue: oklch(0.62 0.14 250); /* brand accent ≈ #4f83cc */
+  --blue-deep: oklch(0.52 0.16 250); /* hover / eyebrow ≈ #3a68b5 */
+  --blue-tint: oklch(0.96 0.03 250); /* ≈ #eef2fa */
+  --blue-tint-2: oklch(0.92 0.05 250); /* ≈ #dde7f7 */
+  --blue-on-dark: oklch(0.78 0.13 250); /* light-blue accent on dark */
+
+  /* Status badges */
+  --amber-bg: #f3e3c8;
+  --amber-ink: #8a5a14;
+  --red-pin: #b23b3b;
+
+  /* ── Type ── */
+  --font-display: -apple-system, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  --font-body: -apple-system, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ── Radii ── */
+  --r-pill: 999px;
+  --r-sm: 14px;
+  --r-md: 22px;
+  --r-lg: 32px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 2px rgba(15, 15, 16, 0.04), 0 4px 14px rgba(15, 15, 16, 0.05);
+  --shadow-md: 0 8px 30px rgba(15, 15, 16, 0.08), 0 2px 6px rgba(15, 15, 16, 0.04);
+  --shadow-lg: 0 30px 80px rgba(15, 15, 16, 0.18), 0 8px 24px rgba(15, 15, 16, 0.08);
+
+  /* ── Rhythm ── */
+  --section-y: 60px;
+  --maxw: 1120px;
+  --head-maxw: 720px;
+}

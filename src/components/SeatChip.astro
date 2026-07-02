@@ -1,0 +1,96 @@
+---
+/**
+ * Mono seat chip + optional progress bar. Renders ONLY truthful scarcity —
+ * pass the derived copy + a fill fraction (0–1), or just copy with no bar.
+ * The pulse dot tone matches urgency.
+ */
+interface Props {
+  copy: string;
+  tone?: 'blue' | 'amber' | 'red';
+  fill?: number | null; // 0–1; omit/null to hide the bar
+}
+const { copy, tone = 'blue', fill = null } = Astro.props;
+const pct = fill == null ? null : Math.max(0, Math.min(100, Math.round(fill * 100)));
+---
+
+<div class="seat">
+  <div class:list={['chip', `tone-${tone}`]}>
+    <span class="dot" aria-hidden="true"></span>
+    <span>{copy}</span>
+  </div>
+  {
+    pct != null && (
+      <div class="bar" role="progressbar" aria-valuenow={pct} aria-valuemin="0" aria-valuemax="100">
+        <span style={`width:${pct}%`} />
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .seat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 360px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 12px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--line-2);
+    align-self: flex-start;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .tone-blue .dot {
+    background: var(--blue);
+  }
+  .tone-amber {
+    color: var(--amber-ink);
+    border-color: var(--amber-bg);
+  }
+  .tone-amber .dot {
+    background: var(--amber-ink);
+  }
+  .tone-red {
+    color: var(--red-pin);
+  }
+  .tone-red .dot {
+    background: var(--red-pin);
+  }
+  .bar {
+    height: 6px;
+    border-radius: var(--r-pill);
+    background: var(--line);
+    overflow: hidden;
+  }
+  .bar > span {
+    display: block;
+    height: 100%;
+    border-radius: var(--r-pill);
+    background: var(--blue);
+  }
+  .tone-amber ~ .bar > span {
+    background: var(--amber-ink);
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+</style>

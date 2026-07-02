@@ -1,0 +1,193 @@
+---
+/**
+ * Reusable lead-capture form → webhook (Zapier/Make → Kajabi) + Lead pixel.
+ * On success it swaps to a confirmation with exactly ONE next step (the
+ * circular-funnel rule — never a dead end, never two CTAs).
+ *
+ * COPPA: only ever ask for parent name/email (+ child age as a number). Never
+ * a child's name or contact info. Callers control fields; keep to that rule.
+ *
+ * Props:
+ *  - tags:        webhook tags for this capture
+ *  - button:      submit label
+ *  - variant:     button style
+ *  - nameField:   include a first-name input (default true)
+ *  - confirmTitle/confirmBody: confirmation copy ({name} is interpolated)
+ *  - nextLabel/nextHref: the single doorway out of the confirmation
+ */
+interface Props {
+  tags: string[];
+  button?: string;
+  variant?: 'primary' | 'dark' | 'white';
+  nameField?: boolean;
+  pixelName?: string;
+  confirmTitle?: string;
+  confirmBody?: string;
+  nextLabel?: string;
+  nextHref?: string;
+}
+const {
+  tags,
+  button = 'Send it to me',
+  variant = 'dark',
+  nameField = true,
+  pixelName,
+  confirmTitle = 'You’re on the list, {name}.',
+  confirmBody = 'Check your inbox — it’s on the way.',
+  nextLabel = 'Take the free Readiness Assessment →',
+  nextHref = '/quiz',
+} = Astro.props;
+
+const formId = 'lf-' + Math.random().toString(36).slice(2, 8);
+---
+
+<div class="leadform" data-leadform>
+  <form
+    class="lf-form"
+    novalidate
+    data-tags={JSON.stringify(tags)}
+    data-pixel-name={pixelName ?? tags[0] ?? 'lead'}
+  >
+    {
+      nameField && (
+        <label class="field">
+          <span class="sr-only">First name</span>
+          <input type="text" name="name" autocomplete="given-name" placeholder="First name" />
+        </label>
+      )
+    }
+    <label class="field">
+      <span class="sr-only">Email</span>
+      <input
+        type="email"
+        name="email"
+        required
+        autocomplete="email"
+        placeholder="Email address"
+        aria-describedby={`${formId}-err`}
+      />
+    </label>
+    <slot name="extra-fields" />
+    <button type="submit" class={`btn btn-${variant}`}>{button}</button>
+    <p class="err" id={`${formId}-err`} role="alert" hidden></p>
+    <p class="fine"><slot name="fine">No spam · unsubscribe anytime.</slot></p>
+  </form>
+
+  <div
+    class="lf-confirm"
+    hidden
+    data-confirm-title={confirmTitle}
+    data-confirm-body={confirmBody}
+  >
+    <span class="seal" aria-hidden="true">✓</span>
+    <h3 class="c-title"></h3>
+    <p class="c-body"></p>
+    <a class="btn btn-primary next" href={nextHref}>{nextLabel}</a>
+  </div>
+</div>
+
+<style>
+  .leadform {
+    width: 100%;
+    max-width: 420px;
+  }
+  .lf-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .field input {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+  }
+  .field input:focus-visible {
+    border-color: var(--blue);
+  }
+  .err {
+    color: var(--red-pin);
+    font-size: 13px;
+    margin: 0;
+  }
+  .fine {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .lf-confirm {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 20px;
+  }
+  .next {
+    margin-top: 4px;
+  }
+</style>
+
+<script>
+  import { submitLead } from '../lib/lead';
+
+  document.querySelectorAll<HTMLElement>('[data-leadform]').forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>('.lf-form');
+    const confirm = root.querySelector<HTMLElement>('.lf-confirm');
+    if (!form || !confirm) return;
+
+    const errEl = form.querySelector<HTMLElement>('.err');
+    const tags = JSON.parse(form.dataset.tags || '[]') as string[];
+    const pixelName = form.dataset.pixelName || 'lead';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const email = String(data.get('email') || '').trim();
+      const name = String(data.get('name') || '').trim();
+
+      if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        if (errEl) {
+          errEl.textContent = 'Please enter a valid email.';
+          errEl.hidden = false;
+        }
+        return;
+      }
+      if (errEl) errEl.hidden = true;
+
+      // Gather any extra fields (everything except name/email).
+      const fields: Record<string, unknown> = {};
+      for (const [k, v] of data.entries()) {
+        if (k !== 'email' && k !== 'name') fields[k] = v;
+      }
+
+      const btn = form.querySelector<HTMLButtonElement>('button[type=submit]');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+      }
+
+      // Fire-and-forget: proceed to confirmation regardless of webhook outcome.
+      await submitLead({ name, email, tags, fields, pixelName });
+
+      const title = (confirm.dataset.confirmTitle || '').replace('{name}', name || 'friend');
+      const body = confirm.dataset.confirmBody || '';
+      confirm.querySelector('.c-title')!.textContent = title;
+      confirm.querySelector('.c-body')!.textContent = body;
+      form.hidden = true;
+      confirm.hidden = false;
+    });
+  });
+</script>

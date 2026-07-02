@@ -1,0 +1,39 @@
+---
+/**
+ * The ONLY way to render a buy CTA. Wraps a Kajabi offer link so that at click
+ * time: (1) persisted UTMs are appended, (2) an InitiateCheckout pixel fires
+ * with the offer value. A delegated handler in Base.astro does the work, so
+ * this stays a plain <a> that works even if JS fails (link still navigates).
+ *
+ * Pass an `offerId` (preferred) or a raw `href` + `value`.
+ */
+import { offers, type OfferId } from '../config/offers';
+
+interface Props {
+  offerId?: OfferId;
+  href?: string;
+  value?: number;
+  name?: string;
+  class?: string;
+  variant?: 'primary' | 'dark' | 'white' | 'ghost';
+}
+const { offerId, variant = 'primary' } = Astro.props;
+const offer = offerId ? offers[offerId] : null;
+const href = offer?.url ?? Astro.props.href ?? '#';
+const value = offer?.pixelValue ?? Astro.props.value ?? 0;
+const name = offer?.label ?? Astro.props.name ?? 'offer';
+const isTodo = href.startsWith('#');
+const cls = ['btn', `btn-${variant}`, Astro.props.class].filter(Boolean).join(' ');
+---
+
+<a
+  href={href}
+  class={cls}
+  data-kajabi
+  data-offer-value={value}
+  data-offer-name={name}
+  data-todo={isTodo ? 'true' : undefined}
+  rel="noopener"
+>
+  <slot />
+</a>

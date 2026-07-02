@@ -1,0 +1,102 @@
+---
+/**
+ * FAQ accordion — one open at a time, keyboard-operable (native <details>).
+ * Pass `items: {q, a}[]`. The icon rotates 45° when open.
+ */
+interface Props {
+  items: { q: string; a: string }[];
+  name?: string; // shared name → one-open-at-a-time
+}
+const { items, name = 'faq' } = Astro.props;
+---
+
+<div class="faq">
+  {
+    items.map((it) => (
+      <details name={name} class="item">
+        <summary>
+          <span class="q">{it.q}</span>
+          <span class="icon" aria-hidden="true" />
+        </summary>
+        <div class="a" set:html={it.a} />
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq {
+    max-width: 760px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .item {
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    overflow: hidden;
+    transition: background 0.25s ease;
+  }
+  .item[open] {
+    background: var(--ink);
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--ink);
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .item[open] summary,
+  .item[open] .a {
+    color: #fff;
+  }
+  .icon {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    flex: none;
+    transition: transform 0.25s ease;
+  }
+  .icon::before,
+  .icon::after {
+    content: '';
+    position: absolute;
+    background: currentColor;
+    left: 50%;
+    top: 50%;
+  }
+  .icon::before {
+    width: 14px;
+    height: 2px;
+    transform: translate(-50%, -50%);
+  }
+  .icon::after {
+    width: 2px;
+    height: 14px;
+    transform: translate(-50%, -50%);
+  }
+  .item[open] .icon {
+    transform: rotate(45deg);
+    color: #fff;
+  }
+  .a {
+    padding: 0 20px 20px;
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+  .item[open] .a {
+    color: rgba(255, 255, 255, 0.82);
+  }
+</style>

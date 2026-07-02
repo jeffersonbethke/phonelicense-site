@@ -1,0 +1,203 @@
+---
+/**
+ * PHASE 0 — Foundation preview.
+ * A holding page that proves the shared design system + integration wiring.
+ * Replaced by the real sales homepage in Phase 2.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import SectionHead from '../components/SectionHead.astro';
+import StatusBadge from '../components/StatusBadge.astro';
+import SeatChip from '../components/SeatChip.astro';
+import Faq from '../components/Faq.astro';
+import LeadForm from '../components/LeadForm.astro';
+import KajabiLink from '../components/KajabiLink.astro';
+import { site } from '../config/site';
+import type { EventState } from '../config/events';
+
+const allStates: EventState[] = [
+  'interest',
+  'earlybird',
+  'onsale',
+  'almostfull',
+  'soldout',
+  'replay',
+];
+
+const faqSample = [
+  {
+    q: 'My kid already has a phone — is this still for us?',
+    a: 'Yes. About half of families here are starting over. Nothing gets confiscated — the phone gets re-issued under a new agreement they earn.',
+  },
+  {
+    q: 'Is there a subscription?',
+    a: 'No. It’s a one-time thing. Yours forever.',
+  },
+];
+---
+
+<Base title="Phone License — Foundation preview">
+  <Nav cta={{ label: 'Take the quiz', href: '/quiz' }} />
+
+  <main>
+    <section class="section hero">
+      <div class="wrap">
+        <p class="eyebrow">Phase 0 · Shared foundation</p>
+        <h1>Earn the phone. <span class="accent">Keep the trust.</span></h1>
+        <p class="lede">{site.twoAudienceLine}</p>
+        <p class="note">
+          This is the design-system + integration foundation preview. Real pages
+          land in the phases ahead. Everything below renders from
+          <code>/config</code> and the shared component kit.
+        </p>
+      </div>
+    </section>
+
+    <section class="section band-2">
+      <div class="wrap">
+        <SectionHead eyebrow="Buttons">Pill button variants</SectionHead>
+        <div class="row">
+          <a class="btn btn-primary" href="#">Primary</a>
+          <a class="btn btn-dark" href="#">Dark</a>
+          <a class="btn btn-ghost" href="#">Ghost</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <SectionHead eyebrow="Event states">All six status badges</SectionHead>
+        <div class="row">
+          {allStates.map((s) => <StatusBadge state={s} />)}
+        </div>
+        <div class="chips">
+          <SeatChip copy="Early-bird open · 142 of 200 couples" tone="blue" fill={0.29} />
+          <SeatChip copy="Almost full · only 18 couples left" tone="amber" fill={0.91} />
+          <SeatChip copy="Doors open in July · list forming" tone="blue" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section band-2">
+      <div class="wrap">
+        <SectionHead eyebrow="Accordion">FAQ pattern</SectionHead>
+        <Faq items={faqSample} />
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap capture">
+        <div>
+          <SectionHead eyebrow="Lead capture" align="left">Webhook + pixel wiring</SectionHead>
+          <p class="note">
+            Submitting posts to the webhook (fire-and-forget) and fires the Meta
+            Pixel <code>Lead</code>. With no webhook set yet, it logs the payload
+            to the console in dev and still shows the confirmation.
+          </p>
+          <ul class="status">
+            <li>Webhook: <b class={site.webhookReady ? 'ok' : 'todo'}>{site.webhookReady ? 'configured' : 'TODO — awaiting URL'}</b></li>
+            <li>Meta Pixel: <b class={site.pixelReady ? 'ok' : 'todo'}>{site.pixelReady ? 'configured' : 'TODO — awaiting ID'}</b></li>
+          </ul>
+        </div>
+        <LeadForm
+          tags={['Foundation - Preview']}
+          button="Try the form"
+          confirmTitle="Got it, {name}."
+          confirmBody="That’s the whole capture → confirm → one-doorway flow."
+        />
+      </div>
+    </section>
+
+    <section class="section band-ink">
+      <div class="wrap center">
+        <SectionHead eyebrow="Outbound offers">Kajabi checkout links</SectionHead>
+        <p class="note on-dark">
+          CTAs render from <code>/config/offers</code>. UTMs append at click;
+          <code>InitiateCheckout</code> fires with the offer value. Links show a
+          TODO anchor until the real Kajabi URLs are pasted in.
+        </p>
+        <div class="row center-row">
+          <KajabiLink offerId="course" variant="primary">Get the course — $49</KajabiLink>
+          <KajabiLink offerId="conference" variant="white">Conference — $499/couple</KajabiLink>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .hero {
+    padding-block: 80px 40px;
+    text-align: center;
+  }
+  .hero .lede {
+    margin-top: 14px;
+  }
+  .note {
+    max-width: 620px;
+    margin: 16px auto 0;
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .note.on-dark {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg-2);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .band-ink code {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  .center-row {
+    justify-content: center;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+  .capture {
+    display: grid;
+    gap: 32px;
+    align-items: start;
+  }
+  .center {
+    text-align: center;
+  }
+  .status {
+    list-style: none;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .status .ok {
+    color: var(--blue-deep);
+  }
+  .status .todo {
+    color: var(--amber-ink);
+  }
+  @media (min-width: 820px) {
+    .capture {
+      grid-template-columns: 1fr 420px;
+    }
+  }
+</style>

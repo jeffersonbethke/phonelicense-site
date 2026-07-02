@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base title="Not found — Phone License">
+  <Nav cta={{ label: 'Take the quiz', href: '/quiz' }} />
+  <main class="section" style="text-align:center; padding-block:100px;">
+    <div class="wrap">
+      <p class="eyebrow">404</p>
+      <h1>That page wandered off.</h1>
+      <p class="lede" style="margin:16px auto; max-width:520px;">
+        Let’s get you back on the path.
+      </p>
+      <a class="btn btn-primary" href="/">Back home</a>
+    </div>
+  </main>
+  <Footer />
+</Base>

@@ -1,0 +1,75 @@
+---
+/**
+ * Site footer. `finePrint` reinforces the annual-rhythm positioning.
+ */
+import BrandMark from './BrandMark.astro';
+import { site, nav } from '../config/site';
+---
+
+<footer class="footer band-ink">
+  <div class="wrap inner">
+    <div class="brand-col">
+      <BrandMark label />
+      <p class="tag">{site.tagline}</p>
+      <p class="fine">The course is day one · this is every year after.</p>
+    </div>
+    <nav class="links" aria-label="Footer">
+      {nav.map((n) => <a href={n.href}>{n.label}</a>)}
+      <a href="/quiz">Readiness Assessment</a>
+    </nav>
+  </div>
+  <div class="wrap legal">
+    <span>© {new Date().getFullYear()} {site.name}</span>
+    <span class="mono">{site.domain}</span>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding-block: 48px 28px;
+    margin-top: 40px;
+  }
+  .inner {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    justify-content: space-between;
+  }
+  .tag {
+    color: var(--blue-on-dark);
+    margin-top: 10px;
+    font-size: 15px;
+  }
+  .fine {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-content: start;
+  }
+  .links a {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14.5px;
+  }
+  .links a:hover {
+    color: #fff;
+  }
+  .legal {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+  }
+  @media (min-width: 720px) {
+    .inner {
+      flex-direction: row;
+    }
+  }
+</style>
