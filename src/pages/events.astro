@@ -16,9 +16,11 @@ const fall = events['summit-fall'];
 const spring = events['summit-spring'];
 const promo = promotedEvent() ?? conf;
 
+// Summit cards read more "course/session"-like with a speaker photo.
+// TODO(assets): swap in a "Jeff speaking / on an iMac" shot for the spring card.
 const photo: Record<string, string> = {
   conference: '/assets/room-wide.jpg',
-  'summit-fall': '/assets/group-circle.jpg',
+  'summit-fall': '/assets/darren.jpg', // Darren, the AI expert
   'summit-spring': '/assets/tables-laughing.jpg',
 };
 
