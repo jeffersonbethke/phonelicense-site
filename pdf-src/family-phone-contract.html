@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>The Family Phone Contract — Phone License</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0f0f10;
+        --ink-2: #35353a;
+        --muted: #6b6b66;
+        --blue: #3a68b5;
+        --blue-deep: #2f568f;
+        --tint: #eef2fa;
+        --line: #e4e2db;
+      }
+      @page {
+        size: letter;
+        margin: 0.5in 0.55in;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        color: var(--ink-2);
+        font-size: 10.5px;
+        line-height: 1.45;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .mono {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      /* ── Masthead ── */
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mark {
+        position: relative;
+        width: 22px;
+        height: 22px;
+        border-radius: 7px;
+        background: linear-gradient(135deg, #4f83cc, var(--blue-deep));
+      }
+      .mark::after {
+        content: '';
+        position: absolute;
+        left: 32%;
+        top: 22%;
+        width: 26%;
+        height: 44%;
+        border-left: 2px solid #fff;
+        border-bottom: 2px solid #fff;
+        border-bottom-left-radius: 2px;
+      }
+      .brand b {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.02em;
+      }
+      .head .tag {
+        font-size: 9px;
+        color: var(--blue-deep);
+      }
+
+      .title {
+        font-size: 27px;
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -0.035em;
+        line-height: 1.02;
+      }
+      .title i {
+        font-style: italic;
+        font-weight: 600;
+        color: var(--blue-deep);
+      }
+      .intro {
+        margin: 8px 0 14px;
+        color: var(--ink-2);
+        max-width: 92%;
+        font-size: 10.5px;
+      }
+
+      /* ── Fill-in header row ── */
+      .who {
+        display: flex;
+        gap: 14px;
+        background: var(--tint);
+        border: 1px solid #dde7f7;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 16px;
+      }
+      .who .f {
+        flex: 1;
+      }
+      .who .lbl {
+        font-size: 8px;
+        color: var(--blue-deep);
+        margin-bottom: 8px;
+      }
+      .line {
+        border-bottom: 1px solid #b9c6e0;
+        height: 14px;
+      }
+
+      /* ── Sections ── */
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 11px 20px;
+      }
+      .sec {
+        break-inside: avoid;
+      }
+      .sec h3 {
+        font-size: 11px;
+        color: var(--ink);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: baseline;
+        gap: 7px;
+        margin-bottom: 5px;
+      }
+      .sec h3 .n {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 8.5px;
+        color: var(--blue);
+        font-weight: 500;
+      }
+      .sec p {
+        color: var(--ink-2);
+      }
+      ul {
+        list-style: none;
+      }
+      li {
+        position: relative;
+        padding-left: 13px;
+        margin-top: 3px;
+      }
+      li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--blue);
+      }
+      .fill {
+        display: inline-block;
+        min-width: 90px;
+        border-bottom: 1px solid #c3c1b8;
+      }
+      .parents {
+        background: #f7f9fd;
+        border: 1px solid #dde7f7;
+        border-radius: 8px;
+        padding: 10px 12px;
+        grid-column: 1 / -1;
+      }
+      .parents h3 .n {
+        color: var(--blue-deep);
+      }
+
+      /* ── Signatures ── */
+      .sign {
+        margin-top: 16px;
+        border-top: 1px solid var(--line);
+        padding-top: 12px;
+      }
+      .sign-row {
+        display: flex;
+        gap: 18px;
+        margin-top: 14px;
+      }
+      .sig {
+        flex: 1;
+      }
+      .sig .l {
+        border-bottom: 1.5px solid var(--ink);
+        height: 20px;
+      }
+      .sig .c {
+        font-size: 8px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      /* ── Footer ── */
+      .foot {
+        margin-top: 16px;
+        border-top: 2px solid var(--ink);
+        padding-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 16px;
+      }
+      .foot p {
+        font-size: 9px;
+        color: var(--muted);
+        max-width: 74%;
+      }
+      .foot b {
+        color: var(--ink);
+      }
+      .foot .url {
+        font-size: 9px;
+        color: var(--blue-deep);
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="head">
+      <div class="brand">
+        <span class="mark"></span>
+        <b>Phone License</b>
+      </div>
+      <span class="tag mono">Earn the phone · Keep the trust</span>
+    </div>
+
+    <h1 class="title">The Family Phone <i>Contract.</i></h1>
+    <p class="intro">
+      A simple agreement to sign together — whether this is their first phone or a
+      fresh start on one they already have. Fill it in as a family, both sign it,
+      and keep it somewhere you’ll see it. It’s not about mistrust; it’s how you
+      stay on the same team.
+    </p>
+
+    <div class="who">
+      <div class="f"><div class="lbl mono">This phone belongs to</div><div class="line"></div></div>
+      <div class="f"><div class="lbl mono">Parent(s)</div><div class="line"></div></div>
+      <div class="f" style="max-width:120px"><div class="lbl mono">Date issued</div><div class="line"></div></div>
+    </div>
+
+    <div class="grid">
+      <div class="sec">
+        <h3><span class="n">01</span> Where the phone lives</h3>
+        <ul>
+          <li>It charges here overnight, outside the bedroom: <span class="fill"></span></li>
+          <li>Phone-free times: meals, homework, and the first hour of the day.</li>
+          <li>Phone-free zones: bedrooms and the dinner table.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h3><span class="n">02</span> Apps &amp; screen time</h3>
+        <ul>
+          <li>New apps get a “yes” from a parent first.</li>
+          <li>Screen-time limit we agree on: <span class="fill"></span></li>
+          <li>Passcodes are shared with parents.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h3><span class="n">03</span> Being kind &amp; safe</h3>
+        <ul>
+          <li>I’ll treat people the way I’d want to be treated — in messages, comments, and games.</li>
+          <li>I won’t share photos or personal info without asking.</li>
+          <li>If a stranger messages me, I’ll tell a parent.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h3><span class="n">04</span> When something goes wrong</h3>
+        <ul>
+          <li>If I see something scary, mean, or confusing, I can come to a parent — no punishment for telling the truth.</li>
+          <li>If the agreement gets broken, we repair it together. First step: <span class="fill"></span></li>
+        </ul>
+      </div>
+
+      <div class="parents sec">
+        <h3><span class="n">05</span> What we promise, too — the parents</h3>
+        <ul>
+          <li>We’ll live by the rules we ask of you (yes, us too — phones away at meals and bedtime).</li>
+          <li>We won’t snoop to shame. We’ll check in to help.</li>
+          <li>We’ll say yes to more freedom as you show you’re ready. This grows with you.</li>
+        </ul>
+      </div>
+
+      <div class="sec">
+        <h3><span class="n">06</span> Our check-in</h3>
+        <p>We’ll sit down about every 90 days to see what’s working and unlock new privileges you’ve earned. First check-in: <span class="fill"></span></p>
+      </div>
+
+      <div class="sec">
+        <h3><span class="n">07</span> Why we’re doing this</h3>
+        <p>Because you matter more than any device — and because trust, once earned, is worth keeping. We’re on the same team.</p>
+      </div>
+    </div>
+
+    <div class="sign">
+      <span class="mono" style="font-size:8px;color:var(--blue-deep)">We agree to this — together</span>
+      <div class="sign-row">
+        <div class="sig"><div class="l"></div><div class="c">Signed — the kid</div></div>
+        <div class="sig"><div class="l"></div><div class="c">Signed — parent / guardian</div></div>
+        <div class="sig"><div class="l"></div><div class="c">Signed — parent / guardian</div></div>
+        <div class="sig" style="max-width:110px"><div class="l"></div><div class="c">Date</div></div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <p>
+        <b>This is the short version.</b> The full Phone License course includes the
+        complete 9-section Family Agreement, the device-settings walkthrough, the
+        Road Tests, and the issuance ceremony — the handoff your kid actually remembers.
+      </p>
+      <span class="url mono">phonelicense.co</span>
+    </div>
+  </body>
+</html>
