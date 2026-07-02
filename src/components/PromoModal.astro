@@ -1,0 +1,197 @@
+---
+/**
+ * Homepage promo modal — SALES PAGE ONLY (never on /quiz). Two moments, two
+ * messages, both pointing at the free quiz:
+ *   1. Value offer — fires 5s after load ("see if they're ready").
+ *   2. Exit intent — fires when the visitor moves to leave (different wording).
+ *
+ * Each shows at most once per session. A shared open-guard means they never
+ * overlap, and exit-intent only arms after a real in-page mouse move so it
+ * can't false-fire on load (cursor starting up by the address bar).
+ */
+---
+
+<div class="promo-modal" id="promo-modal" hidden>
+  <div class="scrim" data-close></div>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="promo-title">
+    <button class="close" data-close aria-label="Close">×</button>
+
+    <div class="variant" data-variant="value" hidden>
+      <p class="eyebrow">Free · 3 minutes</p>
+      <h3 id="promo-title-value">Is your kid ready for a phone?</h3>
+      <p class="body">
+        Take the free Smartphone Readiness Assessment. In 3 minutes you’ll see
+        exactly where they are — first phone or a fresh start — plus a
+        personalized plan. No email needed to start.
+      </p>
+      <a href="/quiz" class="btn btn-primary" data-go>See if they’re ready →</a>
+      <button class="dismiss" data-close>Maybe later</button>
+    </div>
+
+    <div class="variant" data-variant="exit" hidden>
+      <p class="eyebrow">Before you go</p>
+      <h3 id="promo-title-exit">Don’t leave guessing.</h3>
+      <p class="body">
+        The free 3-minute assessment tells you whether they’re ready — and the
+        first move to make, whether it’s their first phone or a reset.
+      </p>
+      <a href="/quiz" class="btn btn-primary" data-go>Take the free quiz →</a>
+      <button class="dismiss" data-close>No thanks, keep reading</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .promo-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 15, 16, 0.45);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    animation: fade 0.2s ease;
+  }
+  .dialog {
+    position: relative;
+    max-width: 440px;
+    width: 100%;
+    padding: 32px 28px;
+    text-align: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+    animation: pop 0.24s ease;
+  }
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .dialog h3 {
+    margin: 8px 0 12px;
+  }
+  .body {
+    color: var(--ink-2);
+    margin-bottom: 22px;
+  }
+  .dialog .btn {
+    width: 100%;
+  }
+  .dismiss {
+    display: block;
+    margin: 14px auto 0;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 13.5px;
+    cursor: pointer;
+    font-family: var(--font-body);
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+  }
+</style>
+
+<script>
+  const VALUE_KEY = 'pl_promo_value';
+  const EXIT_KEY = 'pl_promo_exit';
+  const modal = document.getElementById('promo-modal');
+
+  if (modal) {
+    const variants = {
+      value: modal.querySelector<HTMLElement>('[data-variant="value"]')!,
+      exit: modal.querySelector<HTMLElement>('[data-variant="exit"]')!,
+    };
+    let open = false;
+
+    const seen = (k: string) => {
+      try {
+        return sessionStorage.getItem(k) === '1';
+      } catch {
+        return false;
+      }
+    };
+    const mark = (k: string) => {
+      try {
+        sessionStorage.setItem(k, '1');
+      } catch {
+        /* ignore */
+      }
+    };
+
+    function show(which: 'value' | 'exit', key: string) {
+      if (open || seen(key)) return;
+      open = true;
+      mark(key);
+      variants.value.hidden = which !== 'value';
+      variants.exit.hidden = which !== 'exit';
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      open = false;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    // 1) Value offer — 5s after load.
+    setTimeout(() => show('value', VALUE_KEY), 5000);
+
+    // 2) Exit intent — only after a genuine in-page mouse move (so a cursor
+    //    that starts up by the address bar on load can't trigger it).
+    let inPage = false;
+    document.addEventListener('mousemove', () => (inPage = true), { once: true });
+    document.addEventListener('mouseout', (e) => {
+      if (inPage && !e.relatedTarget && (e as MouseEvent).clientY <= 0) {
+        show('exit', EXIT_KEY);
+      }
+    });
+
+    // Mobile: a decisive upward scroll after scrolling down = leaving intent.
+    let lastY = window.scrollY;
+    let wentDown = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        const y = window.scrollY;
+        if (y > 600) wentDown = true;
+        if (wentDown && lastY - y > 60 && y < 400) show('exit', EXIT_KEY);
+        lastY = y;
+      },
+      { passive: true }
+    );
+
+    modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) close();
+    });
+  }
+</script>
