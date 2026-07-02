@@ -1,10 +1,10 @@
 ---
 /**
- * Homepage "Live Events" section. Date-led rows for the upcoming events, badges
- * straight from /config/events. Photo band + scrim head, ink rows, footer link
- * to the full season hub. Renders nothing if there are no upcoming events.
+ * Homepage "Live Events" section. Solid black (no photo), clear header, then
+ * date-led rows straight from /config/events. Renders nothing if there are no
+ * upcoming events.
  */
-import { events, badgeFor } from '../config/events';
+import { events } from '../config/events';
 import StatusBadge from './StatusBadge.astro';
 
 const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
@@ -21,25 +21,21 @@ const rows = Object.values(events)
 
 {
   rows.length > 0 && (
-    <section class="live" aria-label="Live events">
-      <div class="photo">
-        <img class="photo-img" src="/assets/room-wide.jpg" alt="" loading="lazy" decoding="async" />
-        <div class="scrim" />
-        <div class="head wrap">
-          <p class="eyebrow on">Live events · The 2026 Season</p>
+    <section class="live band-ink" aria-label="Live events">
+      <div class="wrap">
+        <div class="head">
+          <p class="eyebrow">Live events · The 2026 Season</p>
           <h2>
-            The course is day one. <span class="accent on-dark">These are every year after.</span>
+            We also run a few <span class="accent on-dark">live intensives</span> a year.
           </h2>
           <p class="sub">
-            One in-person workshop and two live summits a year — the annual
-            briefing on what changed, for parents who don’t want to figure it
-            out alone.
+            Two virtual summits and one in-person workshop, every year — the
+            annual briefing on what actually changed, for parents who don’t want
+            to figure it out alone.
           </p>
         </div>
-      </div>
 
-      <div class="rows band-ink">
-        <div class="wrap">
+        <div class="rows">
           {rows.map((e) => {
             const p = parts(e.dateISO);
             const kind =
@@ -66,7 +62,7 @@ const rows = Object.values(events)
           })}
           <div class="foot">
             <span class="note mono">One workshop a year · capped at 200 couples</span>
-            <a href="/events" class="btn btn-ghost">See the full season →</a>
+            <a href="/events" class="btn btn-ghost on-dark">See the full season →</a>
           </div>
         </div>
       </div>
@@ -75,46 +71,25 @@ const rows = Object.values(events)
 }
 
 <style>
-  .photo {
-    position: relative;
-    min-height: 340px;
-    display: flex;
-    align-items: flex-end;
-    background: var(--ink);
-  }
-  .photo-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .scrim {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(15, 15, 16, 0.25) 0%, rgba(15, 15, 16, 0.82) 100%);
+  .live {
+    padding-block: 64px;
   }
   .head {
-    position: relative;
     text-align: center;
-    padding: 48px 20px;
-    color: #fff;
-    max-width: 780px;
+    max-width: 720px;
+    margin: 0 auto 8px;
   }
   .head h2 {
     color: #fff;
-    margin: 10px 0;
-  }
-  .eyebrow.on {
-    color: var(--blue-on-dark);
+    margin: 12px 0;
   }
   .head .sub {
-    color: rgba(255, 255, 255, 0.78);
-    max-width: 560px;
+    color: rgba(255, 255, 255, 0.72);
+    max-width: 580px;
     margin-inline: auto;
   }
   .rows {
-    padding-block: 8px 40px;
+    margin-top: 24px;
   }
   .row {
     display: grid;

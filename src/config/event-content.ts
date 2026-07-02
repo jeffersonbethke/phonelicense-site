@@ -18,6 +18,7 @@ export interface AgendaSlot {
   time: string;
   h: string;
   note?: string;
+  d?: string;
 }
 export interface Session {
   time: string;
@@ -59,54 +60,54 @@ export const conference: ConferenceContent = {
     'Like every rule turns into a fight you’re too tired to have?',
   ],
   whatChanged: [
-    { index: '01', tag: 'NEW', h: 'AI companions', d: 'Chatbot “friends” that never log off — and how they’re landing in middle-school bedrooms.' },
-    { index: '02', tag: 'RISING', h: 'The apps that replaced the apps', d: 'Where kids actually are this year, and what moved since last year.' },
-    { index: '03', tag: 'SHIFT', h: 'Middle-school currency', d: 'Streaks, close-friends lists, and the new social math of who’s in and who’s out.' },
-    { index: '04', tag: 'NEW', h: 'AI-generated everything', d: 'Deepfakes, fake nudes, and homework — what’s real, what’s not, and how to talk about it.' },
-    { index: '05', tag: 'RISING', h: 'Vanish by default', d: 'Disappearing messages and private accounts, and what visibility you can actually keep.' },
-    { index: '06', tag: 'SHIFT', h: 'This year’s settings', d: 'The exact device + router settings that changed, walked through live.' },
+    { index: '01', tag: 'NEW', h: 'AI companions', d: 'AI “friends” are now the default listener for a lonely 13-year-old. We’ll show you which ones — and what to say.' },
+    { index: '02', tag: 'RISING', h: 'The apps that replaced the apps', d: 'Where the attention actually moved this year — and which “harmless” apps aren’t.' },
+    { index: '03', tag: 'SHIFT', h: 'Middle-school currency', d: 'What status looks like in your kid’s grade this fall — so “everyone’s doing it” finally makes sense.' },
+    { index: '04', tag: 'NEW', h: 'AI-generated everything', d: 'Deepfakes have reached the group chat. What’s circulating — and how to get ahead of it.' },
+    { index: '05', tag: 'RISING', h: 'Vanish by default', d: 'Disappearing messages are the norm now. How to build trust that doesn’t depend on surveillance.' },
+    { index: '06', tag: 'SHIFT', h: 'This year’s settings, in your hands', d: 'Every topic ends with the exact toggles, scripts, and moves that work this year.' },
   ],
   whyBoth: [
-    { h: 'One aligned plan', d: 'You leave with the same rules, in writing — not two half-remembered versions.' },
-    { h: 'No weak link', d: 'Kids find the gap between parents. When you’re aligned, there isn’t one.', highlight: true },
-    { h: 'A shared reference point', d: 'When it gets hard at home, you both point back to the same day, the same agreement.' },
+    { h: 'One aligned plan', d: 'One written approach you both actually agreed to.' },
+    { h: 'No weak link', d: 'When you’ve both seen the same thing, “but Dad said” stops working.', highlight: true },
+    { h: 'A shared reference point', d: '“Remember what they said in Franklin” — a shared language for the hard moments.' },
   ],
   agenda: [
     {
       title: 'Morning · Arrive · See it clearly',
       slots: [
-        { time: '9:00', h: 'The Landscape', note: 'ALL' },
-        { time: '10:30', h: 'Inside the Apps', note: 'LIVE DEMO' },
-        { time: '12:00', h: 'Lunch Together', note: 'INCLUDED' },
+        { time: '9:00', h: 'The 2026 Landscape', note: 'ALL', d: 'The world your kids actually live in — without the panic.' },
+        { time: '10:30', h: 'Inside the Apps', note: 'LIVE DEMO', d: 'AI companions and this year’s apps, on screen, as kids see them.' },
+        { time: '12:00', h: 'Lunch, Together', note: 'INCLUDED', d: 'Sit with couples in your kids’ exact stage.' },
       ],
     },
     {
       title: 'Afternoon · Solve it · Plan it',
       slots: [
-        { time: '1:00', h: 'The Settings Lab', note: 'HANDS-ON' },
-        { time: '2:30', h: 'The Conversations', note: 'COUPLES' },
-        { time: '4:00', h: 'Your Family Plan', note: 'COUPLES' },
+        { time: '1:00', h: 'The Settings Lab', note: 'HANDS-ON', d: 'Phones out. The exact toggles, done together — not screenshots.' },
+        { time: '2:30', h: 'The Conversations', note: 'COUPLES', d: 'Scripts by age for the talks you’ve been putting off.' },
+        { time: '4:00', h: 'Your Family Plan', note: 'COUPLES', d: 'Your year on paper, signed by both of you. An issuance moment to close.' },
       ],
     },
   ],
   forYou: [
-    'You’ve got a kid at or near the phone years — first phone or a reset',
-    'You want a plan, not a panic',
-    'You and your partner want to get on the same page',
-    'You’d rather do the work now than clean up later',
+    'Your kids are 8–16 and you feel about a year behind',
+    'You and your spouse keep having the same fight with different apps',
+    'You want a written plan, not another podcast',
+    'You’d rather be early than sorry',
   ],
   notForYou: [
-    'You want someone to just take the phone away for you',
-    'You’re looking for fear, not a framework',
-    'You want a lecture you can sit passively through',
+    'You’re looking for someone to blame — tech, school, your kid',
+    'You want one more app to spy with instead of a relationship',
+    'You’re hoping to hear “it’s not that bad”',
   ],
   alumniDiscount: '[XX]', // TODO: set the real returning-couple discount
   faqs: [
-    { q: 'Do we need the course first?', a: 'No. The course solves day one — the handoff. The workshop is the annual briefing on everything that’s changed since. Many families do both; neither requires the other.' },
-    { q: 'Is it per couple? What about single parents?', a: 'A ticket admits two — bring your partner, a co-parent, a grandparent, or a friend. Single parents are absolutely welcome; the “both of you” is about not raising kids on tech alone, however your family is built.' },
-    { q: 'Is it faith-based?', a: 'It works for any family. Any spiritual framing is light and optional — take what’s useful, leave the rest.' },
-    { q: 'What’s included?', a: 'The full day, lunch, all materials, your written family plan to take home, and supper in Leipers Fork that evening. <b>(Supper + guarantee are copy commitments pending business sign-off.)</b>' },
-    { q: 'Refunds & transfers?', a: 'If it’s not for you, tell us at the door and we’ll refund you — no form, no fuss. Tickets are transferable if your plans change.' },
+    { q: 'Do we need to have taken the Phone License course first?', a: 'No. The course is day one — the phone handoff. The briefing is every year after. Plenty of families do the conference first and start the course the following week. Both stand on their own.' },
+    { q: 'Why per-couple pricing? Can I come alone?', a: 'The whole point is two aligned parents. A ticket admits two, and we strongly encourage both to come. Single parents and co-parents are absolutely welcome — email us and we’ll take care of you.' },
+    { q: 'Is this a faith-based event?', a: 'It’s built by people of faith and there’s an optional spiritual thread, but the landscape, tools, and plan are for every family. You will not feel out of place, whatever you believe.' },
+    { q: 'What’s included in the ticket?', a: 'The full day for two, the printed workbook, the hands-on settings lab, your drafted family agreement, lunch, and the closing issuance ceremony. You leave with a plan, not just notes. <b>(Supper + guarantee pending business sign-off.)</b>' },
+    { q: 'What if we can’t make it after we buy?', a: 'Full refund up to 30 days out. After that, your ticket transfers to another couple or rolls to next year’s edition — no fuss.' },
   ],
 };
 

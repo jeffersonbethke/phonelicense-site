@@ -19,8 +19,9 @@ import LiveEvents from '../components/LiveEvents.astro';
 import EventCta from '../components/EventCta.astro';
 import WorkshopShowcase from '../components/WorkshopShowcase.astro';
 import { site } from '../config/site';
-import { testimonials } from '../config/testimonials';
+import { testimonials, initials } from '../config/testimonials';
 import { promotedEvent } from '../config/events';
+import { conference } from '../config/event-content';
 
 const promo = promotedEvent();
 
@@ -115,6 +116,20 @@ const faqs = [
           <li>One-time · yours forever</li>
           <li>Certificate included</li>
         </ul>
+      </div>
+    </section>
+
+    {/* ── Be honest (emotional felt-need) ── */}
+    <section class="section band-2 felt">
+      <div class="wrap">
+        <p class="eyebrow">Be honest</p>
+        {conference.feltNeed.map((q, i) => (
+          <p class="felt-q" style={`opacity:${1 - i * 0.2}`}>{q}</p>
+        ))}
+        <p class="felt-turn">
+          You’re not failing. The terrain changed — and nobody briefed you.
+          <span class="accent"> That’s exactly what Phone License is for.</span>
+        </p>
       </div>
     </section>
 
@@ -308,8 +323,15 @@ const faqs = [
               <figure class="card quote">
                 <blockquote>“{t.quote}”</blockquote>
                 <figcaption>
-                  <b>{t.name}</b> · {t.detail}
-                  {t.mock && <span class="mock">sample</span>}
+                  {t.image ? (
+                    <img class="avatar" src={t.image} alt={t.name} width="48" height="48" loading="lazy" />
+                  ) : (
+                    <span class="avatar initials" aria-hidden="true">{initials(t.name)}</span>
+                  )}
+                  <span class="who">
+                    <b>{t.name}</b>
+                    <span class="det">{t.detail}{t.mock && <span class="mock">sample</span>}</span>
+                  </span>
                 </figcaption>
               </figure>
             ))}
@@ -436,6 +458,26 @@ const faqs = [
     content: '·';
     position: absolute;
     left: -13px;
+  }
+
+  .felt {
+    text-align: center;
+  }
+  .felt-q {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(21px, 3.6vw, 32px);
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-top: 12px;
+    text-wrap: balance;
+  }
+  .felt-turn {
+    max-width: 640px;
+    margin: 30px auto 0;
+    font-size: clamp(17px, 2.2vw, 20px);
+    color: var(--ink-2);
   }
 
   .doors,
@@ -594,9 +636,41 @@ const faqs = [
     line-height: 1.5;
   }
   .quote figcaption {
-    margin-top: 16px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-size: 14px;
+  }
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex: none;
+    object-fit: cover;
+  }
+  .avatar.initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--blue-tint-2), var(--blue-tint));
+    color: var(--blue-deep);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+  }
+  .quote .who {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+  }
+  .quote .who b {
+    color: var(--ink);
+  }
+  .quote .det {
     color: var(--muted);
+    font-size: 13px;
   }
   .mock {
     display: inline-block;

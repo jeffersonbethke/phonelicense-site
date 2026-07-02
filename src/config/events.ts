@@ -61,7 +61,7 @@ export const events: Record<string, EventConfig> = {
   conference: {
     slug: 'conference',
     kind: 'workshop',
-    title: 'Parenting the Screen Age',
+    title: 'Raising Kids in a Digital World',
     edition: '2026',
     dateISO: '2026-10-17',
     dateDisplay: 'Sat, Oct 17 2026',
@@ -253,6 +253,20 @@ export function priceView(e: EventConfig): PriceView {
 export function finalHeadline(e: EventConfig): string {
   if (e.state === 'soldout') return `The room is full. Get first in line for ${nextEdition(e)}.`;
   return 'Get a year ahead — together.';
+}
+
+/** State-driven final-CTA lede. */
+export function finalLede(e: EventConfig): string {
+  switch (e.state) {
+    case 'earlybird':
+      return `${e.capacity} couples, one room, one day. Early-bird pricing is live through ${prettyDate(e.earlyBirdDeadline)}.`;
+    case 'almostfull':
+      return `Only a handful of couples left in the ${e.capacity}-seat room. When it’s gone, it’s the waitlist.`;
+    case 'soldout':
+      return `The ${e.edition} Edition sold out. Get first access to the ${nextEdition(e)} Briefing and every event in between.`;
+    default:
+      return 'Doors open in July. Join the first-access list and you’ll hear before anyone else — at the early-bird rate.';
+  }
 }
 
 /** Short line for the sticky mobile CTA bar. */

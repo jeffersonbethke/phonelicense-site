@@ -1,55 +1,52 @@
 ---
 /**
- * PHASE 4 — /conference · "Parenting the Screen Age" (the money page).
- * Every state (interest / earlybird / almostfull / soldout) is driven by
- * events.ts. Seat counts render only when truthful. In interest state the money
- * CTAs become first-access capture (handled by EventCta). Placeholders per the
- * README "do not ship as-is" list are flagged inline.
+ * /conference · "Raising Kids in a Digital World" Workshop.
+ * Rebuilt to match the approved mockup (Raising Kids in a Digital World - 2026).
+ * All states driven by /config/events; seat counts only when truthful.
  */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import SectionHead from '../components/SectionHead.astro';
 import SeatChip from '../components/SeatChip.astro';
-import StatusBadge from '../components/StatusBadge.astro';
 import Faq from '../components/Faq.astro';
 import EventCta from '../components/EventCta.astro';
 import StickyCta from '../components/StickyCta.astro';
-import { events, seatChipView, priceView, finalHeadline, stickyLine, icsDataUri } from '../config/events';
+import { events, seatChipView, priceView, finalHeadline, finalLede, stickyLine, icsDataUri } from '../config/events';
 import { conference as c } from '../config/event-content';
-import { testimonials } from '../config/testimonials';
+import { testimonials, initials } from '../config/testimonials';
 
 const e = events['conference'];
 const chip = seatChipView(e);
 const price = priceView(e);
+const feature = testimonials[0];
+const cards = testimonials.slice(1, 4);
 const anchors = [
-  { label: 'This year', href: '#changed' },
+  { label: 'This year', href: '#landscape' },
   { label: 'Agenda', href: '#agenda' },
   { label: 'Hosts', href: '#hosts' },
-  { label: 'Tickets', href: '#tickets' },
+  { label: 'Tickets', href: '#pricing' },
 ];
 const inclusions = [
-  'Admits two — bring your partner or co-parent',
-  'The full day + all materials',
-  'Lunch together, included',
-  'Your written family plan to take home',
-  'Supper in Leipers Fork that evening',
+  'Admits two — one aligned plan for both parents',
+  'The full live 2026 landscape briefing',
+  'Workbook, lunch, and the issuance ceremony',
 ];
 ---
 
-<Base title={`${e.title} ${e.edition} — Phone License`} viewContent="Conference">
-  <Nav yearMark={e.edition} anchors={anchors} cta={{ label: 'Tickets', href: '#tickets' }} />
+<Base title={`${e.title} Workshop — ${e.edition} · Phone License`} viewContent="Conference">
+  <Nav yearMark={e.edition} anchors={anchors} cta={{ label: 'Tickets', href: '#pricing' }} />
 
   <main>
     {/* ── Hero ── */}
-    <section class="section hero">
+    <section class="section hero" id="top">
       <div class="wrap">
-        <span class="pill mono">{e.edition} Edition · Once a year</span>
+        <span class="pill mono">{e.edition} Edition · Once a Year</span>
         <h1>{e.title} <span class="accent">Workshop</span></h1>
         <p class="lede italic">{c.heroLede}</p>
         <ul class="dots">
-          <li>{e.dateDisplay}</li>
-          <li>{e.venue} · {e.city}</li>
+          <li>Saturday, October 17, 2026</li>
+          <li>The Factory at Franklin, TN</li>
           <li>Capped at {e.capacity} couples</li>
         </ul>
         <div class="hero-cta">
@@ -57,8 +54,26 @@ const inclusions = [
           <a href="#agenda" class="btn btn-ghost">See the day →</a>
         </div>
         {chip && <div class="hero-chip"><SeatChip copy={chip.copy} tone={chip.tone} fill={chip.fill} /></div>}
-        <p class="hosts-line mono">Hosted by Jefferson &amp; Alyssa Bethke and Dr. Darren Whitehead</p>
-        <a class="ics" href={icsDataUri(e)} download={`phone-license-${e.slug}-${e.edition}.ics`}>＋ Add to calendar</a>
+        <div class="hero-cred">
+          <div class="faces" aria-hidden="true">
+            <img src="/assets/jeff-family.jpg" alt="" width="40" height="40" />
+            <img src="/assets/darren.jpg" alt="" width="40" height="40" />
+          </div>
+          <p class="hosts-line">Hosted by <b>Jefferson &amp; Alyssa Bethke</b> and <b>Dr. Darren Whitehead</b></p>
+        </div>
+        <a class="ics" href={icsDataUri(e)} download={`raising-kids-digital-world-${e.edition}.ics`}>＋ Add to calendar</a>
+      </div>
+    </section>
+
+    {/* ── Invite video ── */}
+    <section class="section invite">
+      <div class="wrap">
+        <div class="video-frame">
+          <span class="vtag mono">Your invite · 90 sec</span>
+          <span class="play" aria-hidden="true"></span>
+          <span class="vlen mono">0:00 / 1:30</span>
+        </div>
+        <p class="vcap">A 90-second invite from Jeff, Alyssa &amp; Darren. <span class="mono">[ video slot ]</span></p>
       </div>
     </section>
 
@@ -76,13 +91,18 @@ const inclusions = [
       </div>
     </section>
 
+    {/* ── The room band ── */}
+    <div class="roomband">
+      <img src="/assets/room-wide.jpg" alt="200 couples in one room" loading="lazy" decoding="async" />
+      <span class="cap mono">200 couples · one room · no lectures</span>
+    </div>
+
     {/* ── What changed this year ── */}
-    <section class="section band-ink" id="changed">
+    <section class="section band-ink" id="landscape">
       <div class="wrap">
-        <span class="stamp">Refreshed for {e.edition}</span>
-        <SectionHead eyebrow="What changed this year">
-          Updated every year — because <span class="accent on-dark">next year this list is different.</span>
-        </SectionHead>
+        <span class="stamp">✓ Refreshed for {e.edition}</span>
+        <SectionHead eyebrow="The 2026 Landscape">What changed this year</SectionHead>
+        <p class="land-sub">Half of what you learned last year is already out of date. Here’s what’s true right now.</p>
         <div class="dossier">
           {c.whatChanged.map((w) => (
             <div class="cell">
@@ -95,13 +115,15 @@ const inclusions = [
             </div>
           ))}
         </div>
+        <p class="land-foot mono">Updated every year · because next year this list is different.</p>
       </div>
     </section>
 
-    {/* ── Why both of you ── */}
-    <section class="section">
+    {/* ── Why both parents ── */}
+    <section class="section" id="both">
       <div class="wrap">
-        <SectionHead eyebrow="Why both of you">Come as a team. Leave with one plan.</SectionHead>
+        <SectionHead eyebrow="Sold in pairs, on purpose">Why both of you.</SectionHead>
+        <p class="both-sub">Every ticket admits two — because one aligned plan beats two half-plans.</p>
         <div class="grid-3">
           {c.whyBoth.map((w) => (
             <div class:list={['card wb', w.highlight && 'hl']}>
@@ -116,16 +138,23 @@ const inclusions = [
     {/* ── Agenda ── */}
     <section class="section band-2" id="agenda">
       <div class="wrap">
-        <SectionHead eyebrow="The day">One room. No lectures.</SectionHead>
+        <SectionHead eyebrow="The Day · Rough Itinerary">One day, built to catch you up.</SectionHead>
+        <p class="agenda-sub">Big-room sessions, a hands-on lab, and time as a couple. Final schedule sent before you arrive.</p>
         <div class="agenda">
           {c.agenda.map((col) => (
-            <div class="acol">
-              <p class="mono acol-h">{col.title}</p>
+            <div class="acol card">
+              <p class="acol-day">{col.title.split(' · ')[0]}</p>
+              <p class="mono acol-sub">{col.title.split(' · ').slice(1).join(' · ')}</p>
               {col.slots.map((s) => (
                 <div class="slot">
                   <span class="time mono">{s.time}</span>
-                  <span class="slot-h">{s.h}</span>
-                  {s.note && <span class="slot-note mono">{s.note}</span>}
+                  <div class="slot-body">
+                    <div class="slot-h">
+                      {s.h}
+                      {s.note && <span class="slot-note mono">{s.note}</span>}
+                    </div>
+                    {s.d && <p class="slot-d">{s.d}</p>}
+                  </div>
                 </div>
               ))}
             </div>
@@ -134,31 +163,45 @@ const inclusions = [
       </div>
     </section>
 
-    {/* ── The Signing (emotional peak) ── */}
+    {/* ── The Signing ── */}
     <section class="signing">
       <img class="signing-img" src="/assets/couple-embrace.jpg" alt="" loading="lazy" decoding="async" />
       <div class="scrim"></div>
       <div class="wrap signing-in">
         <p class="mono">4:30 PM · The Signing</p>
         <h2>The moment it becomes real.</h2>
-        <p>Both of you sign the plan you built together — the five minutes couples talk about on the drive home.</p>
+        <p>At the end of the day, the two of you sign your family’s plan — one page, one year, both names. It takes five minutes. It’s the five minutes couples talk about on the drive home.</p>
       </div>
     </section>
 
-    {/* ── Come back every year (alumni slot) ── */}
-    <section class="section">
+    {/* ── Then we eat (after-party) ── */}
+    <section class="section party" id="supper">
       <div class="wrap">
-        <SectionHead eyebrow="Come back every year">The course is day one. This is every year after.</SectionHead>
+        <SectionHead eyebrow="After the signing · Included">Then we eat.</SectionHead>
+        <p class="party-lede">Ten minutes down the road in Leipers Fork, a long-table supper under the lights at Jeff &amp; Alyssa’s place. No content, no agenda — just a few hundred parents who’ve stopped feeling alone in this.</p>
+        <div class="party-grid">
+          <img src="/assets/leipers-supper.jpg" alt="Long-table supper in Leipers Fork" loading="lazy" decoding="async" />
+          <img src="/assets/leipers-barn.jpg" alt="The barn in Leipers Fork" loading="lazy" decoding="async" />
+        </div>
+        <p class="party-note mono">Leipers Fork, Tennessee · supper included with every ticket</p>
+      </div>
+    </section>
+
+    {/* ── Come back every year ── */}
+    <section class="section" id="annual">
+      <div class="wrap">
+        <SectionHead eyebrow="An annual rhythm">Come back every year.</SectionHead>
+        <p class="annual-sub">Your kids grow. The tech shifts. The workshop updates.</p>
         <div class="rhythm">
-          <div class="card rc"><p class="mono">Spring</p><h4>The Summit</h4><p>Virtual half-day, one topic.</p></div>
-          <div class="card rc dark"><p class="mono">Fall</p><h4>The Workshop</h4><p>The in-person annual briefing.</p></div>
-          <div class="card rc"><p class="mono">Every year</p><h4>We do it again</h4><p>Because it will all have changed.</p></div>
+          <div class="card rc"><span class="mono">Spring · Summit</span><h4>The seasonal update</h4><p>A virtual half-day on one frontier — this spring, social-media readiness.</p></div>
+          <div class="card rc dark"><span class="mono">Fall · The Conference</span><h4>The full annual conference</h4><p>The one day, in the room, both of you — the complete 2026 landscape and plan.</p></div>
+          <div class="card rc"><span class="mono">Every year · Repeat</span><h4>Because it keeps changing</h4><p>Next year’s edition is a new briefing — new apps, new pressures, new playbook.</p></div>
         </div>
         <div class="alumni card">
           <div>
-            <p class="mono">Came last year?</p>
-            <h4>Returning couples save <span class="accent">{c.alumniDiscount}% </span></h4>
-            <p class="alumni-note">Your seat from last year gets you the alumni rate. <b>(TODO: set real discount.)</b></p>
+            <span class="mono">Returning families</span>
+            <h4>Once a briefing family, always a briefing family. <span class="accent">Save {c.alumniDiscount}%</span></h4>
+            <p class="alumni-note">If you came last year, you come back for less — because staying current shouldn’t cost full price every time. <b>(TODO: set real discount.)</b></p>
           </div>
         </div>
       </div>
@@ -168,40 +211,47 @@ const inclusions = [
     <section class="section band-2" id="hosts">
       <div class="wrap">
         <SectionHead eyebrow="Your hosts">The research meets the rhythm.</SectionHead>
+        <p class="hosts-sub">The framework from <i>The Digital Fast</i>, and a decade of building family rhythms that actually stick — in one room, for one day.</p>
         <div class="hosts">
           <div class="card host">
             <img src="/assets/darren.jpg" alt="Dr. Darren Whitehead" width="72" height="72" loading="lazy" decoding="async" />
-            <div><span class="mono">The Expert</span><h4>Dr. Darren Whitehead</h4><p>Pastor, author of <i>The Digital Fast</i>, researcher on the future of the family.</p></div>
+            <div><span class="mono">The Expert</span><h4>Dr. Darren Whitehead</h4><p class="tt mono">Pastor · Author · Researcher</p><p>Founding pastor of Church of the City in Nashville and author of <i>The Digital Fast</i>. His doctoral work focused on formation in the digital age — and he brings the framework the whole briefing is built on.</p></div>
           </div>
           <div class="card host">
             <img src="/assets/jeff-family.jpg" alt="Jefferson & Alyssa Bethke" width="72" height="72" loading="lazy" decoding="async" />
-            <div><span class="mono">The Family Builders</span><h4>Jefferson &amp; Alyssa Bethke</h4><p>NYT-bestselling authors and parents of four, building family rhythms from Leipers Fork.</p></div>
+            <div><span class="mono">The Family Builders</span><h4>Jefferson &amp; Alyssa Bethke</h4><p class="tt mono">NYT-Bestselling Authors · Parents of 4</p><p>Authors of <i>Take Back Your Family</i>, Jeff and Alyssa have spent a decade helping parents build intentional homes in a noisy world — favoring rhythms over hustle, and now the Phone License framework.</p></div>
           </div>
         </div>
       </div>
     </section>
 
     {/* ── Testimonials ── */}
-    {testimonials.length > 0 && (
-      <section class="section band-ink">
-        <div class="wrap">
-          <SectionHead eyebrow="From the room">The drive home they talk about.</SectionHead>
-          <div class="grid-3">
-            {testimonials.map((t) => (
-              <figure class="tcard">
-                <blockquote>“{t.quote}”</blockquote>
-                <figcaption>{t.name} · {t.detail}{t.mock && <span class="mock">sample</span>}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
-
-    {/* ── Who this is for ── */}
-    <section class="section">
+    <section class="section band-ink testis">
       <div class="wrap">
-        <SectionHead eyebrow="Honestly">Who this day is for.</SectionHead>
+        <blockquote class="bigq">“{feature.quote}”</blockquote>
+        <div class="bigq-who">
+          <span class="avatar initials" aria-hidden="true">{initials(feature.name)}</span>
+          <div class="meta"><b>{feature.name}</b><span>{feature.detail}</span></div>
+        </div>
+        <div class="t-grid">
+          {cards.map((t) => (
+            <figure class="t-card">
+              <blockquote>“{t.quote}”</blockquote>
+              <figcaption>
+                <span class="avatar initials" aria-hidden="true">{initials(t.name)}</span>
+                <span class="who"><b>{t.name}</b><span>{t.detail}</span></span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p class="t-fine mono">[ Mock testimonials — swap in real couples after Edition One ]</p>
+      </div>
+    </section>
+
+    {/* ── Who it's for ── */}
+    <section class="section" id="for">
+      <div class="wrap">
+        <SectionHead eyebrow="Read this first">Who this day is for.</SectionHead>
         <div class="forwho">
           <div class="card fw yes">
             <p class="mono">This is for you if…</p>
@@ -216,9 +266,9 @@ const inclusions = [
     </section>
 
     {/* ── Pricing ── */}
-    <section class="section band-2" id="tickets">
+    <section class="section band-2" id="pricing">
       <div class="wrap">
-        <SectionHead eyebrow="Tickets">One ticket. Admits two.</SectionHead>
+        <SectionHead eyebrow="Tickets">One day. Both of you.</SectionHead>
         <div class="pricecard card">
           {price.pin && <span class:list={['pin', `pin-${price.pin.tone}`]}>{price.pin.label}</span>}
           <p class="mono">Couple ticket · admits two</p>
@@ -229,16 +279,17 @@ const inclusions = [
           </p>
           <ul class="incl">{inclusions.map((x) => <li>{x}</li>)}</ul>
           <EventCta event={e} variant="dark" />
+          <p class="anchor">One aligned day, once a year — against twelve months of falling behind.</p>
         </div>
 
         <div class="guarantee card">
           <span class="seal" aria-hidden="true">✓</span>
           <div>
             <h4>The Aligned Plan Guarantee</h4>
-            <p>If it’s not for you, tell us at the door — full refund, no form, no fuss. <b>(Pending business sign-off.)</b></p>
+            <p>Leave with a written plan you both believe in — or don’t pay for the day. Tell us at the door on your way out and we’ll refund your ticket in full. No form, no fuss. <b>(Pending business sign-off.)</b></p>
           </div>
         </div>
-        <p class="why200">Why only {e.capacity} couples? The afternoon is a lab, not a lecture — past {e.capacity} phones, that breaks.</p>
+        <p class="why200"><b>Why only {e.capacity} couples?</b> Because the afternoon is a lab, not a lecture. Every couple gets hands-on help with their actual phones — past {e.capacity}, that breaks.</p>
       </div>
     </section>
 
@@ -248,16 +299,16 @@ const inclusions = [
         <span class="seal" aria-hidden="true">♥</span>
         <div>
           <p class="mono">Send a couple</p>
-          <h4>Sponsor a scholarship couple.</h4>
-          <p>Some families can’t swing a ticket. Cover one. It’s a mission, not an upsell — ask us at checkout or by email.</p>
+          <h4>No parent priced out of being present.</h4>
+          <p>Every year we set aside seats for couples who can’t spare $499 — funded by families who can. Not an upsell. A mission. Ask us at checkout or by email.</p>
         </div>
       </div>
     </section>
 
     {/* ── FAQ ── */}
-    <section class="section band-2">
+    <section class="section band-2" id="faq">
       <div class="wrap">
-        <SectionHead eyebrow="Questions">Before you commit.</SectionHead>
+        <SectionHead eyebrow="Good questions">Before you book.</SectionHead>
         <Faq items={c.faqs} name="conf-faq" />
       </div>
     </section>
@@ -265,9 +316,13 @@ const inclusions = [
     {/* ── Final CTA ── */}
     <section class="section">
       <div class="wrap final band-ink">
+        <p class="mono final-loc">Franklin, TN · October 17, 2026</p>
         <h2>{finalHeadline(e)}</h2>
-        <p class="lede">Whether it’s their first phone or a fresh start — one aligned plan for the year ahead.</p>
-        <div class="final-cta"><EventCta event={e} variant="primary" /></div>
+        <p class="lede">{finalLede(e)}</p>
+        <div class="final-cta">
+          <EventCta event={e} variant="primary" />
+          <a href="#faq" class="btn btn-ghost on-dark">Read the FAQ</a>
+        </div>
         <p class="fine mono">The course is day one · this is every year after</p>
       </div>
     </section>
@@ -276,14 +331,14 @@ const inclusions = [
   <Footer />
 
   <StickyCta title={`${e.title} ${e.edition}`} line={stickyLine(e)}>
-    <a href="#tickets" class="btn btn-primary">Tickets</a>
+    <a href="#pricing" class="btn btn-primary">Tickets</a>
   </StickyCta>
 </Base>
 
 <style>
   .hero {
     text-align: center;
-    padding-block: 64px 40px;
+    padding-block: 60px 36px;
   }
   .pill {
     display: inline-block;
@@ -294,11 +349,13 @@ const inclusions = [
   }
   .hero h1 {
     margin-top: 18px;
+    font-size: clamp(40px, 9vw, 84px);
   }
   .lede.italic {
     font-style: italic;
     color: var(--blue-deep);
     margin-top: 14px;
+    font-weight: 600;
   }
   .dots {
     list-style: none;
@@ -325,40 +382,153 @@ const inclusions = [
     justify-content: center;
     margin-top: 26px;
   }
+  .hero-cta :global(.leadform) {
+    margin-inline: auto;
+  }
   .hero-chip {
     display: flex;
     justify-content: center;
     margin-top: 20px;
   }
+  .hero-cred {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 26px;
+  }
+  .faces {
+    display: flex;
+  }
+  .faces img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--bg);
+    margin-left: -10px;
+  }
+  .faces img:first-child {
+    margin-left: 0;
+  }
   .hosts-line {
-    margin-top: 22px;
     color: var(--muted);
+    font-size: 14px;
+  }
+  .hosts-line b {
+    color: var(--ink-2);
   }
   .ics {
     display: inline-block;
-    margin-top: 12px;
+    margin-top: 16px;
     font-size: 13px;
     color: var(--blue-deep);
   }
 
+  /* Invite video */
+  .invite {
+    padding-block: 20px 48px;
+  }
+  .video-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-lg);
+    background: linear-gradient(160deg, #23232a, var(--ink));
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vtag {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--r-pill);
+    padding: 5px 10px;
+    font-size: 10px;
+  }
+  .vlen {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+  }
+  .play {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    position: relative;
+    box-shadow: var(--shadow-md);
+  }
+  .play::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 54%;
+    transform: translate(-50%, -50%);
+    border-style: solid;
+    border-width: 12px 0 12px 20px;
+    border-color: transparent transparent transparent var(--ink);
+  }
+  .vcap {
+    text-align: center;
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* Felt need */
   .felt {
     text-align: center;
   }
   .felt-q {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(20px, 3.5vw, 30px);
+    font-size: clamp(21px, 3.6vw, 32px);
     letter-spacing: -0.03em;
     color: var(--ink);
+    line-height: 1.15;
     margin-top: 12px;
+    text-wrap: balance;
   }
   .felt-turn {
-    max-width: 620px;
-    margin: 28px auto 0;
-    font-size: 18px;
+    max-width: 640px;
+    margin: 30px auto 0;
+    font-size: clamp(17px, 2.2vw, 20px);
     color: var(--ink-2);
   }
 
+  /* Room band */
+  .roomband {
+    position: relative;
+    max-height: 460px;
+    overflow: hidden;
+    display: flex;
+  }
+  .roomband img {
+    width: 100%;
+    max-height: 460px;
+    object-fit: cover;
+  }
+  .roomband .cap {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    padding: 8px 16px;
+    border-radius: var(--r-pill);
+    box-shadow: var(--shadow-sm);
+    white-space: nowrap;
+  }
+
+  /* Landscape (what changed) */
   .stamp {
     display: inline-block;
     font-family: var(--font-mono);
@@ -367,11 +537,24 @@ const inclusions = [
     text-transform: uppercase;
     color: var(--blue-on-dark);
     border: 1px dashed rgba(255, 255, 255, 0.3);
-    background: rgba(79, 131, 204, 0.12);
+    background: rgba(79, 131, 204, 0.14);
     padding: 5px 12px;
     border-radius: 8px;
     transform: rotate(-2deg);
-    margin-bottom: 20px;
+    margin-bottom: 18px;
+  }
+  .land-sub,
+  .both-sub,
+  .agenda-sub,
+  .annual-sub,
+  .hosts-sub {
+    text-align: center;
+    max-width: 640px;
+    margin: 12px auto 0;
+    color: var(--muted);
+  }
+  .band-ink .land-sub {
+    color: rgba(255, 255, 255, 0.66);
   }
   .dossier {
     display: grid;
@@ -419,6 +602,11 @@ const inclusions = [
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: rgba(255, 255, 255, 0.7);
   }
+  .land-foot {
+    text-align: center;
+    margin-top: 28px;
+    color: rgba(255, 255, 255, 0.45);
+  }
 
   .grid-3 {
     display: grid;
@@ -431,48 +619,68 @@ const inclusions = [
   }
   .wb h4,
   .rc h4 {
-    margin-bottom: 8px;
+    margin: 8px 0 6px;
   }
   .wb.hl {
     background: var(--blue-tint);
     border-color: var(--blue-tint-2);
   }
 
+  /* Agenda */
   .agenda {
     display: grid;
-    gap: 24px;
+    gap: 20px;
     margin-top: 36px;
   }
-  .acol-h {
+  .acol {
+    padding: 26px;
+  }
+  .acol-day {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .acol-sub {
     color: var(--blue-deep);
-    margin-bottom: 8px;
+    margin: 4px 0 8px;
   }
   .slot {
     display: flex;
-    align-items: baseline;
     gap: 14px;
     padding: 16px 0;
     border-top: 1px solid var(--line);
   }
   .slot .time {
     color: var(--muted);
-    width: 48px;
+    width: 44px;
     flex: none;
+    padding-top: 2px;
   }
   .slot-h {
     font-family: var(--font-display);
     font-weight: 600;
     font-size: 17px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
   }
   .slot-note {
-    margin-left: auto;
     color: var(--blue-deep);
     font-size: 10px;
   }
+  .slot-d {
+    color: var(--ink-2);
+    font-size: 14px;
+    margin-top: 3px;
+  }
 
+  /* Signing */
   .signing {
     position: relative;
-    min-height: 380px;
+    min-height: 400px;
     display: flex;
     align-items: center;
     color: #fff;
@@ -485,11 +693,12 @@ const inclusions = [
     width: 100%;
     height: 100%;
     object-fit: cover;
+    opacity: 0.55;
   }
   .signing .scrim {
     position: absolute;
     inset: 0;
-    background: rgba(15, 15, 16, 0.62);
+    background: linear-gradient(180deg, rgba(15, 15, 16, 0.5), rgba(15, 15, 16, 0.78));
   }
   .signing-in {
     position: relative;
@@ -499,14 +708,42 @@ const inclusions = [
   }
   .signing h2 {
     color: #fff;
-    margin: 10px 0;
+    margin: 12px 0;
   }
   .signing p {
-    color: rgba(255, 255, 255, 0.82);
-    max-width: 520px;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 600px;
     margin-inline: auto;
   }
 
+  /* Then we eat */
+  .party-lede {
+    text-align: center;
+    max-width: 680px;
+    margin: 14px auto 0;
+    color: var(--ink-2);
+    font-size: clamp(16px, 2vw, 19px);
+  }
+  .party-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .party-grid img {
+    width: 100%;
+    height: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: var(--r-md);
+  }
+  .party-note {
+    text-align: center;
+    margin-top: 18px;
+    color: var(--muted);
+  }
+
+  /* Come back every year */
   .rhythm {
     display: grid;
     gap: 16px;
@@ -519,23 +756,34 @@ const inclusions = [
   .rc.dark h4 {
     color: #fff;
   }
+  .rc.dark p {
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .rc .mono {
+    color: var(--blue-deep);
+  }
+  .rc.dark .mono {
+    color: var(--blue-on-dark);
+  }
   .alumni {
     margin-top: 20px;
     padding: 24px;
     background: var(--blue-tint);
     border-color: var(--blue-tint-2);
   }
+  .alumni h4 {
+    margin: 8px 0;
+  }
   .alumni-note {
     color: var(--muted);
     font-size: 14px;
-    margin-top: 6px;
   }
 
-  .hosts,
-  .forwho {
+  /* Hosts */
+  .hosts {
     display: grid;
     gap: 20px;
-    margin-top: 36px;
+    margin-top: 32px;
   }
   .host {
     display: flex;
@@ -551,37 +799,117 @@ const inclusions = [
     flex: none;
   }
   .host h4 {
-    margin: 4px 0;
+    margin: 4px 0 2px;
+  }
+  .host .tt {
+    color: var(--muted);
+    margin-bottom: 8px;
   }
   .host p {
     color: var(--ink-2);
-    font-size: 15px;
+    font-size: 14.5px;
   }
 
-  .tcard {
-    padding: 4px;
+  /* Testimonials */
+  .testis {
+    text-align: center;
   }
-  .tcard blockquote {
-    font-size: 17px;
+  .bigq {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(24px, 4.5vw, 42px);
+    letter-spacing: -0.035em;
+    line-height: 1.15;
+    color: #fff;
+    max-width: 900px;
+    margin: 0 auto;
+    text-wrap: balance;
+  }
+  .bigq-who {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 26px;
+  }
+  .bigq-who .meta {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+  }
+  .bigq-who .meta b {
+    color: #fff;
+  }
+  .bigq-who .meta span {
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  .t-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 44px;
+    text-align: left;
+  }
+  .t-card {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--r-md);
+    padding: 22px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .t-card blockquote {
     color: rgba(255, 255, 255, 0.9);
+    font-size: 15.5px;
     line-height: 1.5;
   }
-  .tcard figcaption {
-    margin-top: 14px;
-    font-size: 13.5px;
-    color: rgba(255, 255, 255, 0.55);
+  .t-card figcaption {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
   }
-  .mock {
-    margin-left: 6px;
+  .t-card .who {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+  .t-card .who b {
+    color: #fff;
+    font-size: 14px;
+  }
+  .t-card .who span {
+    color: rgba(255, 255, 255, 0.5);
     font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: var(--r-pill);
-    padding: 1px 6px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+  .avatar.initials {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .t-fine {
+    margin-top: 28px;
+    color: rgba(255, 255, 255, 0.4);
   }
 
+  /* Who it's for */
+  .forwho {
+    display: grid;
+    gap: 20px;
+    margin-top: 36px;
+  }
   .fw {
     padding: 24px;
   }
@@ -613,6 +941,7 @@ const inclusions = [
     color: var(--muted);
   }
 
+  /* Pricing */
   .pricecard {
     position: relative;
     max-width: 460px;
@@ -691,6 +1020,11 @@ const inclusions = [
     width: 100%;
     margin-inline: auto;
   }
+  .anchor {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
   .guarantee,
   .scholarship {
     display: flex;
@@ -714,45 +1048,60 @@ const inclusions = [
   }
   .why200 {
     text-align: center;
-    max-width: 520px;
+    max-width: 560px;
     margin: 24px auto 0;
     color: var(--muted);
     font-size: 14.5px;
   }
 
+  /* Final CTA */
   .final {
     border-radius: var(--r-lg);
     padding: 56px 32px;
     text-align: center;
   }
+  .final-loc {
+    color: var(--blue-on-dark);
+    margin-bottom: 12px;
+  }
   .final .lede {
     color: rgba(255, 255, 255, 0.72);
-    max-width: 520px;
+    max-width: 560px;
     margin: 16px auto 0;
   }
   .final-cta {
     display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     justify-content: center;
+    align-items: center;
     margin-top: 24px;
+  }
+  .final-cta :global(.leadform) {
+    margin-inline: auto;
+  }
+  .btn-ghost.on-dark {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
   }
   .final .fine {
     color: rgba(255, 255, 255, 0.45);
     margin-top: 20px;
   }
 
-  @media (min-width: 720px) {
-    .dossier {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .grid-3 {
+  @media (min-width: 760px) {
+    .dossier,
+    .grid-3,
+    .rhythm {
       grid-template-columns: repeat(3, 1fr);
     }
     .agenda,
     .hosts,
-    .forwho {
+    .forwho,
+    .t-grid {
       grid-template-columns: 1fr 1fr;
     }
-    .rhythm {
+    .t-grid {
       grid-template-columns: repeat(3, 1fr);
     }
   }

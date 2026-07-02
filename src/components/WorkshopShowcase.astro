@@ -138,11 +138,14 @@ const arc = [
   }
   .ws-cta {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
     align-items: center;
     margin-top: 40px;
+  }
+  /* Center the capture form / button within the showcase. */
+  .ws-cta :global(.leadform) {
+    margin-inline: auto;
   }
   .btn-ghost.on-dark {
     border-color: rgba(255, 255, 255, 0.4);
