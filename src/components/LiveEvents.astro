@@ -58,7 +58,7 @@ const rows = Object.values(events)
                     {e.themeLine ? `: ${e.themeLine}` : ''}
                   </span>
                 </div>
-                <StatusBadge state={e.state} />
+                <StatusBadge state={e.state} onDark />
                 <span class="arrow" aria-hidden="true">→</span>
               </a>
             );

@@ -122,6 +122,14 @@ h4 {
   text-transform: uppercase;
   color: var(--muted);
 }
+/* On dark bands, secondary + accent text must lighten for AA contrast. */
+.band-ink .mono {
+  color: rgba(255, 255, 255, 0.62);
+}
+.band-ink .accent,
+.band-ink .accent.on-dark {
+  color: var(--blue-on-dark);
+}
 
 /* ── Buttons ── (variants: primary / dark / white / ghost) ── */
 .btn {

@@ -9,14 +9,16 @@ interface Props {
   state?: EventState;
   label?: string;
   tone?: 'blue' | 'amber' | 'red' | 'neutral';
+  /** badge sits on a dark background — lighten neutral text/border */
+  onDark?: boolean;
 }
-const { state } = Astro.props;
+const { state, onDark = false } = Astro.props;
 const derived = state ? badgeFor(state) : null;
 const label = Astro.props.label ?? derived?.label ?? '';
 const tone = Astro.props.tone ?? derived?.tone ?? 'neutral';
 ---
 
-<span class:list={['badge', `tone-${tone}`]}>{label}</span>
+<span class:list={['badge', `tone-${tone}`, onDark && 'on-dark']}>{label}</span>
 
 <style>
   .badge {
@@ -47,5 +49,9 @@ const tone = Astro.props.tone ?? derived?.tone ?? 'neutral';
     background: transparent;
     border-color: var(--line-2);
     color: var(--muted);
+  }
+  .tone-neutral.on-dark {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.92);
   }
 </style>

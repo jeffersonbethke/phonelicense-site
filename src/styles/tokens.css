@@ -8,12 +8,14 @@
   --surface: #ffffff; /* cards */
   --ink: #0f0f10; /* near-black: dark bands, primary buttons, footer */
   --ink-2: #3a3a3d; /* body text */
-  --muted: #6b6b66; /* secondary text */
+  --muted: #5f5f59; /* secondary text — darkened for AA contrast on off-white */
   --line: rgba(15, 15, 16, 0.08);
   --line-2: rgba(15, 15, 16, 0.14);
 
-  --blue: oklch(0.62 0.14 250); /* brand accent ≈ #4f83cc */
-  --blue-deep: oklch(0.52 0.16 250); /* hover / eyebrow ≈ #3a68b5 */
+  /* Brand blue: darkened one notch so white-on-blue (buttons, badges, pins,
+     ribbons) clears WCAG AA 4.5:1. Lighter tints below are decorative only. */
+  --blue: oklch(0.55 0.16 250); /* ≈ #3f74c0 */
+  --blue-deep: oklch(0.47 0.16 250); /* hover / eyebrow / accent text */
   --blue-tint: oklch(0.96 0.03 250); /* ≈ #eef2fa */
   --blue-tint-2: oklch(0.92 0.05 250); /* ≈ #dde7f7 */
   --blue-on-dark: oklch(0.78 0.13 250); /* light-blue accent on dark */

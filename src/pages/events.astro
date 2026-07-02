@@ -49,7 +49,7 @@ const summits = [spring, fall].filter(Boolean);
           <div class="ecard-in">
             <div class="ecard-top">
               <span class="mono">In-person workshop · once a year</span>
-              <StatusBadge state={conf.state} />
+              <StatusBadge state={conf.state} onDark />
             </div>
             <h2>{conf.title} <span class="ed">{conf.edition}</span></h2>
             <p class="ecard-meta">
@@ -70,7 +70,7 @@ const summits = [spring, fall].filter(Boolean);
               <div class="ecard-in">
                 <div class="ecard-top">
                   <span class="mono">Live virtual summit</span>
-                  <StatusBadge state={s.state} />
+                  <StatusBadge state={s.state} onDark />
                 </div>
                 <h3>{s.season === 'spring' ? 'Spring' : 'Fall'} Summit <span class="ed">{s.edition}</span></h3>
                 <p class="ecard-meta">{s.themeLine}</p>

@@ -19,6 +19,8 @@ interface Props {
   ogImage?: string;
   /** Hide the site-wide announcement bar on this page (e.g. /quiz). */
   announcement?: boolean;
+  /** Keep this page out of search engines (e.g. /admin/config). */
+  noindex?: boolean;
 }
 
 // Pre-paint dismissal key for the promoted event (avoids flash + layout shift).
@@ -29,6 +31,7 @@ const {
   description = 'Earn the phone. Keep the trust. A calm, parent-to-parent plan for the first phone — or a fresh start on the one they already have.',
   viewContent = false,
   announcement = true,
+  noindex = false,
 } = Astro.props;
 
 const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewContent : null;
@@ -41,15 +44,26 @@ const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewCon
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Load fonts async so they never block first paint. The system-font
+        fallback in our stack makes the swap effectively invisible. */}
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      />
+    </noscript>
 
     {/* Integration config for the client libs (safe if blank). */}
     <script

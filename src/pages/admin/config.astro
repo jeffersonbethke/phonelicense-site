@@ -1,0 +1,175 @@
+---
+/**
+ * PHASE 6 — /admin/config. A plain-English reference for a non-developer
+ * teammate: every value you can safely change, where it lives, and the rules.
+ * Reads live values from config so it never goes stale. noindex.
+ */
+import Base from '../../layouts/Base.astro';
+import { offers } from '../../config/offers';
+import { events as evts, type EventState } from '../../config/events';
+import { site } from '../../config/site';
+
+const offerRows = Object.values(offers).filter((o) => !o.kajabiInternal);
+const stateList: EventState[] = ['interest', 'earlybird', 'onsale', 'almostfull', 'soldout', 'replay'];
+const envReady = {
+  webhook: site.webhookReady,
+  pixel: site.pixelReady,
+  calendly: site.calendlyUrl && !site.calendlyUrl.startsWith('mailto:'),
+};
+---
+
+<Base title="Config guide (admin)" noindex announcement={false}>
+  <main class="doc wrap">
+    <p class="eyebrow">Internal · not indexed</p>
+    <h1>Editing the site</h1>
+    <p class="intro">
+      Everything on this site reads from a few plain files. You don’t need to
+      touch design or code — just these values. After any change, the site needs
+      a quick rebuild/redeploy (whoever manages the site can do this in seconds,
+      or it happens automatically when the change is saved to the project).
+    </p>
+
+    <section class="block">
+      <h2>1. Connections (the important switches)</h2>
+      <p>These live in one settings file called <code>.env</code>. Blank is safe — the site just won’t send data until they’re filled.</p>
+      <table>
+        <tr><th>Setting</th><th>What it does</th><th>Status</th></tr>
+        <tr><td><code>PUBLIC_WEBHOOK_URL</code></td><td>Where every form (quiz, contract PDF, event interest, church) sends its lead → your Zapier/Kajabi.</td><td>{envReady.webhook ? '🟢 set' : '🔴 not set yet'}</td></tr>
+        <tr><td><code>PUBLIC_META_PIXEL_ID</code></td><td>Turns on Meta/Facebook tracking (Lead, ViewContent, InitiateCheckout).</td><td>{envReady.pixel ? '🟢 set' : '🔴 not set yet'}</td></tr>
+        <tr><td><code>PUBLIC_CALENDLY_URL</code></td><td>The “planning something bigger?” link on the churches page.</td><td>{envReady.calendly ? '🟢 set' : '🟡 using email fallback'}</td></tr>
+        <tr><td><code>PUBLIC_GA4_ID</code></td><td>Optional Google Analytics.</td><td>optional</td></tr>
+      </table>
+    </section>
+
+    <section class="block">
+      <h2>2. Buy buttons (Kajabi checkout links)</h2>
+      <p>File: <code>src/config/offers.ts</code>. Each buy button points to a Kajabi checkout URL. Replace the <code>#TODO</code> placeholders with your real Kajabi links. Prices here are only for display + tracking — Kajabi charges the real amount.</p>
+      <table>
+        <tr><th>Offer</th><th>Price shown</th><th>Link set?</th></tr>
+        {offerRows.map((o) => (
+          <tr><td>{o.label}</td><td>${o.price.toLocaleString()}</td><td>{o.url.startsWith('#') ? '🔴 TODO' : '🟢 set'}</td></tr>
+        ))}
+      </table>
+    </section>
+
+    <section class="block">
+      <h2>3. Events (one place controls everything)</h2>
+      <p>File: <code>src/config/events.ts</code>. Change an event’s <b>status</b> and the announcement bar, homepage, hub, and event page all update together. The <b>page wording</b> (agenda, sessions) is in <code>src/config/event-content.ts</code>.</p>
+
+      <h3>The status values</h3>
+      <ul class="states">
+        <li><b>interest</b> — not on sale yet; buttons collect emails (“get first access”).</li>
+        <li><b>earlybird</b> — on sale at the early-bird price, with the discount + deadline shown.</li>
+        <li><b>onsale</b> — on sale at full price.</li>
+        <li><b>almostfull</b> — on sale, shows the amber “almost full” urgency.</li>
+        <li><b>soldout</b> — full; buttons become a waitlist signup.</li>
+        <li><b>replay</b> — past event; shows “watch the replay”.</li>
+      </ul>
+
+      <h3>Current events</h3>
+      <table>
+        <tr><th>Event</th><th>Status</th><th>Seats left</th><th>In the top bar?</th></tr>
+        {Object.values(evts).map((e) => (
+          <tr>
+            <td>{e.title} · {e.edition}{e.season ? ` (${e.season})` : ''}</td>
+            <td><code>{e.state}</code></td>
+            <td>{e.seatsRemaining === null ? '— (hidden)' : `${e.seatsRemaining} of ${e.capacity}`}</td>
+            <td>{e.promote ? 'yes' : 'no'}</td>
+          </tr>
+        ))}
+      </table>
+
+      <div class="rule">
+        <b>⚠️ The one hard rule — seat counts.</b> <code>seatsRemaining</code> is typed by a human and must be true. Set the real number to show a live counter + progress bar, or leave it <code>null</code> to hide the count entirely. It is never guessed and never counts down on its own.
+      </div>
+      <p class="tip"><b>To promote a different event in the top bar:</b> set <code>promote: true</code> on it (and <code>false</code> on the others). Only one at a time.</p>
+    </section>
+
+    <section class="block">
+      <h2>4. Quiz</h2>
+      <p>File: <code>src/config/quiz.ts</code>. All questions, answer choices, point values, and the six result write-ups. The score bands adjust themselves automatically if you change point values — you can’t break the math.</p>
+    </section>
+
+    <section class="block">
+      <h2>5. Testimonials</h2>
+      <p>File: <code>src/config/testimonials.ts</code>. Add real quotes here. Set <code>mock: true</code> on any that aren’t real yet — they’ll show a small “sample” label so nothing fake looks official.</p>
+    </section>
+
+    <section class="block">
+      <h2>6. Placeholders to finalize before launch</h2>
+      <p>See <code>INPUTS-NEEDED.md</code> in the project. Highlights: real testimonials, the invite video, the alumni discount %, confirming summit guest names, the refund/supper wording sign-off, and the real seat counts.</p>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .doc {
+    max-width: 760px;
+    padding-block: 48px 80px;
+  }
+  .intro {
+    margin: 12px 0 8px;
+    color: var(--ink-2);
+    font-size: 17px;
+  }
+  .block {
+    margin-top: 40px;
+  }
+  .block h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .block h3 {
+    font-size: 17px;
+    margin: 20px 0 8px;
+  }
+  .block p {
+    color: var(--ink-2);
+  }
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg-2);
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 14.5px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .states {
+    margin: 8px 0 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--ink-2);
+  }
+  .rule {
+    margin-top: 18px;
+    padding: 16px 18px;
+    background: var(--blue-tint);
+    border: 1px solid var(--blue-tint-2);
+    border-radius: var(--r-sm);
+    font-size: 14.5px;
+  }
+  .tip {
+    margin-top: 12px;
+    font-size: 14.5px;
+  }
+</style>
