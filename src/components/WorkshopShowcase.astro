@@ -1,0 +1,160 @@
+---
+/**
+ * Homepage "world-class" sell for the in-person workshop (the conference).
+ * Photo-backed, dark, config-driven from /config/events. State-aware CTA via
+ * EventCta (first-access while in interest, tickets once on sale).
+ */
+import EventCta from './EventCta.astro';
+import { events } from '../config/events';
+
+const e = events['conference'];
+
+const arc = [
+  { k: 'Morning', h: 'See it clearly', d: 'A live tour inside the apps your kids actually use — refreshed for this year, not last.' },
+  { k: 'Afternoon', h: 'Solve it together', d: 'The hands-on Settings Lab and the real conversations, done side by side as a couple.' },
+  { k: 'The finish', h: 'Leave with a plan', d: 'One aligned family plan for the year — signed before you drive home. Then supper at our place.' },
+];
+---
+
+<section class="ws">
+  <img class="ws-bg" src="/assets/room-wide.jpg" alt="" loading="lazy" decoding="async" />
+  <div class="ws-scrim"></div>
+
+  <div class="wrap ws-in">
+    <p class="ws-eyebrow mono">The {e.edition} in-person workshop · once a year</p>
+    <h2>Spend one day with us.<br /><span class="accent on-dark">Parent the whole year on purpose.</span></h2>
+    <p class="ws-lede">
+      {e.title} is the annual, in-person briefing for parents — both of you in one
+      room in {e.city}, then a long-table supper in Leipers Fork. It’s the day
+      couples talk about on the drive home.
+    </p>
+
+    <div class="ws-meta mono">
+      <span>{e.dateDisplay}</span>
+      <span>{e.venue} · {e.city}</span>
+      <span>Capped at {e.capacity} couples</span>
+    </div>
+
+    <div class="ws-arc">
+      {arc.map((a) => (
+        <div class="ws-cell">
+          <span class="mono k">{a.k}</span>
+          <h3>{a.h}</h3>
+          <p>{a.d}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="ws-cta">
+      <EventCta event={e} variant="white" />
+      <a href="/conference" class="btn btn-ghost on-dark">See the full day →</a>
+    </div>
+    <p class="ws-foot mono">The course is day one · the workshop is every year after</p>
+  </div>
+</section>
+
+<style>
+  .ws {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    background: var(--ink);
+  }
+  .ws-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.9;
+  }
+  .ws-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 15, 16, 0.72) 0%, rgba(15, 15, 16, 0.86) 100%);
+  }
+  .ws-in {
+    position: relative;
+    padding-block: 68px;
+    text-align: center;
+  }
+  .ws-eyebrow {
+    color: var(--blue-on-dark);
+  }
+  .ws h2 {
+    color: #fff;
+    margin: 14px 0 0;
+    font-size: clamp(30px, 6vw, 56px);
+  }
+  .ws-lede {
+    max-width: 640px;
+    margin: 18px auto 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: clamp(16px, 2.2vw, 19px);
+    line-height: 1.5;
+  }
+  .ws-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 22px;
+    margin-top: 22px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 11px;
+  }
+  .ws-meta span {
+    position: relative;
+  }
+  .ws-meta span:not(:first-child)::before {
+    content: '·';
+    position: absolute;
+    left: -13px;
+  }
+  .ws-arc {
+    display: grid;
+    gap: 18px;
+    margin-top: 40px;
+    text-align: left;
+  }
+  .ws-cell {
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.04);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+  .ws-cell .k {
+    color: var(--blue-on-dark);
+  }
+  .ws-cell h3 {
+    color: #fff;
+    font-size: 20px;
+    margin: 8px 0 6px;
+  }
+  .ws-cell p {
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 15px;
+  }
+  .ws-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+  }
+  .btn-ghost.on-dark {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+  }
+  .ws-foot {
+    margin-top: 22px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  @media (min-width: 760px) {
+    .ws-arc {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

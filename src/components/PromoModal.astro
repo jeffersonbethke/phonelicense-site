@@ -11,7 +11,7 @@
  */
 ---
 
-<div class="promo-modal" id="promo-modal" hidden>
+<div class="promo-modal" id="promo-modal">
   <div class="scrim" data-close></div>
   <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="promo-title">
     <button class="close" data-close aria-label="Close">×</button>
@@ -42,14 +42,19 @@
 </div>
 
 <style>
+  /* Default hidden. Toggled open via .open class — NOT the [hidden] attribute,
+     which display:flex would override (that was the empty-box-on-load bug). */
   .promo-modal {
     position: fixed;
     inset: 0;
     z-index: 200;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 20px;
+  }
+  .promo-modal.open {
+    display: flex;
   }
   .scrim {
     position: absolute;
@@ -153,12 +158,12 @@
       mark(key);
       variants.value.hidden = which !== 'value';
       variants.exit.hidden = which !== 'exit';
-      modal.hidden = false;
+      modal.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
     function close() {
       open = false;
-      modal.hidden = true;
+      modal.classList.remove('open');
       document.body.style.overflow = '';
     }
 
@@ -191,7 +196,7 @@
 
     modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !modal.hidden) close();
+      if (e.key === 'Escape' && open) close();
     });
   }
 </script>

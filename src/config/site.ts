@@ -32,10 +32,12 @@ export const site = {
   },
 } as const;
 
-// Main site navigation. "Events" points at the hub (Phase 4).
+// Main site navigation — the whole funnel.
 export const nav = [
   { label: 'How it works', href: '/#how' },
-  { label: 'The course', href: '/#course' },
+  { label: 'The course', href: '/#pricing' },
+  { label: 'Free quiz', href: '/quiz' },
+  { label: 'The Workshop', href: '/conference' },
   { label: 'Events', href: '/events' },
   { label: 'For churches', href: '/churches' },
 ] as const;

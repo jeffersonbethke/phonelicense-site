@@ -17,6 +17,7 @@ import PromoModal from '../components/PromoModal.astro';
 import StickyCta from '../components/StickyCta.astro';
 import LiveEvents from '../components/LiveEvents.astro';
 import EventCta from '../components/EventCta.astro';
+import WorkshopShowcase from '../components/WorkshopShowcase.astro';
 import { site } from '../config/site';
 import { testimonials } from '../config/testimonials';
 import { promotedEvent } from '../config/events';
@@ -358,6 +359,9 @@ const faqs = [
         </p>
       </div>
     </section>
+
+    {/* ── World-class workshop sell ── */}
+    <WorkshopShowcase />
 
     {/* ── FAQ ── */}
     <section class="section" id="faq">
