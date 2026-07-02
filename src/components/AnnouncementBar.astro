@@ -1,0 +1,165 @@
+---
+/**
+ * Site-wide announcement bar. Renders the single event flagged promote:true in
+ * /config/events, or nothing. Two styles: quiet tint (default) and louder ink
+ * (auto-selected for earlybird/almostfull windows). Dismissal persists per
+ * event+state, so it reappears when the state changes. Elegant, not car-dealer.
+ */
+import { promotedEvent, badgeFor } from '../config/events';
+
+const e = promotedEvent();
+const loud = e ? e.state === 'earlybird' || e.state === 'almostfull' : false;
+const kindWord = e?.kind === 'workshop' ? 'Workshop' : 'Summit';
+
+// CTA label per state.
+const ctaLabel = e
+  ? {
+      interest: 'Get first access',
+      earlybird: 'Claim early-bird',
+      onsale: 'Get tickets',
+      almostfull: 'Reserve seats',
+      soldout: 'Join the waitlist',
+      replay: 'Watch the replay',
+    }[e.state]
+  : '';
+
+const dismissKey = e ? `pl_bar_${e.slug}_${e.state}` : '';
+---
+
+{
+  e && (
+    <div
+      class:list={['abar', loud ? 'ink' : 'tint']}
+      id="announcement-bar"
+      data-dismiss-key={dismissKey}
+    >
+      <a class="abar-in wrap" href={`/${e.slug}`}>
+        <span class="dot" aria-hidden="true" />
+        {loud && <span class="pill">{e.edition} Edition</span>}
+        <span class="msg">
+          <b>{`The ${e.edition} ${kindWord} is coming.`}</b>
+          <span class="meta">
+            {e.dateDisplay} · {e.city}
+          </span>
+        </span>
+        <span class="cta">{ctaLabel} →</span>
+      </a>
+      <button class="abar-x" id="abar-close" aria-label="Dismiss">×</button>
+    </div>
+  )
+}
+
+<style>
+  .abar {
+    position: relative;
+    font-size: 14px;
+  }
+  .abar.tint {
+    background: var(--blue-tint);
+    color: var(--ink);
+    border-bottom: 1px solid var(--blue-tint-2);
+  }
+  .abar.ink {
+    background: var(--ink);
+    color: #fff;
+  }
+  .abar-in {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 44px 10px 20px;
+    text-decoration: none;
+    color: inherit;
+    min-height: 40px;
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex: none;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .abar.ink .dot {
+    background: var(--blue-on-dark);
+  }
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--blue);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: var(--r-pill);
+    flex: none;
+  }
+  .msg {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .msg .meta {
+    color: var(--muted);
+    margin-left: 8px;
+  }
+  .abar.ink .msg .meta {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .cta {
+    margin-left: auto;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--blue-deep);
+  }
+  .abar.ink .cta {
+    color: var(--blue-on-dark);
+  }
+  .abar-x {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.55;
+    cursor: pointer;
+  }
+  .abar-x:hover {
+    opacity: 1;
+  }
+  @media (max-width: 620px) {
+    .msg .meta {
+      display: none;
+    }
+    .cta {
+      font-size: 13px;
+    }
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+</style>
+
+<script>
+  // Dismissed state is applied pre-paint in <head> (no flash / layout shift).
+  // This only handles the click-to-dismiss.
+  const bar = document.getElementById('announcement-bar');
+  document.getElementById('abar-close')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const key = bar?.dataset.dismissKey || '';
+    if (key) localStorage.setItem(key, '1');
+    document.documentElement.classList.add('abar-hide');
+  });
+</script>

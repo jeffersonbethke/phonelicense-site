@@ -1,0 +1,81 @@
+---
+/**
+ * The state-driven event action. One component, six states — reused on the
+ * homepage, the events hub, and every event page. Flip the event's `state` in
+ * /config/events and the CTA changes with zero edits here.
+ *
+ *  earlybird/onsale/almostfull → Kajabi checkout (buy)
+ *  interest                    → "Get first access" email capture
+ *  soldout                     → waitlist email capture
+ *  replay                      → watch-the-replay link
+ *
+ * Interest + waitlist captures post to the webhook with per-event tags and end
+ * at exactly one doorway: the free quiz.
+ */
+import KajabiLink from './KajabiLink.astro';
+import LeadForm from './LeadForm.astro';
+import type { EventConfig } from '../config/events';
+
+interface Props {
+  event: EventConfig;
+  variant?: 'primary' | 'dark' | 'white';
+}
+const { event: e, variant = 'primary' } = Astro.props;
+
+const seatWord = e.kind === 'workshop' ? 'seats' : 'seat';
+const isBuy = e.state === 'earlybird' || e.state === 'onsale' || e.state === 'almostfull';
+const isReplay = e.state === 'replay';
+const isInterest = e.state === 'interest';
+const isWaitlist = e.state === 'soldout';
+
+const buyLabel =
+  e.state === 'earlybird' && e.earlyBirdPrice
+    ? `Claim early-bird — $${e.earlyBirdPrice}`
+    : `Get your ${seatWord} — $${e.price}`;
+const buyValue = e.state === 'earlybird' && e.earlyBirdPrice ? e.earlyBirdPrice : e.price;
+
+const captureTag = isWaitlist ? e.interestTag.replace('-Interested', '-Waitlist') : e.interestTag;
+const formVariant = variant === 'white' ? 'dark' : variant;
+---
+
+{
+  isBuy && (
+    <KajabiLink
+      href={e.ticketsUrl}
+      value={buyValue}
+      name={`${e.title} ${e.edition}`}
+      variant={variant}
+    >
+      {buyLabel}
+    </KajabiLink>
+  )
+}
+
+{
+  isReplay && (
+    <a href={`/${e.slug}`} class={`btn btn-${variant}`}>
+      Watch the replay →
+    </a>
+  )
+}
+
+{
+  (isInterest || isWaitlist) && (
+    <LeadForm
+      tags={[captureTag]}
+      button={isWaitlist ? 'Join the waitlist' : 'Get first access'}
+      variant={formVariant}
+      pixelName={captureTag}
+      confirmTitle={isWaitlist ? 'You’re on the waitlist, {name}.' : 'You’re first in line, {name}.'}
+      confirmBody={
+        isWaitlist
+          ? 'If a seat opens up, you’ll be the first to know.'
+          : 'We’ll email you the moment tickets open.'
+      }
+      nextLabel="While you wait — take the free quiz →"
+      nextHref="/quiz"
+    >
+      <span slot="fine">Name + email · one email per event · unsubscribe anytime.</span>
+    </LeadForm>
+  )
+}

@@ -9,17 +9,26 @@
 import '../styles/tokens.css';
 import '../styles/global.css';
 import { site } from '../config/site';
+import { promotedEvent } from '../config/events';
+import AnnouncementBar from '../components/AnnouncementBar.astro';
 
 interface Props {
   title?: string;
   description?: string;
   viewContent?: string | boolean;
   ogImage?: string;
+  /** Hide the site-wide announcement bar on this page (e.g. /quiz). */
+  announcement?: boolean;
 }
+
+// Pre-paint dismissal key for the promoted event (avoids flash + layout shift).
+const promo = promotedEvent();
+const barKey = promo ? `pl_bar_${promo.slug}_${promo.state}` : '';
 const {
   title = `${site.name} — ${site.tagline}`,
   description = 'Earn the phone. Keep the trust. A calm, parent-to-parent plan for the first phone — or a fresh start on the one they already have.',
   viewContent = false,
+  announcement = true,
 } = Astro.props;
 
 const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewContent : null;
@@ -51,6 +60,15 @@ const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewCon
       window._plPixelId = pixelId;
     </script>
 
+    {/* Announcement bar: hide pre-paint if this event+state was dismissed. */}
+    {
+      announcement && barKey && (
+        <script is:inline define:vars={{ barKey }}>
+          {`try{if(localStorage.getItem(barKey)==='1')document.documentElement.classList.add('abar-hide');}catch(e){}`}
+        </script>
+      )
+    }
+
     {/* Meta Pixel — only boots when an id is configured. */}
     {
       site.metaPixelId && (
@@ -61,6 +79,7 @@ const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewCon
     }
   </head>
   <body>
+    {announcement && <AnnouncementBar />}
     <slot />
 
     {/* Boot client libs: UTM capture, optional ViewContent, Kajabi clicks. */}

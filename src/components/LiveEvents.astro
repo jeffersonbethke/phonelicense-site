@@ -1,0 +1,185 @@
+---
+/**
+ * Homepage "Live Events" section. Date-led rows for the upcoming events, badges
+ * straight from /config/events. Photo band + scrim head, ink rows, footer link
+ * to the full season hub. Renders nothing if there are no upcoming events.
+ */
+import { events, badgeFor } from '../config/events';
+import StatusBadge from './StatusBadge.astro';
+
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+function parts(iso: string) {
+  const [, m, d] = iso.split('-').map(Number);
+  return { mon: MONTHS[(m || 1) - 1], day: d };
+}
+
+// Upcoming (non-replay), soonest first.
+const rows = Object.values(events)
+  .filter((e) => e.state !== 'replay')
+  .sort((a, b) => a.dateISO.localeCompare(b.dateISO));
+---
+
+{
+  rows.length > 0 && (
+    <section class="live" aria-label="Live events">
+      <div class="photo">
+        <div class="scrim" />
+        <div class="head wrap">
+          <p class="eyebrow on">Live events · The 2026 Season</p>
+          <h2>
+            The course is day one. <span class="accent on-dark">These are every year after.</span>
+          </h2>
+          <p class="sub">
+            One in-person workshop and two live summits a year — the annual
+            briefing on what changed, for parents who don’t want to figure it
+            out alone.
+          </p>
+        </div>
+      </div>
+
+      <div class="rows band-ink">
+        <div class="wrap">
+          {rows.map((e) => {
+            const p = parts(e.dateISO);
+            const kind =
+              e.kind === 'workshop'
+                ? 'In-person workshop · once a year'
+                : `Live virtual summit · ${e.season === 'fall' ? 'Fall' : 'Spring'} ${e.edition}`;
+            return (
+              <a class="row" href={`/${e.slug}`}>
+                <div class="date">
+                  <span class="mon">{p.mon}</span>
+                  <span class="day">{p.day}</span>
+                </div>
+                <div class="mid">
+                  <span class="mono kind">{kind}</span>
+                  <span class="title">
+                    {e.title}
+                    {e.themeLine ? `: ${e.themeLine}` : ''}
+                  </span>
+                </div>
+                <StatusBadge state={e.state} />
+                <span class="arrow" aria-hidden="true">→</span>
+              </a>
+            );
+          })}
+          <div class="foot">
+            <span class="note mono">One workshop a year · capped at 200 couples</span>
+            <a href="/events" class="btn btn-ghost">See the full season →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .photo {
+    position: relative;
+    background-image: url('/assets/room-wide.jpg');
+    background-size: cover;
+    background-position: center;
+    min-height: 340px;
+    display: flex;
+    align-items: flex-end;
+  }
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 15, 16, 0.25) 0%, rgba(15, 15, 16, 0.82) 100%);
+  }
+  .head {
+    position: relative;
+    text-align: center;
+    padding: 48px 20px;
+    color: #fff;
+    max-width: 780px;
+  }
+  .head h2 {
+    color: #fff;
+    margin: 10px 0;
+  }
+  .eyebrow.on {
+    color: var(--blue-on-dark);
+  }
+  .head .sub {
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 560px;
+    margin-inline: auto;
+  }
+  .rows {
+    padding-block: 8px 40px;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 64px 1fr auto auto;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    transition: background 0.2s ease;
+  }
+  .row:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+  }
+  .date .mon {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--blue-on-dark);
+  }
+  .date .day {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: -0.03em;
+  }
+  .mid {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .mid .kind {
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .mid .title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.02em;
+  }
+  .arrow {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 26px;
+  }
+  .foot .note {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  @media (max-width: 560px) {
+    .row {
+      grid-template-columns: 52px 1fr auto;
+    }
+    .row .arrow {
+      display: none;
+    }
+    .mid .title {
+      font-size: 15.5px;
+    }
+  }
+</style>

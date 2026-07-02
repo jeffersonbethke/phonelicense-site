@@ -188,6 +188,11 @@ h4 {
   outline-offset: 2px;
 }
 
+/* Announcement bar: hidden pre-paint when this event+state was dismissed. */
+.abar-hide .abar {
+  display: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

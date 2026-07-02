@@ -15,8 +15,13 @@ import KajabiLink from '../components/KajabiLink.astro';
 import Faq from '../components/Faq.astro';
 import ExitModal from '../components/ExitModal.astro';
 import StickyCta from '../components/StickyCta.astro';
+import LiveEvents from '../components/LiveEvents.astro';
+import EventCta from '../components/EventCta.astro';
 import { site } from '../config/site';
 import { testimonials } from '../config/testimonials';
+import { promotedEvent } from '../config/events';
+
+const promo = promotedEvent();
 
 const included = [
   {
@@ -195,6 +200,25 @@ const faqs = [
         </div>
       </div>
     </section>
+
+    {/* ── Live Events (config-driven) ── */}
+    <LiveEvents />
+
+    {promo && (
+      <section class="section">
+        <div class="wrap first-access">
+          <div>
+            <p class="eyebrow">Never hear about it late</p>
+            <h3>Get first access to the {promo.edition} Season.</h3>
+            <p class="fa-sub">
+              We run these once a year and they fill up. Drop your name and we’ll
+              make sure you’re first through the doors.
+            </p>
+          </div>
+          <EventCta event={promo} variant="dark" />
+        </div>
+      </section>
+    )}
 
     {/* ── What's included ── */}
     <section class="section">
@@ -662,6 +686,23 @@ const faqs = [
     font-weight: 500;
   }
 
+  .first-access {
+    display: grid;
+    gap: 24px;
+    align-items: center;
+  }
+  .first-access h3 {
+    margin: 8px 0;
+  }
+  .first-access .fa-sub {
+    color: var(--muted);
+    max-width: 46ch;
+  }
+  @media (min-width: 820px) {
+    .first-access {
+      grid-template-columns: 1fr 420px;
+    }
+  }
   .final {
     border-radius: var(--r-lg);
     padding: 56px 32px;
