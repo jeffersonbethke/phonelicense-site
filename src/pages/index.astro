@@ -1,875 +1,264 @@
 ---
 /**
- * Sales homepage (phonelicense.co/).
- * Faithful to the ORIGINAL design (iPhone hero mockup, "licenses required"
- * section, Watch/Pass/Sign, Tangible mockups, curriculum) with the requested
- * additions woven in: BE HONEST, Two-Door, Live Events, Workshop showcase,
- * testimonials, funnel nav, promo modal, footer PDF capture, quiz CTAs.
+ * Sales homepage — the ORIGINAL page, verbatim (its own HTML + 58KB stylesheet
+ * extracted from the original build), with the requested additions injected
+ * using the original's own CSS classes so spacing/design match exactly.
+ *
+ * Additions: funnel nav (done in body.html), BE HONEST, Two-Door, Live Events,
+ * Workshop showcase, footer PDF capture, promo modal, quiz CTAs, and buy-button
+ * wiring to the Kajabi offer + pixel/UTM.
  */
-import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Footer from '../components/Footer.astro';
-import SectionHead from '../components/SectionHead.astro';
-import KajabiLink from '../components/KajabiLink.astro';
-import Faq from '../components/Faq.astro';
-import PromoModal from '../components/PromoModal.astro';
-import StickyCta from '../components/StickyCta.astro';
-import LiveEvents from '../components/LiveEvents.astro';
-import WorkshopShowcase from '../components/WorkshopShowcase.astro';
-import HeroPhone from '../components/HeroPhone.astro';
+import homeCss from '../styles/home.css?raw';
+import rawBody from '../home/body.html?raw';
 import { site } from '../config/site';
-import { testimonials, initials } from '../config/testimonials';
+import { offers } from '../config/offers';
+import { events } from '../config/events';
 import { conference } from '../config/event-content';
 
-const middlePath = [
-  { n: '01 · The fight', h: '“Get off your phone.”', d: 'Same argument every night. Vague rules. Constant negotiation. Nobody wins.' },
-  { n: '02 · The fear', h: 'What they’re seeing — and not telling you.', d: 'Group chats, late-night spirals, content you can’t unsee. The stakes feel high and the playbook is missing.' },
-  { n: '03 · The plan', h: 'A shared framework, not a power struggle.', d: 'Phone License gives families a structured path. Same team, same rules, same finish line.' },
-];
+const course = offers.course;
+const conf = events['conference'];
+const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const rows = Object.values(events).filter((e) => e.state !== 'replay').sort((a, b) => a.dateISO.localeCompare(b.dateISO));
 
-const licenses = [
-  { h: 'Cars', d: 'Permit. Practice. Test. Real consequences for breaking the rules.' },
-  { h: 'Marriages', d: 'License. Vows. Witnesses. A public agreement to a shared standard.' },
-  { h: 'Firearms', d: 'Background check, training, registration. Power deserves preparation.' },
-  { h: 'Phones', d: 'The gateway to everything. Until now: no test, no training, no plan.', hl: true },
-];
+// ── Addition sections, styled with the original classes (.container/.eyebrow/.accent) ──
+const beHonest = `
+<section class="add-felt">
+  <div class="container">
+    <p class="eyebrow">Be honest</p>
+    ${conference.feltNeed.map((q, i) => `<p class="add-fq" style="opacity:${1 - i * 0.2}">${q}</p>`).join('')}
+    <p class="add-fturn">You're not failing. The terrain changed — and nobody briefed you. <span class="accent">That's exactly what Phone License is for.</span></p>
+  </div>
+</section>`;
 
-const steps = [
-  { s: 'Step 01', h: 'Watch short videos together', d: 'Six modules, each 6–12 minutes. Parent and teen watch side-by-side. No lecture, no panic — just real situations and clear rules.', mock: 'video' },
-  { s: 'Step 02', h: 'Pass quizzes & road tests', d: 'Micro-quizzes prove they got it. Road Tests prove they can do it — turn on Screen Time, set downtime, build a no-phone zone. Parents click “verified.”', mock: 'quiz' },
-  { s: 'Step 03', h: 'Sign agreement & get certified', d: 'Final week: family signs the agreement. Teen takes the situational final exam. Parent reads the issuance statement. The phone is officially handed over.', mock: 'cert' },
-];
+const twoDoor = `
+<section>
+  <div class="container">
+    <div class="section-head"><p class="eyebrow">Two doors, one path</p><h2>Two kinds of families end up here. <span class="accent">It works for both.</span></h2></div>
+    <div class="add-doors">
+      <div class="add-card">
+        <p class="add-k">First phone</p><h3>The path to a confident yes.</h3>
+        <p>You haven't handed it over yet — and you want the first phone to start on trust, not guesswork. Phone License gives you the agreement, the settings, and the handoff conversation so you can say yes without second-guessing.</p>
+      </div>
+      <div class="add-card hl">
+        <p class="add-k">A fresh start</p><h3>Start over without taking it away.</h3>
+        <p>They've had the phone a while and the boundaries slipped. Here's the relief: <b>nothing gets confiscated.</b> The phone gets re-issued under a new agreement they earn — calm, clear, and mutual.</p>
+      </div>
+    </div>
+  </div>
+</section>`;
 
-const included = [
-  { h: 'The Road Test', d: 'Each module ends with a hands-on checklist your teen completes on the device — and you verify. No more “I get it, I get it.”' },
-  { h: 'Video lessons', d: 'Six modules, studio-shot. Fast-paced, specific, non-preachy — parents feel supported, teens feel respected.' },
-  { h: 'The License', d: 'A digital certificate with a unique ID — earned, trackable, renewable. Optional printed wallet card.' },
-  { h: 'The Family Agreement', d: 'A 9-section template covering sleep, school, content, conflict, repair — and parent commitments. Signed, not just talked about.' },
-  { h: 'The Issuance Ceremony', d: 'Script, parent statement, optional spiritual covenant. The handoff your kid actually remembers.' },
-  { h: '90-day Renewal', d: 'A short re-test, agreement review, and privilege adjustments. Trust earned, then renewed.' },
-];
+const liveEvents = `
+<section class="add-live">
+  <div class="container">
+    <div class="section-head"><p class="eyebrow" style="color:var(--blue)">Live events · The 2026 Season</p>
+      <h2 style="color:#fff">We also run a few <span class="accent">live intensives</span> a year.</h2>
+      <p class="add-lsub">Two virtual summits and one in-person workshop, every year — the annual briefing on what actually changed, for parents who don't want to figure it out alone.</p></div>
+    <div class="add-rows">
+      ${rows.map((e) => {
+        const [, m, d] = e.dateISO.split('-').map(Number);
+        const kind = e.kind === 'workshop' ? 'In-person workshop · once a year' : `Live virtual summit · ${e.season === 'fall' ? 'Fall' : 'Spring'} ${e.edition}`;
+        return `<a class="add-row" href="/${e.slug}"><span class="add-date"><span class="mo">${MONTHS[(m||1)-1]}</span><span class="dy">${d}</span></span><span class="add-mid"><span class="add-kind">${kind}</span><span class="add-title">${e.title}${e.themeLine ? ': ' + e.themeLine : ''}</span></span><span class="add-arrow">→</span></a>`;
+      }).join('')}
+    </div>
+    <div class="add-lfoot"><span class="add-note">One workshop a year · capped at 200 couples</span><a href="/events" class="btn-ghost">See the full season →</a></div>
+  </div>
+</section>`;
 
-const weeks = [
-  { w: 'Week 0', h: 'Orientation: why a license, not a permission slip', d: 'Set expectations together. Parents learn the framework; the phone arrives locked down and unlocks as they pass each week.' },
-  { w: 'Week 1', h: 'The Rules of the Road', d: 'Attention, habit loops, notifications. The phone is a tool, not a slot machine.' },
-  { w: 'Week 2', h: 'Passengers & Peer Pressure', d: 'Group chats, face-to-face vs. text, and the social cost of being the one who logs off.' },
-  { w: 'Week 3', h: 'Night Driving', d: 'Sleep, secrecy, late-night scrolling. Build a charging station outside the bedroom.' },
-  { w: 'Week 4', h: 'Hazards & Car Crash', d: 'Pornography, predators, scams, bullying — what to do in the moment, who to tell, how to recover without shame.' },
-  { w: 'Weeks 5–6', h: 'Maintenance, Renewal & the Issuance Ceremony', d: 'Audits, repair-after-failure, expanding privileges — then the family agreement, final exam, and the issuance ceremony.' },
-];
+const workshop = `
+<section class="add-ws">
+  <img class="add-ws-bg" src="/assets/room-wide.jpg" alt="" loading="lazy" decoding="async" />
+  <div class="add-ws-scrim"></div>
+  <div class="container add-ws-in">
+    <p class="eyebrow" style="color:var(--blue)">The ${conf.edition} in-person workshop · once a year</p>
+    <h2 style="color:#fff">Spend one day with us. <span class="accent">Parent the whole year on purpose.</span></h2>
+    <p class="add-ws-lede">${conf.title} is the annual, in-person briefing for parents — both of you in one room in ${conf.city}, then a long-table supper in Leipers Fork. It's the day couples talk about on the drive home.</p>
+    <p class="add-ws-meta">${conf.dateDisplay} · ${conf.venue} · Capped at ${conf.capacity} couples</p>
+    <div class="add-ws-cta"><a href="/conference" class="btn-white">See the full day →</a></div>
+  </div>
+</section>`;
 
-const beforeAfter = {
-  before: ['Constant arguments about screen time', 'Vague, inconsistent rules', 'Anxiety about what they’re seeing', 'Parents and teens on opposite teams', 'No plan for when something goes wrong'],
-  after: ['A signed agreement everyone refers back to', 'Rules earned, not imposed', 'Clear protocols when things go sideways', 'Parent and teen facing the problem together', 'Renewable trust, on a 90-day cadence'],
-};
+const pdfCapture = `
+<section class="add-pdf">
+  <div class="container add-pdf-grid">
+    <div><p class="eyebrow">Free download</p><h3>The Family Phone Contract</h3><p class="add-pdf-sub">The one-page agreement thousands of families sign before the phone changes hands — first phone or a fresh start. We'll email it over.</p></div>
+    <form class="add-form" data-lead data-tags="Lead - Contract PDF" data-pixel="Contract PDF" data-next="/quiz" data-next-label="See if they're ready — take the free quiz →" data-title="On its way, {name}." data-body="Check your inbox for the Family Phone Contract.">
+      <input type="text" name="name" placeholder="First name" autocomplete="given-name" />
+      <input type="email" name="email" placeholder="Email address" required autocomplete="email" />
+      <button type="submit" class="btn-dark">Email me the contract</button>
+      <p class="add-fine">No spam · one email · unsubscribe anytime.</p>
+      <p class="add-err" role="alert" hidden></p>
+    </form>
+  </div>
+</section>`;
 
-const faqs = [
-  { q: 'My kid already has a phone — is this still for us?', a: 'Absolutely. About half the families here are starting over. Nothing gets confiscated — the phone gets <b>re-issued under a new agreement they earn</b>. You get the exact reset conversation and a calm, week-by-week path back to trust, without a standoff.' },
-  { q: 'Is there a subscription?', a: 'No. It’s a <b>one-time purchase with lifetime access</b> — yours forever, for every kid in your family, now and later.' },
-  { q: 'What ages is this for?', a: 'Built for the first-phone window and the reset years — roughly ages 10–16. Younger or older, the framework still works; you’ll just move faster or slower through the weeks.' },
-  { q: 'Is it faith-based?', a: 'It works for any family. Spiritual elements (like the optional covenant in the issuance ceremony) are exactly that — optional.' },
-  { q: 'What exactly do we get?', a: 'Six video modules, hands-on Road Tests, the digital License + ID, the 9-section Family Agreement, the Issuance Ceremony script, and the 90-day Renewal.' },
-  { q: 'How long does it take?', a: 'About a 2-hour commitment spread over six weeks — designed to feel like Driver’s Ed: structured, practical, and impossible to fake your way through.' },
-];
+const promoModal = `
+<div class="add-modal" id="promo-modal">
+  <div class="add-scrim" data-close></div>
+  <div class="add-dialog" role="dialog" aria-modal="true">
+    <button class="add-x" data-close aria-label="Close">×</button>
+    <div data-variant="value" hidden>
+      <p class="eyebrow">Free · 3 minutes</p><h3>Is your kid ready for a phone?</h3>
+      <p>Take the free Smartphone Readiness Assessment. In 3 minutes you'll see exactly where they are — first phone or a fresh start — plus a personalized plan. No email needed to start.</p>
+      <a href="/quiz" class="btn-dark" style="width:100%">See if they're ready →</a><button class="add-dismiss" data-close>Maybe later</button>
+    </div>
+    <div data-variant="exit" hidden>
+      <p class="eyebrow">Before you go</p><h3>Don't leave guessing.</h3>
+      <p>The free 3-minute assessment tells you whether they're ready — and the first move to make, whether it's their first phone or a reset.</p>
+      <a href="/quiz" class="btn-dark" style="width:100%">Take the free quiz →</a><button class="add-dismiss" data-close>No thanks, keep reading</button>
+    </div>
+  </div>
+</div>`;
+
+// ── Inject additions into the verbatim original body at the original anchors ──
+let body = rawBody;
+// buy buttons → Kajabi course offer (UTM + InitiateCheckout wired client-side)
+body = body.replaceAll('<a href="#pricing" class="cta">Start — $49</a>', `<a href="${course.url}" class="cta" data-kajabi data-offer-value="${course.pixelValue}" data-offer-name="Phone License course"${course.url.startsWith('#') ? ' data-todo="true"' : ''}>Start — $49</a>`);
+// after hero
+body = body.replace('<!-- ============================ FELT NEED', beHonest + twoDoor + '\n<!-- ============================ FELT NEED');
+// live events before curriculum
+body = body.replace('<!-- ============================ CURRICULUM', liveEvents + '\n<!-- ============================ CURRICULUM');
+// workshop before pricing
+body = body.replace('<!-- ============================ PRICING', workshop + '\n<!-- ============================ PRICING');
+// footer PDF capture before footer
+body = body.replace('<!-- ============================ FOOTER', pdfCapture + '\n<!-- ============================ FOOTER');
 ---
 
-<Base viewContent="Sales Page">
-  <Nav cta={{ label: 'Start — $49', href: '#pricing' }} />
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Phone License — Earn the phone. Keep the trust.</title>
+    <meta name="description" content="A parent + teen course that turns phone access into earned trust — first phone or a fresh start on the one they already have." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style is:inline set:html={homeCss}></style>
 
-  <main>
-    {/* ── Hero ── */}
-    <section class="section hero">
-      <div class="wrap">
-        <h1>
-          You wouldn’t hand your kid car keys without training.
-          <span class="accent">Why hand them a phone without it?</span>
-        </h1>
-        <p class="lede">
-          A parent + teen course that turns phone access into earned trust — with
-          quizzes, a family agreement, and a real certificate.
-          <br /><b>{site.twoAudienceLine}</b>
-        </p>
-        <div class="cta-row">
-          <KajabiLink offerId="course" variant="dark" class="lg">Start Phone License</KajabiLink>
-          <a href="/quiz" class="btn btn-ghost lg">See if they’re ready →</a>
-        </div>
-        <ul class="trust">
-          <li>2-hour commitment over 6 weeks</li>
-          <li>Built for ages 10–16</li>
-          <li>Certificate included</li>
-        </ul>
-        <HeroPhone />
-      </div>
-    </section>
-
-    {/* ── Be honest (emotional felt-need) — addition ── */}
-    <section class="section band-2 felt">
-      <div class="wrap">
-        <p class="eyebrow">Be honest</p>
-        {conference.feltNeed.map((q, i) => (
-          <p class="felt-q" style={`opacity:${1 - i * 0.2}`}>{q}</p>
-        ))}
-        <p class="felt-turn">
-          You’re not failing. The terrain changed — and nobody briefed you.
-          <span class="accent"> That’s exactly what Phone License is for.</span>
-        </p>
-      </div>
-    </section>
-
-    {/* ── Two-Door — addition ── */}
-    <section class="section">
-      <div class="wrap">
-        <SectionHead eyebrow="Two doors, one path">
-          Two kinds of families end up here. <span class="accent">It works for both.</span>
-        </SectionHead>
-        <div class="doors">
-          <div class="card door">
-            <p class="mono">First phone</p>
-            <h3>The path to a confident yes.</h3>
-            <p>You haven’t handed it over yet — and you want the first phone to start on trust, not guesswork. Phone License gives you the agreement, the settings, and the handoff conversation so you can say yes without second-guessing.</p>
-          </div>
-          <div class="card door highlight">
-            <p class="mono">A fresh start</p>
-            <h3>Start over without taking it away.</h3>
-            <p>They’ve had the phone a while and the boundaries slipped. Here’s the relief: <b>nothing gets confiscated.</b> The phone gets re-issued under a new agreement they earn — calm, clear, and mutual.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* ── The middle path (dark) ── */}
-    <section class="section band-ink" id="how">
-      <div class="wrap">
-        <div class="section-head center">
-          <p class="eyebrow">The middle path</p>
-          <h2>You don’t want to overreact. You don’t want to under-parent it. <span class="accent on-dark">You want a plan you can actually enforce.</span></h2>
-        </div>
-        <div class="triad">
-          {middlePath.map((m) => (
-            <div class="mp-card">
-              <p class="mono">{m.n}</p>
-              <h4>{m.h}</h4>
-              <p>{m.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* ── Licenses required ── */}
-    <section class="section">
-      <div class="wrap">
-        <SectionHead eyebrow="Why a license">
-          Cars require licenses. Marriages require licenses. <span class="accent">Guns require licenses.</span>
-        </SectionHead>
-        <p class="lic-sub">A phone is the most powerful device most teenagers will ever own. It’s the only one we hand over with no training, no test, and no agreement. Phone License fixes that.</p>
-        <div class="lic-grid">
-          {licenses.map((l) => (
-            <div class:list={['card lic', l.hl && 'hl']}>
-              <h4>{l.h}</h4>
-              <p>{l.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* ── Watch. Pass. Sign. ── */}
-    <section class="section band-2" id="course">
-      <div class="wrap">
-        <SectionHead eyebrow="How it works">Watch. Pass. <span class="accent">Sign.</span></SectionHead>
-        <p class="steps-sub">Three steps, repeated for six weeks. Designed to feel like Driver’s Ed — structured, practical, and impossible to fake your way through.</p>
-        <div class="steps">
-          {steps.map((st) => (
-            <div class="card step">
-              <p class="mono">{st.s}</p>
-              <h4>{st.h}</h4>
-              <p>{st.d}</p>
-              <div class:list={['step-mock', `mock-${st.mock}`]}>
-                {st.mock === 'video' && <span class="play" aria-hidden="true"></span>}
-                {st.mock === 'quiz' && (
-                  <div class="q-mock">
-                    <p class="qq">A friend asks you to keep a secret account. What do you do?</p>
-                    <span class="qa">Tell parents the same day ✓</span>
-                  </div>
-                )}
-                {st.mock === 'cert' && (
-                  <div class="cert-mock">
-                    <span class="seal" aria-hidden="true">✓</span>
-                    <b>Issued to: Jordan W.</b>
-                    <span class="mono">PL-2026-04881</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* ── Tangible, not theoretical ── */}
-    <section class="section">
-      <div class="wrap">
-        <SectionHead eyebrow="What’s included">Tangible, not theoretical.</SectionHead>
-        <p class="steps-sub">You get the videos, yes. You also get the assets that turn it into a real rite of passage — the kind of thing your kid will remember, not click through.</p>
-        <div class="grid-3">
-          {included.map((it) => (
-            <div class="card feat">
-              <h4>{it.h}</h4>
-              <p>{it.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* ── Live Events — addition ── */}
-    <LiveEvents />
-
-    {/* ── Curriculum ── */}
-    <section class="section band-2">
-      <div class="wrap">
-        <SectionHead eyebrow="The curriculum">
-          Six weeks. Driver’s Ed for the device that <span class="accent">actually drives their life.</span>
-        </SectionHead>
-        <div class="weeks">
-          {weeks.map((wk) => (
-            <div class="week">
-              <span class="wk mono">{wk.w}</span>
-              <div><h4>{wk.h}</h4><p>{wk.d}</p></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-    {/* ── The shift ── */}
-    <section class="section">
-      <div class="wrap">
-        <SectionHead eyebrow="The shift">From power struggle to shared plan.</SectionHead>
-        <div class="shift">
-          <div class="card ba before">
-            <p class="mono">Before · same fight, different night</p>
-            <ul>{beforeAfter.before.map((x) => <li>{x}</li>)}</ul>
-          </div>
-          <div class="card ba after">
-            <p class="mono">After · one team</p>
-            <ul>{beforeAfter.after.map((x) => <li>{x}</li>)}</ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* ── Meet your guides ── */}
-    <section class="section band-2">
-      <div class="wrap">
-        <SectionHead eyebrow="Meet your guides">The research meets the rhythm.</SectionHead>
-        <div class="guides">
-          <div class="card guide">
-            <img src="/assets/darren.jpg" alt="Dr. Darren Whitehead" width="88" height="88" loading="lazy" />
-            <div>
-              <p class="mono">The Expert</p>
-              <h4>Dr. Darren Whitehead <span class="cred">D.Min.</span></h4>
-              <p>Founding pastor of Church of the City (Nashville) and author of <i>The Digital Fast</i> — the playbook thousands of families and churches use to reset their relationship with their phones.</p>
-            </div>
-          </div>
-          <div class="card guide">
-            <img src="/assets/jeff-family.jpg" alt="Jefferson & Alyssa Bethke" width="88" height="88" loading="lazy" />
-            <div>
-              <p class="mono">The Family Builder</p>
-              <h4>Jefferson Bethke</h4>
-              <p>#1 NYT-bestselling author and dad of four. With his wife Alyssa, he’s spent a decade helping families build rhythms over hustle — reaching 30M+ readers and listeners from Leipers Fork, Tennessee.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {/* ── Testimonials — addition ── */}
-    {testimonials.length > 0 && (
-      <section class="section">
-        <div class="wrap">
-          <SectionHead eyebrow="From families">The drive home they talk about.</SectionHead>
-          <div class="grid-3">
-            {testimonials.slice(0, 3).map((t) => (
-              <figure class="card quote">
-                <blockquote>“{t.quote}”</blockquote>
-                <figcaption>
-                  {t.image ? (
-                    <img class="avatar" src={t.image} alt={t.name} width="48" height="48" loading="lazy" />
-                  ) : (
-                    <span class="avatar initials" aria-hidden="true">{initials(t.name)}</span>
-                  )}
-                  <span class="who"><b>{t.name}</b><span class="det">{t.detail}{t.mock && <span class="mock">sample</span>}</span></span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+    {/* Integration config for the client libs */}
+    <script is:inline define:vars={{ webhookUrl: site.webhookUrl, pixelId: site.metaPixelId }}>
+      window.__PL = { webhookUrl: webhookUrl, pixelId: pixelId };
+      window._plPixelId = pixelId;
+    </script>
+    {site.metaPixelId && (
+      <script is:inline define:vars={{ pixelId: site.metaPixelId }}>
+        {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', pixelId);fbq('track','PageView');`}
+      </script>
     )}
+  </head>
+  <body>
+    <Fragment set:html={body} />
+    <Fragment set:html={promoModal} />
 
-    {/* ── Pricing ── */}
-    <section class="section band-2" id="pricing">
-      <div class="wrap">
-        <SectionHead eyebrow="Pricing">Two ways in. <span class="accent">One outcome.</span></SectionHead>
-        <p class="price-sub">Perfect for a first phone — or a reset for a phone you’ve already given. <b>No subscription. One-time, yours forever.</b></p>
-        <div class="tiers">
-          <div class="card tier">
-            <p class="mono">Core</p>
-            <p class="price">$49<span>one-time · lifetime access</span></p>
-            <ul class="incl">
-              <li>Full course access — 6 modules</li>
-              <li>Digital Family Agreement template</li>
-              <li>Digital certificate + License ID</li>
-            </ul>
-            <KajabiLink offerId="course" variant="dark">Start with Core</KajabiLink>
-            <p class="best">Best for: families starting a first phone or doing a reset.</p>
-          </div>
-          <div class="card tier featured">
-            <span class="ribbon">Most chosen</span>
-            <p class="mono">Premium Kit</p>
-            <p class="price">$79<span>one-time · everything in Core, plus…</span></p>
-            <ul class="incl">
-              <li>Everything in Core</li>
-              <li>Issuance Ceremony script + assets</li>
-              <li>90-day Renewal mini-course</li>
-              <li>Bonus: Social Media Readiness module</li>
-            </ul>
-            <KajabiLink offerId="premiumKit" variant="primary">Get the Premium Kit</KajabiLink>
-            <p class="best">Best for: families who want the rite-of-passage moment to land hard.</p>
-          </div>
-        </div>
-        <p class="quiz-nudge">Not sure yet? <a href="/quiz">Take the free 3-minute Readiness Assessment →</a></p>
-      </div>
-    </section>
+    {/* ── Styles for the injected additions (original tokens/classes) ── */}
+    <style is:inline>{`
+      .add-felt{background:var(--bg-2);text-align:center}
+      .add-fq{font-family:var(--font-display,Inter);font-weight:600;font-size:clamp(21px,3.6vw,32px);letter-spacing:-.03em;color:var(--ink);line-height:1.15;margin-top:12px}
+      .add-fturn{max-width:640px;margin:30px auto 0;font-size:clamp(17px,2.2vw,20px);color:var(--ink-2)}
+      .add-doors{display:grid;gap:20px;margin-top:40px}
+      @media(min-width:720px){.add-doors{grid-template-columns:1fr 1fr}}
+      .add-card{background:var(--surface,#fff);border:1px solid var(--line,rgba(15,15,16,.08));border-radius:22px;padding:28px;box-shadow:0 1px 2px rgba(15,15,16,.04),0 4px 14px rgba(15,15,16,.05)}
+      .add-card.hl{background:var(--blue-tint,#eef2fa);border-color:var(--blue-tint-2,#dde7f7)}
+      .add-card h3{margin:8px 0}
+      .add-card p:last-child{color:var(--ink-2);margin-top:8px}
+      .add-k{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-deep,#3a68b5)}
+      .add-live{background:var(--ink);color:#fff}
+      .add-live .add-lsub{color:rgba(255,255,255,.72);max-width:580px;margin:12px auto 0}
+      .add-rows{margin-top:28px}
+      .add-row{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:16px;padding:22px 4px;border-top:1px solid rgba(255,255,255,.12);color:#fff;text-decoration:none}
+      .add-row:hover{background:rgba(255,255,255,.04)}
+      .add-date{display:flex;flex-direction:column;align-items:center;line-height:1}
+      .add-date .mo{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.1em;color:var(--blue,#4f83cc)}
+      .add-date .dy{font-family:var(--font-display,Inter);font-weight:700;font-size:30px;letter-spacing:-.03em}
+      .add-mid{display:flex;flex-direction:column;gap:3px;min-width:0}
+      .add-kind{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+      .add-title{font-family:var(--font-display,Inter);font-weight:600;font-size:17px;letter-spacing:-.02em}
+      .add-arrow{color:rgba(255,255,255,.6);font-size:18px}
+      .add-lfoot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding-top:26px}
+      .add-note{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+      .add-ws{position:relative;overflow:hidden;color:#fff;background:var(--ink)}
+      .add-ws-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
+      .add-ws-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,15,16,.72),rgba(15,15,16,.86))}
+      .add-ws-in{position:relative;text-align:center}
+      .add-ws-lede{max-width:640px;margin:16px auto 0;color:rgba(255,255,255,.82);font-size:clamp(16px,2.2vw,19px)}
+      .add-ws-meta{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:18px}
+      .add-ws-cta{margin-top:30px}
+      .btn-white{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--ink);font-weight:500;font-size:15.5px;padding:15px 26px;border-radius:999px;text-decoration:none}
+      .add-pdf{background:var(--bg-2)}
+      .add-pdf-grid{display:grid;gap:28px;align-items:center}
+      @media(min-width:820px){.add-pdf-grid{grid-template-columns:1fr 420px}}
+      .add-pdf h3{margin:10px 0}
+      .add-pdf-sub{color:var(--muted);max-width:42ch}
+      .add-form{display:flex;flex-direction:column;gap:10px;max-width:420px}
+      .add-form input{width:100%;padding:14px 16px;font-size:16px;border:1px solid var(--line-2,rgba(15,15,16,.14));border-radius:999px;font-family:inherit}
+      .add-fine{font-size:12px;color:var(--muted)}
+      .add-err{color:#b23b3b;font-size:13px}
+      .add-modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+      .add-modal.open{display:flex}
+      .add-scrim{position:absolute;inset:0;background:rgba(15,15,16,.45)}
+      .add-dialog{position:relative;max-width:440px;width:100%;padding:32px 28px;text-align:center;background:#fff;border-radius:22px;box-shadow:0 30px 80px rgba(15,15,16,.18)}
+      .add-dialog h3{margin:8px 0 12px}.add-dialog p{color:var(--ink-2);margin-bottom:22px}
+      .add-x{position:absolute;top:10px;right:12px;width:32px;height:32px;background:none;border:none;font-size:24px;color:var(--muted);cursor:pointer}
+      .add-dismiss{display:block;margin:14px auto 0;background:none;border:none;color:var(--muted);font-size:13.5px;cursor:pointer;font-family:inherit}
+      .add-confirmed{text-align:left}
+    `}</style>
 
-    {/* ── World-class workshop sell — addition ── */}
-    <WorkshopShowcase />
+    {/* ── Behavior: UTM/pixel/webhook, buy clicks, forms, promo modal ── */}
+    <script>
+      import { captureUtms, appendUtms } from '../lib/utm';
+      import { initiateCheckout, viewContent } from '../lib/pixel';
+      import { submitLead } from '../lib/lead';
 
-    {/* ── FAQ ── */}
-    <section class="section" id="faq">
-      <div class="wrap">
-        <SectionHead eyebrow="Questions">The ones parents actually ask.</SectionHead>
-        <Faq items={faqs} name="home-faq" />
-      </div>
-    </section>
+      captureUtms();
+      viewContent('Sales Page');
 
-    {/* ── Final CTA ── */}
-    <section class="section">
-      <div class="wrap final band-ink">
-        <h2>Earn the phone. <span class="accent">Keep the trust.</span></h2>
-        <p class="lede">Whether it’s their first phone or a fresh start on the one they already have — start the plan today.</p>
-        <div class="cta-row center">
-          <KajabiLink offerId="course" variant="primary" class="lg">Start Phone License — $49</KajabiLink>
-          <a href="/quiz" class="btn btn-ghost on-dark lg">Take the free quiz →</a>
-        </div>
-      </div>
-    </section>
-  </main>
+      // Kajabi buy links: append UTMs + InitiateCheckout
+      document.querySelectorAll<HTMLAnchorElement>('a[data-kajabi]').forEach((a) => {
+        if (a.dataset.todo !== 'true') a.href = appendUtms(a.href);
+      });
+      document.addEventListener('click', (e) => {
+        const a = (e.target as HTMLElement)?.closest?.('a[data-kajabi]');
+        if (!a) return;
+        initiateCheckout(Number((a as HTMLElement).dataset.offerValue || 0), (a as HTMLElement).dataset.offerName || 'offer');
+      });
 
-  <Footer />
-  <PromoModal />
+      // Lead forms (footer PDF, etc.)
+      document.querySelectorAll<HTMLFormElement>('form[data-lead]').forEach((form) => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const data = new FormData(form);
+          const email = String(data.get('email') || '').trim();
+          const name = String(data.get('name') || '').trim();
+          const err = form.querySelector<HTMLElement>('.add-err');
+          if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { if (err) { err.textContent = 'Please enter a valid email.'; err.hidden = false; } return; }
+          if (err) err.hidden = true;
+          const btn = form.querySelector('button'); if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+          await submitLead({ name, email, tags: (form.dataset.tags || '').split('|').filter(Boolean), pixelName: form.dataset.pixel });
+          const title = (form.dataset.title || 'Got it, {name}.').replace('{name}', name || 'friend');
+          form.innerHTML = `<div class="add-confirmed"><h3>${title}</h3><p>${form.dataset.body || ''}</p><a class="btn-dark" href="${form.dataset.next || '/quiz'}">${form.dataset.nextLabel || 'Take the free quiz →'}</a></div>`;
+        });
+      });
 
-  <StickyCta title="Phone License" line="One-time · yours forever">
-    <KajabiLink offerId="course" variant="primary">Start — $49</KajabiLink>
-  </StickyCta>
-</Base>
-
-<style>
-  .hero {
-    text-align: center;
-    padding-block: 64px 20px;
-  }
-  .hero .lede {
-    margin: 18px auto 0;
-    max-width: 620px;
-  }
-  .cta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 28px;
-  }
-  .hero .cta-row,
-  .cta-row.center {
-    justify-content: center;
-  }
-  :global(.btn.lg) {
-    padding: 16px 28px;
-    font-size: 16px;
-  }
-  .trust {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px 22px;
-    margin-top: 24px;
-    font-size: 13px;
-    color: var(--muted);
-    font-family: var(--font-mono);
-    letter-spacing: 0.03em;
-  }
-  .trust li {
-    position: relative;
-  }
-  .trust li:not(:first-child)::before {
-    content: '·';
-    position: absolute;
-    left: -13px;
-  }
-
-  /* Be honest */
-  .felt {
-    text-align: center;
-  }
-  .felt-q {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: clamp(21px, 3.6vw, 32px);
-    letter-spacing: -0.03em;
-    color: var(--ink);
-    line-height: 1.15;
-    margin-top: 12px;
-    text-wrap: balance;
-  }
-  .felt-turn {
-    max-width: 640px;
-    margin: 30px auto 0;
-    font-size: clamp(17px, 2.2vw, 20px);
-    color: var(--ink-2);
-  }
-
-  .doors,
-  .guides,
-  .shift {
-    display: grid;
-    gap: 20px;
-    margin-top: 36px;
-  }
-  .door {
-    padding: 28px;
-  }
-  .door h3 {
-    margin: 8px 0;
-  }
-  .door.highlight {
-    background: var(--blue-tint);
-    border-color: var(--blue-tint-2);
-  }
-  .door p:last-child {
-    color: var(--ink-2);
-    margin-top: 8px;
-  }
-
-  /* Middle path (dark) */
-  .triad {
-    display: grid;
-    gap: 18px;
-    margin-top: 36px;
-  }
-  .mp-card {
-    padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: var(--r-md);
-    background: rgba(255, 255, 255, 0.03);
-  }
-  .mp-card .mono {
-    color: var(--blue-on-dark);
-  }
-  .mp-card h4 {
-    color: #fff;
-    margin: 8px 0 6px;
-  }
-  .mp-card > p:last-child {
-    color: rgba(255, 255, 255, 0.72);
-    font-size: 15px;
-  }
-
-  /* Licenses */
-  .lic-sub,
-  .steps-sub,
-  .price-sub {
-    text-align: center;
-    max-width: 660px;
-    margin: 14px auto 0;
-    color: var(--muted);
-  }
-  .lic-grid {
-    display: grid;
-    gap: 16px;
-    margin-top: 36px;
-  }
-  .lic {
-    padding: 22px;
-  }
-  .lic h4 {
-    margin-bottom: 8px;
-  }
-  .lic p {
-    color: var(--ink-2);
-    font-size: 14.5px;
-  }
-  .lic.hl {
-    background: var(--blue-tint);
-    border-color: var(--blue);
-  }
-
-  /* Watch. Pass. Sign. */
-  .steps,
-  .grid-3 {
-    display: grid;
-    gap: 20px;
-    margin-top: 36px;
-  }
-  .step {
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-  }
-  .step .mono {
-    color: var(--blue-deep);
-  }
-  .step h4 {
-    margin: 8px 0;
-  }
-  .step > p {
-    color: var(--ink-2);
-    font-size: 14.5px;
-  }
-  .step-mock {
-    margin-top: 18px;
-    border-radius: var(--r-sm);
-    padding: 16px;
-    background: var(--bg-2);
-    min-height: 90px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .mock-video {
-    background: linear-gradient(160deg, #23232a, var(--ink));
-  }
-  .mock-video .play {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.95);
-    position: relative;
-  }
-  .mock-video .play::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 54%;
-    transform: translate(-50%, -50%);
-    border-style: solid;
-    border-width: 7px 0 7px 12px;
-    border-color: transparent transparent transparent var(--ink);
-  }
-  .q-mock {
-    width: 100%;
-  }
-  .q-mock .qq {
-    font-size: 13px;
-    color: var(--ink);
-    font-weight: 500;
-  }
-  .q-mock .qa {
-    display: inline-block;
-    margin-top: 10px;
-    font-size: 12px;
-    background: var(--blue-tint);
-    color: var(--blue-deep);
-    border: 1px solid var(--blue-tint-2);
-    border-radius: 999px;
-    padding: 6px 12px;
-  }
-  .cert-mock {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-  .cert-mock .seal {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--blue);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 4px;
-  }
-  .cert-mock b {
-    font-size: 13px;
-    color: var(--ink);
-  }
-  .cert-mock .mono {
-    font-size: 10px;
-    color: var(--muted);
-  }
-
-  .feat,
-  .quote {
-    padding: 24px;
-  }
-  .feat p {
-    color: var(--ink-2);
-    margin-top: 8px;
-  }
-
-  /* Curriculum */
-  .weeks {
-    margin-top: 36px;
-    display: flex;
-    flex-direction: column;
-  }
-  .week {
-    display: grid;
-    grid-template-columns: 88px 1fr;
-    gap: 16px;
-    padding: 20px 0;
-    border-top: 1px solid var(--line);
-    align-items: start;
-  }
-  .week .wk {
-    color: var(--blue-deep);
-    padding-top: 3px;
-  }
-  .week h4 {
-    margin-bottom: 4px;
-  }
-  .week p {
-    color: var(--ink-2);
-  }
-
-  /* The shift */
-  .ba {
-    padding: 26px;
-  }
-  .ba ul {
-    list-style: none;
-    margin-top: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .ba li {
-    padding-left: 26px;
-    position: relative;
-  }
-  .before li::before {
-    content: '✕';
-    position: absolute;
-    left: 0;
-    color: var(--red-pin);
-  }
-  .after {
-    background: var(--blue-tint);
-    border-color: var(--blue-tint-2);
-  }
-  .after li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--blue-deep);
-  }
-
-  /* Guides */
-  .guide {
-    display: flex;
-    gap: 18px;
-    padding: 24px;
-    align-items: flex-start;
-  }
-  .guide img {
-    width: 88px;
-    height: 88px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex: none;
-  }
-  .guide .cred {
-    font-size: 13px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-  .guide p:last-child {
-    color: var(--ink-2);
-    margin-top: 6px;
-    font-size: 15px;
-  }
-
-  /* Testimonials */
-  .quote blockquote {
-    font-size: 17px;
-    line-height: 1.5;
-    color: var(--ink-2);
-  }
-  .quote figcaption {
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    flex: none;
-    object-fit: cover;
-  }
-  .avatar.initials {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--blue-tint-2), var(--blue-tint));
-    color: var(--blue-deep);
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 16px;
-  }
-  .quote .who {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.35;
-  }
-  .quote .who b {
-    color: var(--ink);
-  }
-  .quote .det {
-    color: var(--muted);
-    font-size: 13px;
-  }
-  .mock {
-    display: inline-block;
-    margin-left: 6px;
-    font-family: var(--font-mono);
-    font-size: 9.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    border: 1px solid var(--line-2);
-    border-radius: var(--r-pill);
-    padding: 1px 6px;
-  }
-
-  /* Pricing */
-  .tiers {
-    display: grid;
-    gap: 20px;
-    margin-top: 36px;
-    align-items: start;
-  }
-  .tier {
-    padding: 28px;
-    position: relative;
-  }
-  .tier.featured {
-    border-color: var(--blue);
-    box-shadow: var(--shadow-md);
-  }
-  .ribbon {
-    position: absolute;
-    top: -11px;
-    left: 28px;
-    background: var(--blue);
-    color: #fff;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: var(--r-pill);
-  }
-  .price {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 40px;
-    letter-spacing: -0.03em;
-    color: var(--ink);
-    margin: 6px 0 18px;
-    line-height: 1;
-  }
-  .price span {
-    display: block;
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-  .incl {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 22px;
-  }
-  .incl li {
-    padding-left: 24px;
-    position: relative;
-  }
-  .incl li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--blue-deep);
-  }
-  .tier :global(.btn) {
-    width: 100%;
-  }
-  .best {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 14px;
-  }
-  .quiz-nudge {
-    text-align: center;
-    margin-top: 28px;
-    color: var(--muted);
-  }
-  .quiz-nudge a {
-    color: var(--blue-deep);
-    font-weight: 500;
-  }
-
-  .final {
-    border-radius: var(--r-lg);
-    padding: 56px 32px;
-    text-align: center;
-  }
-  .final .lede {
-    color: rgba(255, 255, 255, 0.72);
-    max-width: 560px;
-    margin: 16px auto 0;
-  }
-  .btn-ghost.on-dark {
-    border-color: rgba(255, 255, 255, 0.4);
-    color: #fff;
-  }
-
-  @media (min-width: 720px) {
-    .doors,
-    .shift,
-    .guides {
-      grid-template-columns: 1fr 1fr;
-    }
-    .triad,
-    .steps,
-    .grid-3 {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .lic-grid {
-      grid-template-columns: repeat(4, 1fr);
-    }
-    .tiers {
-      grid-template-columns: 1fr 1fr;
-      max-width: 820px;
-      margin-inline: auto;
-    }
-  }
-</style>
+      // Promo modal: 5s value offer + exit intent
+      const modal = document.getElementById('promo-modal');
+      if (modal) {
+        const V = 'pl_promo_value', X = 'pl_promo_exit';
+        const vv = modal.querySelector<HTMLElement>('[data-variant="value"]')!;
+        const xv = modal.querySelector<HTMLElement>('[data-variant="exit"]')!;
+        let open = false;
+        const seen = (k: string) => { try { return sessionStorage.getItem(k) === '1'; } catch { return false; } };
+        const show = (which: 'value' | 'exit', key: string) => {
+          if (open || seen(key)) return; open = true; try { sessionStorage.setItem(key, '1'); } catch {}
+          vv.hidden = which !== 'value'; xv.hidden = which !== 'exit'; modal.classList.add('open'); document.body.style.overflow = 'hidden';
+        };
+        const close = () => { open = false; modal.classList.remove('open'); document.body.style.overflow = ''; };
+        setTimeout(() => show('value', V), 5000);
+        let inPage = false;
+        document.addEventListener('mousemove', () => (inPage = true), { once: true });
+        document.addEventListener('mouseout', (e) => { if (inPage && !e.relatedTarget && (e as MouseEvent).clientY <= 0) show('exit', X); });
+        modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) close(); });
+      }
+    </script>
+  </body>
+</html>
