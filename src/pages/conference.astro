@@ -19,6 +19,13 @@ import { testimonials, initials } from '../config/testimonials';
 const e = events['conference'];
 const chip = seatChipView(e);
 const price = priceView(e);
+const heroCtaLabel = {
+  interest: 'Get first access',
+  earlybird: `Claim early-bird — $${e.earlyBirdPrice}/couple`,
+  onsale: `Reserve your seats — $${e.price}`,
+  almostfull: `Reserve your seats — $${e.price}`,
+  soldout: `Join the ${Number(e.edition) + 1} waitlist`,
+}[e.state];
 const feature = testimonials[0];
 const cards = testimonials.slice(1, 4);
 const anchors = [
@@ -50,7 +57,7 @@ const inclusions = [
           <li>Capped at {e.capacity} couples</li>
         </ul>
         <div class="hero-cta">
-          <EventCta event={e} variant="primary" />
+          <a href="#pricing" class="btn btn-primary">{heroCtaLabel}</a>
           <a href="#agenda" class="btn btn-ghost">See the day →</a>
         </div>
         {chip && <div class="hero-chip"><SeatChip copy={chip.copy} tone={chip.tone} fill={chip.fill} /></div>}
