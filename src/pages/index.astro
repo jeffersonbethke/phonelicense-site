@@ -1,11 +1,10 @@
 ---
 /**
- * PHASE 2 — Sales homepage (phonelicense.co/).
- * Rebuilt from the approved copy in the current live page, in the shared design
- * system, plus the Phase 2 additions: Two-Door section after the hero,
- * Pass/Prove/Verify, week-by-week map, no-subscription pricing, FAQ (incl. the
- * "already has a phone" reset answer), config testimonials, footer PDF capture,
- * and an exit-intent modal → quiz.
+ * Sales homepage (phonelicense.co/).
+ * Faithful to the ORIGINAL design (iPhone hero mockup, "licenses required"
+ * section, Watch/Pass/Sign, Tangible mockups, curriculum) with the requested
+ * additions woven in: BE HONEST, Two-Door, Live Events, Workshop showcase,
+ * testimonials, funnel nav, promo modal, footer PDF capture, quiz CTAs.
  */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
@@ -16,20 +15,33 @@ import Faq from '../components/Faq.astro';
 import PromoModal from '../components/PromoModal.astro';
 import StickyCta from '../components/StickyCta.astro';
 import LiveEvents from '../components/LiveEvents.astro';
-import EventCta from '../components/EventCta.astro';
 import WorkshopShowcase from '../components/WorkshopShowcase.astro';
+import HeroPhone from '../components/HeroPhone.astro';
 import { site } from '../config/site';
 import { testimonials, initials } from '../config/testimonials';
-import { promotedEvent } from '../config/events';
 import { conference } from '../config/event-content';
 
-const promo = promotedEvent();
+const middlePath = [
+  { n: '01 · The fight', h: '“Get off your phone.”', d: 'Same argument every night. Vague rules. Constant negotiation. Nobody wins.' },
+  { n: '02 · The fear', h: 'What they’re seeing — and not telling you.', d: 'Group chats, late-night spirals, content you can’t unsee. The stakes feel high and the playbook is missing.' },
+  { n: '03 · The plan', h: 'A shared framework, not a power struggle.', d: 'Phone License gives families a structured path. Same team, same rules, same finish line.' },
+];
+
+const licenses = [
+  { h: 'Cars', d: 'Permit. Practice. Test. Real consequences for breaking the rules.' },
+  { h: 'Marriages', d: 'License. Vows. Witnesses. A public agreement to a shared standard.' },
+  { h: 'Firearms', d: 'Background check, training, registration. Power deserves preparation.' },
+  { h: 'Phones', d: 'The gateway to everything. Until now: no test, no training, no plan.', hl: true },
+];
+
+const steps = [
+  { s: 'Step 01', h: 'Watch short videos together', d: 'Six modules, each 6–12 minutes. Parent and teen watch side-by-side. No lecture, no panic — just real situations and clear rules.', mock: 'video' },
+  { s: 'Step 02', h: 'Pass quizzes & road tests', d: 'Micro-quizzes prove they got it. Road Tests prove they can do it — turn on Screen Time, set downtime, build a no-phone zone. Parents click “verified.”', mock: 'quiz' },
+  { s: 'Step 03', h: 'Sign agreement & get certified', d: 'Final week: family signs the agreement. Teen takes the situational final exam. Parent reads the issuance statement. The phone is officially handed over.', mock: 'cert' },
+];
 
 const included = [
-  {
-    h: 'The Road Test',
-    d: 'Each module ends with a hands-on checklist your teen completes on the device — and you verify. No more “I get it, I get it.”',
-  },
+  { h: 'The Road Test', d: 'Each module ends with a hands-on checklist your teen completes on the device — and you verify. No more “I get it, I get it.”' },
   { h: 'Video lessons', d: 'Six modules, studio-shot. Fast-paced, specific, non-preachy — parents feel supported, teens feel respected.' },
   { h: 'The License', d: 'A digital certificate with a unique ID — earned, trackable, renewable. Optional printed wallet card.' },
   { h: 'The Family Agreement', d: 'A 9-section template covering sleep, school, content, conflict, repair — and parent commitments. Signed, not just talked about.' },
@@ -38,56 +50,26 @@ const included = [
 ];
 
 const weeks = [
-  { w: 'Week 0', h: 'Orientation', d: 'Why a license, not a permission slip. Parents learn the framework; the phone arrives locked down and unlocks as they pass.' },
+  { w: 'Week 0', h: 'Orientation: why a license, not a permission slip', d: 'Set expectations together. Parents learn the framework; the phone arrives locked down and unlocks as they pass each week.' },
   { w: 'Week 1', h: 'The Rules of the Road', d: 'Attention, habit loops, notifications. The phone is a tool, not a slot machine.' },
-  { w: 'Week 2', h: 'The Social World', d: 'Group chats, face-to-face vs. text, and the social cost of being the one who logs off.' },
-  { w: 'Week 3', h: 'Sleep & the Spiral', d: 'Late-night scrolling, secrecy, and the case for a phone-free morning. Build a charging station outside the bedroom.' },
-  { w: 'Week 4', h: 'When Things Go Wrong', d: 'Pornography, predators, scams, bullying — what to do in the moment, who to tell, how to recover without shame.' },
-  { w: 'Weeks 5–6', h: 'Agreement & Issuance', d: 'Audits, repair-after-failure, expanding privileges — then the family agreement, final exam, and the issuance ceremony.' },
+  { w: 'Week 2', h: 'Passengers & Peer Pressure', d: 'Group chats, face-to-face vs. text, and the social cost of being the one who logs off.' },
+  { w: 'Week 3', h: 'Night Driving', d: 'Sleep, secrecy, late-night scrolling. Build a charging station outside the bedroom.' },
+  { w: 'Week 4', h: 'Hazards & Car Crash', d: 'Pornography, predators, scams, bullying — what to do in the moment, who to tell, how to recover without shame.' },
+  { w: 'Weeks 5–6', h: 'Maintenance, Renewal & the Issuance Ceremony', d: 'Audits, repair-after-failure, expanding privileges — then the family agreement, final exam, and the issuance ceremony.' },
 ];
 
 const beforeAfter = {
-  before: [
-    'Constant arguments about screen time',
-    'Vague, inconsistent rules',
-    'Anxiety about what they’re seeing',
-    'Parents and teens on opposite teams',
-    'No plan for when something goes wrong',
-  ],
-  after: [
-    'A signed agreement everyone refers back to',
-    'Rules earned, not imposed',
-    'Clear protocols when things go sideways',
-    'Parent and teen facing the problem together',
-    'Renewable trust, on a 90-day cadence',
-  ],
+  before: ['Constant arguments about screen time', 'Vague, inconsistent rules', 'Anxiety about what they’re seeing', 'Parents and teens on opposite teams', 'No plan for when something goes wrong'],
+  after: ['A signed agreement everyone refers back to', 'Rules earned, not imposed', 'Clear protocols when things go sideways', 'Parent and teen facing the problem together', 'Renewable trust, on a 90-day cadence'],
 };
 
 const faqs = [
-  {
-    q: 'My kid already has a phone — is this still for us?',
-    a: 'Absolutely. About half the families here are starting over. Nothing gets confiscated — the phone gets <b>re-issued under a new agreement they earn</b>. You get the exact reset conversation and a calm, week-by-week path back to trust, without a standoff.',
-  },
-  {
-    q: 'Is there a subscription?',
-    a: 'No. It’s a <b>one-time purchase with lifetime access</b> — yours forever, for every kid in your family, now and later.',
-  },
-  {
-    q: 'What ages is this for?',
-    a: 'Built for the first-phone window and the reset years — roughly ages 10–16. Younger or older, the framework still works; you’ll just move faster or slower through the weeks.',
-  },
-  {
-    q: 'Is it faith-based?',
-    a: 'It works for any family. Spiritual elements (like the optional covenant in the issuance ceremony) are exactly that — optional. Use them or skip them.',
-  },
-  {
-    q: 'What exactly do we get?',
-    a: 'Six video modules, hands-on Road Tests, the digital License + ID, the 9-section Family Agreement, the Issuance Ceremony script, and the 90-day Renewal. Everything you need to make the handoff a real rite of passage.',
-  },
-  {
-    q: 'How long does it take?',
-    a: 'About a 2-hour commitment spread over six weeks — designed to feel like Driver’s Ed: structured, practical, and impossible to fake your way through. Go at your own pace.',
-  },
+  { q: 'My kid already has a phone — is this still for us?', a: 'Absolutely. About half the families here are starting over. Nothing gets confiscated — the phone gets <b>re-issued under a new agreement they earn</b>. You get the exact reset conversation and a calm, week-by-week path back to trust, without a standoff.' },
+  { q: 'Is there a subscription?', a: 'No. It’s a <b>one-time purchase with lifetime access</b> — yours forever, for every kid in your family, now and later.' },
+  { q: 'What ages is this for?', a: 'Built for the first-phone window and the reset years — roughly ages 10–16. Younger or older, the framework still works; you’ll just move faster or slower through the weeks.' },
+  { q: 'Is it faith-based?', a: 'It works for any family. Spiritual elements (like the optional covenant in the issuance ceremony) are exactly that — optional.' },
+  { q: 'What exactly do we get?', a: 'Six video modules, hands-on Road Tests, the digital License + ID, the 9-section Family Agreement, the Issuance Ceremony script, and the 90-day Renewal.' },
+  { q: 'How long does it take?', a: 'About a 2-hour commitment spread over six weeks — designed to feel like Driver’s Ed: structured, practical, and impossible to fake your way through.' },
 ];
 ---
 
@@ -108,18 +90,19 @@ const faqs = [
           <br /><b>{site.twoAudienceLine}</b>
         </p>
         <div class="cta-row">
-          <KajabiLink offerId="course" variant="primary" class="lg">Start Phone License — $49</KajabiLink>
+          <KajabiLink offerId="course" variant="dark" class="lg">Start Phone License</KajabiLink>
           <a href="/quiz" class="btn btn-ghost lg">See if they’re ready →</a>
         </div>
         <ul class="trust">
           <li>2-hour commitment over 6 weeks</li>
-          <li>One-time · yours forever</li>
+          <li>Built for ages 10–16</li>
           <li>Certificate included</li>
         </ul>
+        <HeroPhone />
       </div>
     </section>
 
-    {/* ── Be honest (emotional felt-need) ── */}
+    {/* ── Be honest (emotional felt-need) — addition ── */}
     <section class="section band-2 felt">
       <div class="wrap">
         <p class="eyebrow">Be honest</p>
@@ -133,8 +116,8 @@ const faqs = [
       </div>
     </section>
 
-    {/* ── Two-Door — directly after the hero ── */}
-    <section class="section band-2">
+    {/* ── Two-Door — addition ── */}
+    <section class="section">
       <div class="wrap">
         <SectionHead eyebrow="Two doors, one path">
           Two kinds of families end up here. <span class="accent">It works for both.</span>
@@ -143,103 +126,92 @@ const faqs = [
           <div class="card door">
             <p class="mono">First phone</p>
             <h3>The path to a confident yes.</h3>
-            <p>
-              You haven’t handed it over yet — and you want the first phone to
-              start on trust, not guesswork. Phone License gives you the agreement,
-              the settings, and the handoff conversation so you can say yes without
-              second-guessing.
-            </p>
+            <p>You haven’t handed it over yet — and you want the first phone to start on trust, not guesswork. Phone License gives you the agreement, the settings, and the handoff conversation so you can say yes without second-guessing.</p>
           </div>
           <div class="card door highlight">
             <p class="mono">A fresh start</p>
             <h3>Start over without taking it away.</h3>
-            <p>
-              They’ve had the phone a while and the boundaries slipped. Here’s the
-              relief: <b>nothing gets confiscated.</b> The phone gets re-issued
-              under a new agreement they earn — calm, clear, and mutual.
-            </p>
+            <p>They’ve had the phone a while and the boundaries slipped. Here’s the relief: <b>nothing gets confiscated.</b> The phone gets re-issued under a new agreement they earn — calm, clear, and mutual.</p>
           </div>
         </div>
       </div>
     </section>
 
-    {/* ── The problem → the plan ── */}
-    <section class="section" id="how">
+    {/* ── The middle path (dark) ── */}
+    <section class="section band-ink" id="how">
       <div class="wrap">
-        <SectionHead eyebrow="The middle path">From power struggle to shared plan.</SectionHead>
+        <div class="section-head center">
+          <p class="eyebrow">The middle path</p>
+          <h2>You don’t want to overreact. You don’t want to under-parent it. <span class="accent on-dark">You want a plan you can actually enforce.</span></h2>
+        </div>
         <div class="triad">
-          <div class="card step">
-            <p class="mono">01 · The fight</p>
-            <h4>“Get off your phone.”</h4>
-            <p>Same argument every night. Vague rules. Constant negotiation. Nobody wins.</p>
-          </div>
-          <div class="card step">
-            <p class="mono">02 · The fear</p>
-            <h4>What they’re seeing — and not telling you.</h4>
-            <p>Group chats, late-night spirals, content you can’t unsee. The stakes feel high and the playbook is missing.</p>
-          </div>
-          <div class="card step">
-            <p class="mono">03 · The plan</p>
-            <h4>A shared framework, not a power struggle.</h4>
-            <p>Phone License gives families a structured path. Same team, same rules, same finish line.</p>
-          </div>
+          {middlePath.map((m) => (
+            <div class="mp-card">
+              <p class="mono">{m.n}</p>
+              <h4>{m.h}</h4>
+              <p>{m.d}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
 
-    {/* ── Pass / Prove / Verify ── */}
-    <section class="section band-ink" id="course">
+    {/* ── Licenses required ── */}
+    <section class="section">
       <div class="wrap">
-        <SectionHead eyebrow="How it works">
-          Pass. Prove. <span class="accent">Verify.</span>
+        <SectionHead eyebrow="Why a license">
+          Cars require licenses. Marriages require licenses. <span class="accent">Guns require licenses.</span>
         </SectionHead>
-        <p class="ppv-sub">
-          Three steps, repeated for six weeks. Designed like Driver’s Ed —
-          structured, practical, and impossible to fake your way through.
-        </p>
-        <div class="ppv">
-          <div class="ppv-cell">
-            <span class="num">01</span>
-            <h4>Pass</h4>
-            <p>Watch short modules together — 6–12 minutes each. Micro-quizzes prove they actually got it. No lecture, no panic — just real situations and clear rules.</p>
-          </div>
-          <div class="ppv-cell">
-            <span class="num">02</span>
-            <h4>Prove</h4>
-            <p>Road Tests prove they can <i>do</i> it — turn on Screen Time, set downtime, build a no-phone zone, set up Medical ID. Hands-on, on the actual device.</p>
-          </div>
-          <div class="ppv-cell">
-            <span class="num">03</span>
-            <h4>Verify</h4>
-            <p>Parents click “verified.” In the final week the family signs the agreement, the teen takes the situational exam, and the phone is officially issued.</p>
-          </div>
+        <p class="lic-sub">A phone is the most powerful device most teenagers will ever own. It’s the only one we hand over with no training, no test, and no agreement. Phone License fixes that.</p>
+        <div class="lic-grid">
+          {licenses.map((l) => (
+            <div class:list={['card lic', l.hl && 'hl']}>
+              <h4>{l.h}</h4>
+              <p>{l.d}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
 
-    {/* ── Live Events (config-driven) ── */}
-    <LiveEvents />
-
-    {promo && (
-      <section class="section">
-        <div class="wrap first-access">
-          <div>
-            <p class="eyebrow">Never hear about it late</p>
-            <h3>Get first access to the {promo.edition} Season.</h3>
-            <p class="fa-sub">
-              We run these once a year and they fill up. Drop your name and we’ll
-              make sure you’re first through the doors.
-            </p>
-          </div>
-          <EventCta event={promo} variant="dark" />
+    {/* ── Watch. Pass. Sign. ── */}
+    <section class="section band-2" id="course">
+      <div class="wrap">
+        <SectionHead eyebrow="How it works">Watch. Pass. <span class="accent">Sign.</span></SectionHead>
+        <p class="steps-sub">Three steps, repeated for six weeks. Designed to feel like Driver’s Ed — structured, practical, and impossible to fake your way through.</p>
+        <div class="steps">
+          {steps.map((st) => (
+            <div class="card step">
+              <p class="mono">{st.s}</p>
+              <h4>{st.h}</h4>
+              <p>{st.d}</p>
+              <div class:list={['step-mock', `mock-${st.mock}`]}>
+                {st.mock === 'video' && <span class="play" aria-hidden="true"></span>}
+                {st.mock === 'quiz' && (
+                  <div class="q-mock">
+                    <p class="qq">A friend asks you to keep a secret account. What do you do?</p>
+                    <span class="qa">Tell parents the same day ✓</span>
+                  </div>
+                )}
+                {st.mock === 'cert' && (
+                  <div class="cert-mock">
+                    <span class="seal" aria-hidden="true">✓</span>
+                    <b>Issued to: Jordan W.</b>
+                    <span class="mono">PL-2026-04881</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
-    )}
+      </div>
+    </section>
 
-    {/* ── What's included ── */}
+    {/* ── Tangible, not theoretical ── */}
     <section class="section">
       <div class="wrap">
         <SectionHead eyebrow="What’s included">Tangible, not theoretical.</SectionHead>
+        <p class="steps-sub">You get the videos, yes. You also get the assets that turn it into a real rite of passage — the kind of thing your kid will remember, not click through.</p>
         <div class="grid-3">
           {included.map((it) => (
             <div class="card feat">
@@ -251,7 +223,10 @@ const faqs = [
       </div>
     </section>
 
-    {/* ── Curriculum week map ── */}
+    {/* ── Live Events — addition ── */}
+    <LiveEvents />
+
+    {/* ── Curriculum ── */}
     <section class="section band-2">
       <div class="wrap">
         <SectionHead eyebrow="The curriculum">
@@ -261,20 +236,17 @@ const faqs = [
           {weeks.map((wk) => (
             <div class="week">
               <span class="wk mono">{wk.w}</span>
-              <div>
-                <h4>{wk.h}</h4>
-                <p>{wk.d}</p>
-              </div>
+              <div><h4>{wk.h}</h4><p>{wk.d}</p></div>
             </div>
           ))}
         </div>
       </div>
     </section>
 
-    {/* ── The shift (before/after) ── */}
+    {/* ── The shift ── */}
     <section class="section">
       <div class="wrap">
-        <SectionHead eyebrow="The shift">One team. One playbook. One license.</SectionHead>
+        <SectionHead eyebrow="The shift">From power struggle to shared plan.</SectionHead>
         <div class="shift">
           <div class="card ba before">
             <p class="mono">Before · same fight, different night</p>
@@ -294,7 +266,7 @@ const faqs = [
         <SectionHead eyebrow="Meet your guides">The research meets the rhythm.</SectionHead>
         <div class="guides">
           <div class="card guide">
-            <img src="/assets/darren.jpg" alt="Dr. Darren Whitehead" width="88" height="88" />
+            <img src="/assets/darren.jpg" alt="Dr. Darren Whitehead" width="88" height="88" loading="lazy" />
             <div>
               <p class="mono">The Expert</p>
               <h4>Dr. Darren Whitehead <span class="cred">D.Min.</span></h4>
@@ -302,7 +274,7 @@ const faqs = [
             </div>
           </div>
           <div class="card guide">
-            <img src="/assets/jeff-family.jpg" alt="Jefferson & Alyssa Bethke" width="88" height="88" />
+            <img src="/assets/jeff-family.jpg" alt="Jefferson & Alyssa Bethke" width="88" height="88" loading="lazy" />
             <div>
               <p class="mono">The Family Builder</p>
               <h4>Jefferson Bethke</h4>
@@ -313,13 +285,13 @@ const faqs = [
       </div>
     </section>
 
-    {/* ── Testimonials (config-driven) ── */}
+    {/* ── Testimonials — addition ── */}
     {testimonials.length > 0 && (
       <section class="section">
         <div class="wrap">
           <SectionHead eyebrow="From families">The drive home they talk about.</SectionHead>
           <div class="grid-3">
-            {testimonials.map((t) => (
+            {testimonials.slice(0, 3).map((t) => (
               <figure class="card quote">
                 <blockquote>“{t.quote}”</blockquote>
                 <figcaption>
@@ -328,10 +300,7 @@ const faqs = [
                   ) : (
                     <span class="avatar initials" aria-hidden="true">{initials(t.name)}</span>
                   )}
-                  <span class="who">
-                    <b>{t.name}</b>
-                    <span class="det">{t.detail}{t.mock && <span class="mock">sample</span>}</span>
-                  </span>
+                  <span class="who"><b>{t.name}</b><span class="det">{t.detail}{t.mock && <span class="mock">sample</span>}</span></span>
                 </figcaption>
               </figure>
             ))}
@@ -343,13 +312,8 @@ const faqs = [
     {/* ── Pricing ── */}
     <section class="section band-2" id="pricing">
       <div class="wrap">
-        <SectionHead eyebrow="Pricing">
-          Two ways in. <span class="accent">One outcome.</span>
-        </SectionHead>
-        <p class="price-sub">
-          Perfect for a first phone — or a reset for a phone you’ve already given.
-          <b> No subscription. One-time, yours forever.</b>
-        </p>
+        <SectionHead eyebrow="Pricing">Two ways in. <span class="accent">One outcome.</span></SectionHead>
+        <p class="price-sub">Perfect for a first phone — or a reset for a phone you’ve already given. <b>No subscription. One-time, yours forever.</b></p>
         <div class="tiers">
           <div class="card tier">
             <p class="mono">Core</p>
@@ -376,13 +340,11 @@ const faqs = [
             <p class="best">Best for: families who want the rite-of-passage moment to land hard.</p>
           </div>
         </div>
-        <p class="quiz-nudge">
-          Not sure yet? <a href="/quiz">Take the free 3-minute Readiness Assessment →</a>
-        </p>
+        <p class="quiz-nudge">Not sure yet? <a href="/quiz">Take the free 3-minute Readiness Assessment →</a></p>
       </div>
     </section>
 
-    {/* ── World-class workshop sell ── */}
+    {/* ── World-class workshop sell — addition ── */}
     <WorkshopShowcase />
 
     {/* ── FAQ ── */}
@@ -400,7 +362,7 @@ const faqs = [
         <p class="lede">Whether it’s their first phone or a fresh start on the one they already have — start the plan today.</p>
         <div class="cta-row center">
           <KajabiLink offerId="course" variant="primary" class="lg">Start Phone License — $49</KajabiLink>
-          <a href="/quiz" class="btn btn-ghost lg">Take the free quiz →</a>
+          <a href="/quiz" class="btn btn-ghost on-dark lg">Take the free quiz →</a>
         </div>
       </div>
     </section>
@@ -417,7 +379,7 @@ const faqs = [
 <style>
   .hero {
     text-align: center;
-    padding-block: 72px 48px;
+    padding-block: 64px 20px;
   }
   .hero .lede {
     margin: 18px auto 0;
@@ -429,9 +391,7 @@ const faqs = [
     gap: 12px;
     margin-top: 28px;
   }
-  .hero .cta-row {
-    justify-content: center;
-  }
+  .hero .cta-row,
   .cta-row.center {
     justify-content: center;
   }
@@ -445,8 +405,8 @@ const faqs = [
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px 22px;
-    margin-top: 26px;
-    font-size: 13.5px;
+    margin-top: 24px;
+    font-size: 13px;
     color: var(--muted);
     font-family: var(--font-mono);
     letter-spacing: 0.03em;
@@ -460,6 +420,7 @@ const faqs = [
     left: -13px;
   }
 
+  /* Be honest */
   .felt {
     text-align: center;
   }
@@ -487,75 +448,185 @@ const faqs = [
     gap: 20px;
     margin-top: 36px;
   }
-  .door h3,
-  .step h4,
-  .feat h4,
-  .tier .mono {
-    margin-bottom: 8px;
-  }
   .door {
     padding: 28px;
+  }
+  .door h3 {
+    margin: 8px 0;
   }
   .door.highlight {
     background: var(--blue-tint);
     border-color: var(--blue-tint-2);
   }
-  .door p:last-child,
-  .step p:last-child {
+  .door p:last-child {
     color: var(--ink-2);
     margin-top: 8px;
   }
 
-  .triad,
+  /* Middle path (dark) */
+  .triad {
+    display: grid;
+    gap: 18px;
+    margin-top: 36px;
+  }
+  .mp-card {
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .mp-card .mono {
+    color: var(--blue-on-dark);
+  }
+  .mp-card h4 {
+    color: #fff;
+    margin: 8px 0 6px;
+  }
+  .mp-card > p:last-child {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 15px;
+  }
+
+  /* Licenses */
+  .lic-sub,
+  .steps-sub,
+  .price-sub {
+    text-align: center;
+    max-width: 660px;
+    margin: 14px auto 0;
+    color: var(--muted);
+  }
+  .lic-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 36px;
+  }
+  .lic {
+    padding: 22px;
+  }
+  .lic h4 {
+    margin-bottom: 8px;
+  }
+  .lic p {
+    color: var(--ink-2);
+    font-size: 14.5px;
+  }
+  .lic.hl {
+    background: var(--blue-tint);
+    border-color: var(--blue);
+  }
+
+  /* Watch. Pass. Sign. */
+  .steps,
   .grid-3 {
     display: grid;
     gap: 20px;
     margin-top: 36px;
   }
-  .step,
+  .step {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .step .mono {
+    color: var(--blue-deep);
+  }
+  .step h4 {
+    margin: 8px 0;
+  }
+  .step > p {
+    color: var(--ink-2);
+    font-size: 14.5px;
+  }
+  .step-mock {
+    margin-top: 18px;
+    border-radius: var(--r-sm);
+    padding: 16px;
+    background: var(--bg-2);
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mock-video {
+    background: linear-gradient(160deg, #23232a, var(--ink));
+  }
+  .mock-video .play {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    position: relative;
+  }
+  .mock-video .play::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 54%;
+    transform: translate(-50%, -50%);
+    border-style: solid;
+    border-width: 7px 0 7px 12px;
+    border-color: transparent transparent transparent var(--ink);
+  }
+  .q-mock {
+    width: 100%;
+  }
+  .q-mock .qq {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .q-mock .qa {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    background: var(--blue-tint);
+    color: var(--blue-deep);
+    border: 1px solid var(--blue-tint-2);
+    border-radius: 999px;
+    padding: 6px 12px;
+  }
+  .cert-mock {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .cert-mock .seal {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+  }
+  .cert-mock b {
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .cert-mock .mono {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
   .feat,
   .quote {
     padding: 24px;
   }
-  .feat p,
-  .quote blockquote {
+  .feat p {
     color: var(--ink-2);
     margin-top: 8px;
   }
 
-  .ppv-sub,
-  .price-sub {
-    max-width: 640px;
-    margin: 14px auto 0;
-    text-align: center;
-    color: var(--muted);
-  }
-  .band-ink .ppv-sub {
-    color: rgba(255, 255, 255, 0.66);
-  }
-  .ppv {
-    display: grid;
-    gap: 24px;
-    margin-top: 40px;
-  }
-  .ppv-cell .num {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--blue-on-dark);
-    letter-spacing: 0.1em;
-  }
-  .ppv-cell h4 {
-    margin: 10px 0 8px;
-  }
-  .ppv-cell p {
-    color: rgba(255, 255, 255, 0.72);
-  }
-
+  /* Curriculum */
   .weeks {
     margin-top: 36px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
   }
   .week {
     display: grid;
@@ -576,6 +647,7 @@ const faqs = [
     color: var(--ink-2);
   }
 
+  /* The shift */
   .ba {
     padding: 26px;
   }
@@ -607,6 +679,7 @@ const faqs = [
     color: var(--blue-deep);
   }
 
+  /* Guides */
   .guide {
     display: flex;
     gap: 18px;
@@ -631,16 +704,17 @@ const faqs = [
     font-size: 15px;
   }
 
+  /* Testimonials */
   .quote blockquote {
     font-size: 17px;
     line-height: 1.5;
+    color: var(--ink-2);
   }
   .quote figcaption {
     margin-top: 20px;
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 14px;
   }
   .avatar {
     width: 48px;
@@ -658,7 +732,6 @@ const faqs = [
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 16px;
-    letter-spacing: -0.02em;
   }
   .quote .who {
     display: flex;
@@ -685,6 +758,7 @@ const faqs = [
     padding: 1px 6px;
   }
 
+  /* Pricing */
   .tiers {
     display: grid;
     gap: 20px;
@@ -726,7 +800,6 @@ const faqs = [
     font-size: 13px;
     font-weight: 400;
     color: var(--muted);
-    letter-spacing: 0;
     margin-top: 6px;
   }
   .incl {
@@ -764,23 +837,6 @@ const faqs = [
     font-weight: 500;
   }
 
-  .first-access {
-    display: grid;
-    gap: 24px;
-    align-items: center;
-  }
-  .first-access h3 {
-    margin: 8px 0;
-  }
-  .first-access .fa-sub {
-    color: var(--muted);
-    max-width: 46ch;
-  }
-  @media (min-width: 820px) {
-    .first-access {
-      grid-template-columns: 1fr 420px;
-    }
-  }
   .final {
     border-radius: var(--r-lg);
     padding: 56px 32px;
@@ -791,6 +847,10 @@ const faqs = [
     max-width: 560px;
     margin: 16px auto 0;
   }
+  .btn-ghost.on-dark {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+  }
 
   @media (min-width: 720px) {
     .doors,
@@ -799,9 +859,12 @@ const faqs = [
       grid-template-columns: 1fr 1fr;
     }
     .triad,
-    .grid-3,
-    .ppv {
+    .steps,
+    .grid-3 {
       grid-template-columns: repeat(3, 1fr);
+    }
+    .lic-grid {
+      grid-template-columns: repeat(4, 1fr);
     }
     .tiers {
       grid-template-columns: 1fr 1fr;
