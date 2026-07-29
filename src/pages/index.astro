@@ -155,10 +155,28 @@ const promoModal = `
   </div>
 </div>`;
 
+// Mobile menu: the original nav hides its links ≤760px and offers nothing in
+// their place. Inject a hamburger (last item in the pill) + a dropdown panel
+// (sibling of <nav>, so it can span the .nav-wrap width).
+const navMenu = `
+    <button class="add-burger" id="nav-burger" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="add-nav-menu" id="nav-menu" hidden>
+    <a href="#course">Course</a>
+    <a href="/quiz">Free quiz</a>
+    <a href="/conference">The Workshop</a>
+    <a href="/events">Events</a>
+    <a href="/churches">For churches</a>
+  </div>`;
+
 // ── Inject additions into the verbatim original body at the original anchors ──
 // Strip the inner <body> wrapper so placement is clean, then add the bar on top.
 let body = rawBody.replace(/^\s*<body[^>]*>/, '').replace(/<\/body>\s*$/, '');
 body = announcementBar + body;
+// hamburger into the nav pill (first </nav> is the primary nav)
+body = body.replace('</nav>', navMenu);
 // buy buttons → Kajabi course offer (UTM + InitiateCheckout wired client-side)
 // The match string keeps the original "$49" because that is what the verbatim
 // body.html literally says — do not edit that file. The PRICE SHOWN comes from
@@ -223,6 +241,19 @@ if (site.contractLead) {
       .add-bar-cta{margin-left:auto;font-weight:600;white-space:nowrap;color:var(--blue-deep,#3a68b5)}
       .add-bar-x{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:32px;height:32px;background:none;border:none;font-size:20px;color:inherit;opacity:.55;cursor:pointer}
       @media(max-width:620px){.add-bar-meta{display:none}}
+      .add-burger{display:none}
+      @media(max-width:760px){
+        .nav .brand,.nav .cta{white-space:nowrap}
+        .add-burger{display:flex;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;padding:10px;margin-left:2px;background:none;border:none;border-radius:50%;cursor:pointer}
+        .add-burger span{display:block;height:2px;width:100%;background:var(--ink);border-radius:2px;transition:transform .2s ease,opacity .15s ease}
+        .add-burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+        .add-burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+        .add-burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+      }
+      .add-nav-menu{position:absolute;top:calc(100% + 10px);left:16px;right:16px;z-index:60;pointer-events:auto;display:flex;flex-direction:column;padding:10px;background:rgba(255,255,255,.92);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-md)}
+      .add-nav-menu a{padding:14px 18px;border-radius:14px;font-size:17px;font-weight:500;color:var(--ink);text-decoration:none}
+      .add-nav-menu a:active,.add-nav-menu a:hover{background:rgba(15,15,16,.06)}
+      .add-nav-menu[hidden]{display:none}
       .add-ctas{display:flex;gap:12px;justify-content:center;margin-top:36px;flex-wrap:wrap}
       .add-band{background:var(--bg-2)}
       .add-band .eyebrow{display:inline-block;margin-bottom:14px}
@@ -322,6 +353,21 @@ if (site.contractLead) {
         if (k) { try { localStorage.setItem(k, '1'); } catch {} }
         document.documentElement.classList.add('abar-hide');
       });
+
+      // Mobile hamburger menu
+      const burger = document.getElementById('nav-burger');
+      const navMenu = document.getElementById('nav-menu');
+      if (burger && navMenu) {
+        const setMenu = (open: boolean) => {
+          burger.setAttribute('aria-expanded', String(open));
+          navMenu.hidden = !open;
+        };
+        burger.addEventListener('click', () => setMenu(navMenu.hidden));
+        navMenu.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) setMenu(false); });
+        document.addEventListener('click', (e) => {
+          if (!navMenu.hidden && !(e.target as HTMLElement).closest('.nav-wrap')) setMenu(false);
+        });
+      }
 
       // Kajabi buy links: append UTMs + InitiateCheckout
       document.querySelectorAll<HTMLAnchorElement>('a[data-kajabi]').forEach((a) => {
