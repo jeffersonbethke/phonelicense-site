@@ -17,7 +17,7 @@ import SectionHead from '../components/SectionHead.astro';
 import Faq from '../components/Faq.astro';
 import LeadForm from '../components/LeadForm.astro';
 import EventSlot from '../components/EventSlot.astro';
-import { church, churchTiers, kickoff, familySavings } from '../config/church';
+import { church, familyPlans, licenseIncludes, kickoff, familySavings } from '../config/church';
 import { churchTestimonials, initials } from '../config/testimonials';
 import { site } from '../config/site';
 
@@ -42,11 +42,11 @@ const steps = [
 const faqs = [
   {
     q: 'What does the church actually pay?',
-    a: `$${church.licensePrice} a year. That's it — no per-family fee, no seat count, no cap on how many families join. Your families then pay $${church.familyPrice} instead of $${church.retailPrice}.`,
+    a: `$${church.licensePrice} a year for the license — your link, QR code, share kit, and kickoff night, with no cap on how many families join. Then it's just a question of who pays for the families: they pay $${church.familyPrice} themselves (instead of $${church.retailPrice}), or you cover them at $${church.prepaidPerFamily} a family.`,
   },
   {
     q: 'Can we cover the cost for our families instead?',
-    a: `Yes. That's the <b>Prepaid</b> option — $${church.prepaidPerFamily} a family (${church.prepaidMinFamilies}-family minimum) and your families pay nothing at all. It's the highest-participation option by a wide margin, and it's how most churches run a big push. Let's talk and we'll set it up.`,
+    a: `Yes. That's the <b>You pay</b> option — $${church.prepaidPerFamily} a family on top of your license (${church.prepaidMinFamilies}-family minimum) and your families pay nothing at all. It's the highest-participation option by a wide margin, and it's how most churches run a big push. Start with the license, then let's talk and we'll set it up.`,
   },
   {
     q: 'How do families actually join?',
@@ -158,14 +158,33 @@ const faqs = [
     {/* ── Tiers ── */}
     <section class="section band-2" id="tiers">
       <div class="wrap">
-        <SectionHead eyebrow="Two ways to do it">
-          Pick who pays. <span class="accent">Everything else is the same.</span>
+        <SectionHead eyebrow="Pricing">
+          Every church: ${church.licensePrice} a year.{' '}
+          <span class="accent">Then pick who pays for the families.</span>
         </SectionHead>
+
+        <div class="card license-card">
+          <div class="license-main">
+            <p class="mono who">The Church License · every church</p>
+            <p class="price">
+              ${church.licensePrice}<span>per year</span>
+            </p>
+            <p class="blurb">
+              Your own link, QR code, share kit, and kickoff night — live the
+              moment you check out.
+            </p>
+            <a href="/churches/setup" class="btn btn-primary">Get your church link →</a>
+          </div>
+          <ul class="incl">{licenseIncludes.map((f) => <li>{f}</li>)}</ul>
+        </div>
+
+        <p class="mono then">Then — who pays for the families?</p>
         <div class="tiers">
-          {churchTiers.map((t) => (
+          {familyPlans.map((t) => (
             <div class:list={['card tier', t.featured && 'featured']}>
               {t.featured && <span class="ribbon">Most churches</span>}
               <p class="mono who">{t.who}</p>
+              <h3 class="plan-name">{t.name}</h3>
               <p class="price">
                 {t.price}<span>{t.per}</span>
               </p>
@@ -180,10 +199,10 @@ const faqs = [
           ))}
         </div>
         <p class="addon">
-          Both options include the kickoff night package and your own link, QR
-          code, and share kit. Want physical materials? A <b>bulk printed-kit
-          add-on</b> (agreements, certificates, leader guides) is available on
-          either — just ask.
+          The license includes the kickoff night package and your own link, QR
+          code, and share kit — whichever way your families join. Want physical
+          materials? A <b>bulk printed-kit add-on</b> (agreements, certificates,
+          leader guides) is available too — just ask.
         </p>
       </div>
     </section>
@@ -440,6 +459,44 @@ const faqs = [
   }
 
   /* ── Tiers ── */
+  .license-card {
+    display: grid;
+    gap: 28px;
+    padding: 32px;
+    margin-top: 36px;
+    border-color: var(--blue);
+    box-shadow: var(--shadow-md);
+  }
+  @media (min-width: 760px) {
+    .license-card {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+  }
+  .license-card .who {
+    color: var(--blue-deep);
+  }
+  .license-card .incl {
+    margin-bottom: 0;
+  }
+  .license-card :global(.btn) {
+    width: auto;
+  }
+  .then {
+    text-align: center;
+    margin: 44px 0 0;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .plan-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    margin: 2px 0 10px;
+  }
   .tier {
     padding: 28px;
     position: relative;

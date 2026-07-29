@@ -1,15 +1,21 @@
 /**
  * The church program — the ONE place its commercial terms are defined.
  *
- * Two paths, priced by WHO pays:
+ * ONE license, then ONE choice:
  *
- *   License   $495/year   Church pays. Families join at $49 (half off $99).
- *                         Fully self-serve: /churches/setup → Kajabi → /churches/done.
- *   Prepaid   $25/family  Church pays per family. Families join free.
- *                         Talk-to-us only — deliberately NOT self-serve.
+ *   License   $495/year   EVERY church, no exceptions. Link, QR, share kit,
+ *                         kickoff night. Fully self-serve:
+ *                         /churches/setup → Kajabi → /churches/done.
  *
- * Why prepaid can't be self-serve: free families need a 100%-off coupon, and a
- * universal 100%-off code loose on the internet is a giveaway with no floor.
+ *   Then: who pays for the families?
+ *     They pay  $49/family  (half off $99). Nothing more for the church.
+ *     You pay   $25/family  Church covers it, families join free.
+ *                           20-family minimum. Talk-to-us only — an UPGRADE
+ *                           after the license, never a separate front door,
+ *                           so no church bypasses the self-serve funnel.
+ *
+ * Why "you pay" can't be self-serve: free families need a 100%-off coupon, and
+ * a universal 100%-off code loose on the internet is a giveaway with no floor.
  * That path needs a per-church, seat-limited coupon — a human step, which is
  * fine because those deals already involve a conversation.
  *
@@ -111,62 +117,76 @@ export const kickoff = {
   ],
 } as const;
 
-export interface ChurchTier {
+/**
+ * What the $495/year license includes — every church gets this, before (and
+ * regardless of) the who-pays-for-families choice below.
+ */
+export const licenseIncludes = [
+  'Your church’s own share link + QR code',
+  'Printable share kit for Sundays',
+  'The kickoff night package',
+  'Unlimited families — no seats to count',
+  'Renews annually, cancel anytime',
+] as const;
+
+export interface FamilyPlan {
   id: string;
+  /** The column label — the actual choice: "They pay" / "You pay". */
   name: string;
   /** Who this is for. */
   who: string;
-  /** Price shown, already formatted. */
+  /** Price shown, already formatted. Same unit both columns: per family. */
   price: string;
   /** Billing note under the price. */
   per: string;
   blurb: string;
   features: string[];
-  /** Self-serve tiers go through /churches/setup; others go to `href`. */
+  /** Self-serve plans go through /churches/setup; others go to `href`. */
   selfServe: boolean;
   href?: string;
   cta: string;
   featured?: boolean;
 }
 
-export const churchTiers: ChurchTier[] = [
+/**
+ * The ONE choice a church makes, in the SAME unit (dollars per family) so the
+ * columns are actually comparable. The $495 license is shared context above,
+ * never a competing option.
+ */
+export const familyPlans: FamilyPlan[] = [
   {
-    id: 'license',
-    name: 'Church License',
-    who: 'Any church, any size',
-    price: `$${church.licensePrice}`,
-    per: 'per year',
-    blurb: 'Your own link, QR code, and share kit — live the moment you check out.',
+    id: 'they-pay',
+    name: 'They pay',
+    who: 'Families cover their own',
+    price: `$${church.familyPrice}`,
+    per: 'per family — they pay it',
+    blurb: 'Share your link; every family unlocks the half-off price themselves.',
     features: [
-      'Your church’s own share link + QR code',
-      `Every family joins at $${church.familyPrice} instead of $${church.retailPrice}`,
-      'Unlimited families — no seats to count',
-      'Printable share kit for Sundays',
-      'Renews annually, cancel anytime',
+      `Half off — $${church.familyPrice} instead of $${church.retailPrice}`,
+      'Nothing more for the church — ever',
+      'Families check out through your link in two minutes',
+      'Working the moment you license',
     ],
     selfServe: true,
     cta: 'Get your church link',
     featured: true,
   },
   {
-    id: 'prepaid',
-    name: 'Prepaid Seats',
-    who: 'Churches covering the cost for their families',
+    id: 'you-pay',
+    name: 'You pay',
+    who: 'Church covers it',
     price: `$${church.prepaidPerFamily}`,
-    per: 'per family',
-    blurb: 'You cover it, your families join free. The highest-participation option.',
+    per: 'per family — you cover it',
+    blurb: 'Your families join free. The big-push, highest-participation option.',
     features: [
       'Families pay nothing at all',
-      `Bulk rate — $${church.prepaidPerFamily} a family instead of $${church.retailPrice}`,
+      `$${church.prepaidPerFamily} a family, billed to the church`,
       `${church.prepaidMinFamilies}-family minimum`,
-      'Your church’s own link, QR code, and kit',
       'Progress summaries for your group',
+      'We set it up with you after you license',
     ],
     selfServe: false,
     href: site.calendlyUrl,
     cta: 'Talk to us',
   },
 ];
-
-/** The tier a pastor self-serves through. */
-export const licenseTier = churchTiers.find((t) => t.selfServe)!;
