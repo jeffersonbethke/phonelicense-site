@@ -88,6 +88,7 @@ const checkoutUrl = offers.courseChurch.url;
       define:vars={{
         couponCode: church.familyCode,
         couponParam: church.couponParam,
+        attributionParam: church.attributionParam,
       }}
     >
   (function () {
@@ -118,7 +119,7 @@ const checkoutUrl = offers.courseChurch.url;
       try {
         var u = new URL(join.href);
         if (couponCode) u.searchParams.set(couponParam, couponCode);
-        u.searchParams.set('ref', slug);
+        u.searchParams.set(attributionParam, slug);
         u.searchParams.set('utm_source', 'church');
         u.searchParams.set('utm_medium', 'partner');
         u.searchParams.set('utm_campaign', slug);

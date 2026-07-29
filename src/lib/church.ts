@@ -135,7 +135,7 @@ export function familyCheckoutUrl(baseUrl: string, slug: string): string {
   try {
     const u = new URL(baseUrl);
     if (church.familyCode) u.searchParams.set(church.couponParam, church.familyCode);
-    u.searchParams.set('ref', slug);
+    u.searchParams.set(church.attributionParam, slug);
     u.searchParams.set('utm_source', 'church');
     u.searchParams.set('utm_medium', 'partner');
     u.searchParams.set('utm_campaign', slug);

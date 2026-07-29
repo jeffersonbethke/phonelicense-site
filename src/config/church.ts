@@ -47,6 +47,18 @@ export const church = {
    * and leave this alone; the code is then unnecessary.
    */
   couponParam: 'coupon',
+  /**
+   * Query param that carries the church slug to the payment processor — this is
+   * how a family's purchase gets credited to their church.
+   *
+   * Kajabi: 'ref' is fine; the UTMs we also set are what shows in its reporting.
+   * Stripe: use 'client_reference_id'. Stripe Payment Links ignore arbitrary
+   *   params, but persist client_reference_id onto the Checkout Session, so it
+   *   is the ONLY one that survives to where you can read it. Getting this
+   *   wrong means every church sale lands unattributed.
+   * TODO(inputs): set to 'client_reference_id' if churches check out via Stripe.
+   */
+  attributionParam: 'ref',
 
   supportEmail: 'hello@phonelicense.co',
 } as const;
