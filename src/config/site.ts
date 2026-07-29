@@ -27,6 +27,14 @@ export const site = {
   ga4Id: env.PUBLIC_GA4_ID ?? '',
   calendlyUrl: env.PUBLIC_CALENDLY_URL ?? 'mailto:hello@phonelicense.co',
 
+  // ── Feature flags ──
+  /**
+   * The "Family Phone Contract" free-download lead capture (footer band on every
+   * page + the injected band on the homepage). Turned OFF for now — flip to true
+   * to bring it back everywhere at once. Nothing else needs editing.
+   */
+  contractLead: false,
+
   // Convenience flags for conditional wiring / dev warnings.
   get webhookReady() {
     return this.webhookUrl.trim().length > 0;

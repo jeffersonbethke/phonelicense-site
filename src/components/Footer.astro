@@ -10,7 +10,9 @@ interface Props {
   /** Hide the Contract-PDF capture band (e.g. on the quiz results flow). */
   capture?: boolean;
 }
-const { capture = true } = Astro.props;
+// Defaults to the site-wide flag, so the band can be switched off everywhere
+// from one place. A page can still force it off explicitly.
+const { capture = site.contractLead } = Astro.props;
 ---
 
 {
