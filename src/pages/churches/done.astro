@@ -1,21 +1,45 @@
 ---
 /**
- * /churches/done — the payoff page. Kajabi's post-purchase thank-you for the
- * Church License redirects here.
+ * /churches/done — the payoff page. Kajabi/Stripe's post-purchase redirect
+ * points here.
  *
- * THE ONE THING IAN HAS TO DO: point that thank-you redirect at this URL.
- * Everything else is automatic.
+ * THE ONE THING TO CONFIGURE: point that redirect at this URL. Everything else
+ * is automatic.
  *
- * This page renders entirely from localStorage written on /churches/setup, so
- * the pastor sees their link + QR the instant they land — no tag, no Zap, no
- * waiting on an email, no lookup that could fail. If storage is empty (they
- * paid on a different device, or private browsing) a one-field form recreates
- * exactly the same thing.
+ * Renders entirely from localStorage written on /churches/setup, so the pastor
+ * sees their link + QR the instant they land — no tag, no automation, no lookup
+ * that could fail. If storage is empty (paid on another device, or private
+ * browsing) a one-field form recreates exactly the same thing.
+ *
+ * The "how it works" section below renders in BOTH states on purpose: a pastor
+ * who just paid needs to know what to do next, and one filling in the fallback
+ * form needs to know what they're about to get.
  */
 import Base from '../../layouts/Base.astro';
 import Footer from '../../components/Footer.astro';
 import { church, familySavings } from '../../config/church';
 import { site } from '../../config/site';
+
+const steps = [
+  {
+    n: '01',
+    h: 'Send them the link',
+    d: 'Text it, email it, drop it in your parents’ group chat. One link for your whole church — nothing to hand out, nothing to keep track of.',
+    art: 'phone',
+  },
+  {
+    n: '02',
+    h: 'Or put the QR on a screen',
+    d: 'Print it for a table, put it on a slide, stick it on the back of a seat. Parents point their camera at it and they’re in.',
+    art: 'qr',
+  },
+  {
+    n: '03',
+    h: 'They join for $' + church.familyPrice,
+    d: `The discount is already applied — no code to type, nothing to remember. And we automatically know every family came from you.`,
+    art: 'card',
+  },
+];
 ---
 
 <Base
@@ -25,19 +49,23 @@ import { site } from '../../config/site';
   noindex
 >
   <main class="done">
-    <div class="wrap">
-      {/* ---------- Result: here's your link + kit ---------- */}
-      <section id="result" hidden>
-        <p class="eyebrow">You’re all set</p>
-        <h1><span id="church-name">Your church</span> is ready.</h1>
-        <p class="lede">
-          Share this link (or the QR code) with your families. Anyone who joins
-          through it pays <b>${church.familyPrice} instead of ${church.retailPrice}</b>,
-          and we automatically know they came from you.
-        </p>
+    {/* ── Hero: result or fallback ── */}
+    <section class="hero">
+      <div class="wrap">
+        {/* ---------- Result: here's your link + kit ---------- */}
+        <div id="result" hidden>
+          <p class="eyebrow">You’re all set</p>
+          <h1><span id="church-name">Your church</span> is ready.</h1>
+          <p class="lede">
+            Share this with your families. Anyone who joins through it pays
+            <b>${church.familyPrice} instead of ${church.retailPrice}</b> — and we
+            automatically know they came from you.
+          </p>
 
-        <div class="card linkcard">
-          <div class="linkside">
+          <div class="qrcard">
+            <div class="qrbox">
+              <img id="qr-img" alt="QR code for your church link" width="240" height="240" />
+            </div>
             <p class="label">Your church link</p>
             <p class="link mono" id="link-text">phonelicense.co/c/…</p>
             <div class="btn-row">
@@ -45,53 +73,111 @@ import { site } from '../../config/site';
               <a class="btn btn-ghost" id="open-link" href="#">Open it →</a>
             </div>
           </div>
-          <div class="qrbox">
-            <img id="qr-img" alt="QR code for your church link" width="180" height="180" />
-          </div>
+
+          <a class="btn btn-dark wide" id="kit-link" href="#">Open your full share kit →</a>
         </div>
 
-        <a class="btn btn-dark kit-btn" id="kit-link" href="#">Open your full share kit →</a>
+        {/* ---------- Fallback: name your church ---------- */}
+        <div id="fallback" hidden>
+          <p class="eyebrow">License activated · one quick step</p>
+          <h1>Set up your church.</h1>
+          <p class="lede">
+            Tell us your church name and we’ll generate your share link and QR
+            code right now — then send it to your families so they join for
+            <b>${church.familyPrice}</b> and save ${familySavings} each.
+          </p>
 
-        <ul class="next">
-          <li>Text or email the link to your parents.</li>
-          <li>Put the QR on a slide, or print it for a table on Sunday.</li>
-          <li>Each family taps it and checks out at ${church.familyPrice} — that’s it.</li>
-        </ul>
-      </section>
+          <form id="fallback-form">
+            <div class="field">
+              <label for="fb_church">Your church name</label>
+              <input id="fb_church" name="church_name" type="text" required autocomplete="organization" placeholder="e.g. Grace Community Church" />
+              <p class="hint">Your link: <span class="mono" id="slug-preview">phonelicense.co/c/your-church</span></p>
+            </div>
+            <div class="field">
+              <label for="fb_name">Your name</label>
+              <input id="fb_name" name="leader_name" type="text" autocomplete="name" placeholder="Leader / point person" />
+            </div>
+            <div class="field">
+              <label for="fb_email">Your email</label>
+              <input id="fb_email" name="email" type="email" autocomplete="email" placeholder="Where we’ll keep you posted" />
+            </div>
+            <button type="submit" class="btn btn-primary wide" id="fb-submit">Get my church link →</button>
+          </form>
+        </div>
+      </div>
+    </section>
 
-      {/* ---------- Fallback: name your church ---------- */}
-      <section id="fallback" hidden>
-        <p class="eyebrow">License activated · one quick step</p>
-        <h1>Set up your church.</h1>
-        <p class="lede">
-          Tell us your church name and we’ll generate your share link and QR code
-          right now — then send it to your families so they join for
-          <b>${church.familyPrice}</b> and save ${familySavings} each.
+    {/* ── How it works ── */}
+    <section class="how band-2">
+      <div class="wrap">
+        <p class="eyebrow center">How it works</p>
+        <h2>Three ways to hand it to a parent.</h2>
+        <p class="how-lede">
+          No accounts for them to make, no codes to type, nothing for you to
+          administer. You share one thing, and that’s the whole job.
         </p>
-        <form id="fallback-form">
-          <div class="field">
-            <label for="fb_church">Your church name</label>
-            <input id="fb_church" name="church_name" type="text" required autocomplete="organization" placeholder="e.g. Grace Community Church" />
-          </div>
-          <div class="field">
-            <label for="fb_name">Your name</label>
-            <input id="fb_name" name="leader_name" type="text" autocomplete="name" placeholder="Leader / point person" />
-          </div>
-          <div class="field">
-            <label for="fb_email">Your email</label>
-            <input id="fb_email" name="email" type="email" autocomplete="email" placeholder="Where we’ll keep you posted" />
-          </div>
-          <button type="submit" class="btn btn-primary" id="fb-submit">Get my church link →</button>
-        </form>
-      </section>
 
-      <p class="help">
-        Questions? <a href={`mailto:${church.supportEmail}`}>{church.supportEmail}</a>
-      </p>
-    </div>
+        <div class="steps">
+          {steps.map((s) => (
+            <div class="card step">
+              <div class="art">
+                {s.art === 'phone' && (
+                  <div class="art-phone">
+                    <div class="bubble">
+                      <span class="bl"></span>
+                      <span class="bl short"></span>
+                      <span class="blink">phonelicense.co/c/…</span>
+                    </div>
+                  </div>
+                )}
+                {s.art === 'qr' && (
+                  <svg class="art-qr" viewBox="0 0 64 64" role="img" aria-label="QR code">
+                    {/* three finder squares + a scatter of modules — a stylised
+                        QR glyph, not a scannable code (the real one is above) */}
+                    <g fill="currentColor">
+                      <path d="M4 4h18v18H4V4zm4 4v10h10V8H8z" />
+                      <path d="M42 4h18v18H42V4zm4 4v10h10V8H46z" />
+                      <path d="M4 42h18v18H4V42zm4 4v10h10V46H8z" />
+                      <rect x="11" y="11" width="4" height="4" />
+                      <rect x="49" y="11" width="4" height="4" />
+                      <rect x="11" y="49" width="4" height="4" />
+                      <rect x="28" y="4" width="4" height="4" /><rect x="28" y="12" width="4" height="8" />
+                      <rect x="36" y="8" width="4" height="4" /><rect x="28" y="24" width="4" height="4" />
+                      <rect x="36" y="24" width="4" height="4" /><rect x="44" y="28" width="4" height="4" />
+                      <rect x="52" y="28" width="4" height="4" /><rect x="4" y="28" width="4" height="4" />
+                      <rect x="12" y="28" width="4" height="4" /><rect x="20" y="32" width="4" height="4" />
+                      <rect x="28" y="36" width="4" height="4" /><rect x="36" y="40" width="4" height="4" />
+                      <rect x="28" y="48" width="4" height="4" /><rect x="28" y="56" width="4" height="4" />
+                      <rect x="36" y="52" width="4" height="8" /><rect x="44" y="44" width="4" height="4" />
+                      <rect x="52" y="44" width="4" height="4" /><rect x="44" y="52" width="8" height="4" />
+                      <rect x="56" y="52" width="4" height="8" /><rect x="44" y="36" width="4" height="4" />
+                    </g>
+                  </svg>
+                )}
+                {s.art === 'card' && (
+                  <div class="art-card">
+                    <span class="lic-strip"></span>
+                    <span class="lic-name"></span>
+                    <span class="lic-name short"></span>
+                    <span class="lic-seal">✓</span>
+                  </div>
+                )}
+              </div>
+              <span class="mono n">{s.n}</span>
+              <h4>{s.h}</h4>
+              <p>{s.d}</p>
+            </div>
+          ))}
+        </div>
+
+        <p class="help">
+          Questions? <a href={`mailto:${church.supportEmail}`}>{church.supportEmail}</a>
+        </p>
+      </div>
+    </section>
   </main>
 
-  <Footer />
+  <Footer capture={false} />
 </Base>
 
 <script>
@@ -124,7 +210,7 @@ import { site } from '../../config/site';
     result.hidden = false;
   }
 
-  // Read the church stashed on /churches/setup before the Kajabi round-trip.
+  // Read the church stashed on /churches/setup before the checkout round-trip.
   let restored = false;
   try {
     if (localStorage.getItem(STORE.product) === PRODUCT) {
@@ -138,6 +224,14 @@ import { site } from '../../config/site';
     /* storage blocked — fall through to the form */
   }
   if (!restored) fallback.hidden = false;
+
+  // Live link preview as they type — makes the thing concrete before they submit.
+  const churchInput = document.getElementById('fb_church') as HTMLInputElement | null;
+  const preview = document.getElementById('slug-preview');
+  churchInput?.addEventListener('input', () => {
+    const slug = slugify(churchInput.value);
+    if (preview) preview.textContent = `phonelicense.co/c/${slug || 'your-church'}`;
+  });
 
   // Copy button.
   const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement | null;
@@ -175,8 +269,8 @@ import { site } from '../../config/site';
       /* fine — the link below still works, it just won't persist */
     }
 
-    // Best-effort, and deliberately not awaited into the render path: the
-    // pastor gets their link whether or not this lands.
+    // Best-effort, deliberately not awaited into the render path: the pastor
+    // gets their link whether or not this lands.
     captureChurchSignup({
       church_name: name,
       leader_name: String(data.get('leader_name') || '').trim(),
@@ -190,145 +284,282 @@ import { site } from '../../config/site';
     }).catch(() => {});
 
     render(slug, name);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 </script>
 
 <style>
-  .done {
-    padding-block: 56px 80px;
+  /* ── Hero ── */
+  .hero {
+    padding-block: 64px 72px;
+    text-align: center;
   }
-  .done .wrap {
-    max-width: 640px;
+  .hero .wrap {
+    max-width: 660px;
   }
   h1 {
-    margin: 10px 0 14px;
+    margin: 12px 0 18px;
+    font-size: clamp(38px, 6vw, 60px);
+    letter-spacing: -0.035em;
+    line-height: 1.02;
   }
   .lede {
     color: var(--ink-2);
-    margin-bottom: 30px;
+    font-size: 18px;
+    max-width: 30em;
+    margin: 0 auto 40px;
   }
 
-  .linkcard {
-    display: grid;
-    gap: 24px;
-    align-items: center;
-    padding: 26px;
-    margin-bottom: 16px;
+  /* ── Link + QR card ── */
+  .qrcard {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-md);
+    padding: 40px 32px 34px;
+    margin-bottom: 18px;
+  }
+  .qrbox {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 14px;
+    line-height: 0;
+    width: fit-content;
+    margin: 0 auto 26px;
+  }
+  .qrbox img {
+    display: block;
+    width: 240px;
+    height: 240px;
   }
   .label {
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
     margin-bottom: 10px;
   }
   .link {
     font-family: var(--font-mono);
-    font-size: clamp(15px, 2.4vw, 19px);
+    font-size: clamp(16px, 3vw, 22px);
     color: var(--ink);
     word-break: break-all;
-    margin-bottom: 16px;
+    margin-bottom: 22px;
   }
   .btn-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    justify-content: center;
   }
-  .qrbox {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: var(--r-sm);
-    padding: 11px;
-    line-height: 0;
-    width: fit-content;
-    justify-self: center;
+  .btn-row .btn {
+    min-width: 148px;
   }
-  .qrbox img {
-    display: block;
-    width: 180px;
-    height: 180px;
-  }
-  .kit-btn {
+  .wide {
     width: 100%;
   }
 
-  .next {
-    list-style: none;
-    counter-reset: n;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 32px;
-    padding-top: 26px;
-    border-top: 1px solid var(--line);
-    font-size: 15px;
-    color: var(--ink-2);
-  }
-  .next li {
-    counter-increment: n;
-    padding-left: 28px;
-    position: relative;
-  }
-  .next li::before {
-    content: counter(n);
-    position: absolute;
-    left: 0;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--blue-deep);
-  }
-
+  /* ── Fallback form ── */
   form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    max-width: 440px;
+    gap: 20px;
+    max-width: 480px;
+    margin-inline: auto;
+    text-align: left;
   }
   .field {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
   }
   label {
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
   }
   input {
     width: 100%;
-    padding: 14px 16px;
+    padding: 18px 22px;
     font-family: var(--font-body);
-    font-size: 16px;
+    font-size: 17px; /* ≥16px prevents iOS zoom-on-focus */
     color: var(--ink);
     background: var(--surface);
     border: 1px solid var(--line-2);
     border-radius: var(--r-pill);
+    box-shadow: var(--shadow-sm);
   }
   input:focus-visible {
     outline: 2px solid var(--blue);
     outline-offset: 1px;
+  }
+  .hint {
+    font-size: 13px;
+    color: var(--muted);
+    padding-left: 4px;
+  }
+  .hint .mono {
+    font-family: var(--font-mono);
+    color: var(--blue-deep);
+    word-break: break-all;
+  }
+  form .btn {
+    padding-block: 18px;
+    font-size: 16px;
   }
   button[disabled] {
     opacity: 0.65;
     cursor: default;
   }
 
-  .help {
-    margin-top: 30px;
-    font-size: 13.5px;
-    color: var(--muted);
+  /* ── How it works ── */
+  .how {
+    padding-block: 68px 76px;
     text-align: center;
+  }
+  .eyebrow.center {
+    display: block;
+  }
+  .how h2 {
+    margin: 12px 0 14px;
+  }
+  .how-lede {
+    color: var(--muted);
+    max-width: 46ch;
+    margin: 0 auto;
+  }
+  .steps {
+    display: grid;
+    gap: 22px;
+    margin-top: 44px;
+    text-align: left;
+  }
+  .step {
+    padding: 26px 26px 28px;
+  }
+  .step .n {
+    color: var(--blue-deep);
+  }
+  .step h4 {
+    margin: 8px 0 8px;
+  }
+  .step p {
+    color: var(--ink-2);
+    font-size: 15px;
+  }
+
+  /* Step artwork — CSS/SVG only, no image assets to go stale. */
+  .art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 132px;
+    margin-bottom: 22px;
+    background: var(--blue-tint);
+    border-radius: var(--r-md);
+    color: var(--blue-deep);
+    overflow: hidden;
+  }
+  .art-qr {
+    width: 82px;
+    height: 82px;
+  }
+  /* 1 — a phone with a message bubble */
+  .art-phone {
+    width: 92px;
+    height: 108px;
+    border: 2px solid currentColor;
+    border-radius: 14px;
+    background: #fff;
+    padding: 12px 9px;
+    display: flex;
+    align-items: flex-end;
+  }
+  .bubble {
+    background: var(--blue);
+    border-radius: 11px 11px 11px 3px;
+    padding: 8px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+  .bl {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 2px;
+  }
+  .bl.short {
+    width: 60%;
+  }
+  .blink {
+    font-family: var(--font-mono);
+    font-size: 6px;
+    color: #fff;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* 3 — the license card */
+  .art-card {
+    position: relative;
+    width: 128px;
+    height: 82px;
+    background: #fff;
+    border: 2px solid currentColor;
+    border-radius: 11px;
+    padding: 13px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .lic-strip {
+    height: 9px;
+    width: 40%;
+    background: var(--blue);
+    border-radius: 2px;
+  }
+  .lic-name {
+    height: 4px;
+    width: 78%;
+    background: var(--blue-tint-2);
+    border-radius: 2px;
+  }
+  .lic-name.short {
+    width: 52%;
+  }
+  .lic-seal {
+    position: absolute;
+    right: 11px;
+    bottom: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .help {
+    margin-top: 40px;
+    font-size: 14px;
+    color: var(--muted);
   }
   .help a {
     color: var(--blue-deep);
   }
 
-  @media (min-width: 620px) {
-    .linkcard {
-      grid-template-columns: 1fr auto;
+  @media (min-width: 760px) {
+    .steps {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>

@@ -172,8 +172,10 @@ body = body.replace('<!-- ============================ MEET YOUR GUIDES', midCta
 body = body.replace('<!-- ============================ CURRICULUM', liveEvents + '\n<!-- ============================ CURRICULUM');
 // workshop before pricing
 body = body.replace('<!-- ============================ PRICING', workshop + '\n<!-- ============================ PRICING');
-// footer PDF capture before footer
-body = body.replace('<!-- ============================ FOOTER', pdfCapture + '\n<!-- ============================ FOOTER');
+// footer PDF capture before footer — gated on the site-wide contractLead flag
+if (site.contractLead) {
+  body = body.replace('<!-- ============================ FOOTER', pdfCapture + '\n<!-- ============================ FOOTER');
+}
 ---
 
 <!doctype html>
