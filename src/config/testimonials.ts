@@ -50,3 +50,25 @@ export const testimonials: Testimonial[] = [
     mock: true,
   },
 ];
+
+/**
+ * Church-leader quotes for /churches.
+ *
+ * SHIPS EMPTY ON PURPOSE. The section on /churches renders only when this array
+ * has entries, so the live page shows nothing rather than placeholder text or
+ * invented quotes — this page is public and sells to pastors, and a fabricated
+ * endorsement from a named church would be a real problem, not a design detail.
+ *
+ * To fill it: uncomment the shape below and replace with a real, cleared quote.
+ * The section appears automatically — no other file to touch. Two or three is
+ * plenty; `detail` should carry the church name and city, since that is the
+ * social proof another pastor is actually looking for.
+ *
+ * Example:
+ *   {
+ *     quote: 'We ran it as a kickoff night and 40 families signed up that evening.',
+ *     name: 'Pastor Dave Whitman',
+ *     detail: 'Family Pastor · Grace Community, Franklin TN',
+ *   },
+ */
+export const churchTestimonials: Testimonial[] = [];

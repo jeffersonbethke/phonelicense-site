@@ -1,0 +1,203 @@
+---
+/**
+ * /c/{slug} — the parent-facing page, branded by church.
+ *
+ * NO 404s, EVER. This route must resolve for a slug created seconds ago, with
+ * no directory row, no sheet sync, and no database behind it. Two things make
+ * that true:
+ *   1. vercel.json rewrites /c/:slug here, so the CDN never misses.
+ *   2. The church name is DERIVED from the slug (title-cased), never looked up.
+ *
+ * Attribution rides on the slug, so a derived name is purely cosmetic — and a
+ * cosmetically imperfect name beats a dead link a pastor already put on a slide.
+ *
+ * The site builds static, so the slug is read from location.pathname.
+ */
+import Base from '../../layouts/Base.astro';
+import Footer from '../../components/Footer.astro';
+import { church, familySavings } from '../../config/church';
+import { offers } from '../../config/offers';
+import { site } from '../../config/site';
+
+const checkoutUrl = offers.courseChurch.url;
+---
+
+<Base
+  title={`Your church opened the door — ${site.name}`}
+  description={`Your church is bringing Phone License to its families. Join for $${church.familyPrice} instead of $${church.retailPrice}.`}
+  announcement={false}
+  noindex
+>
+  <main class="cpage">
+    <div class="wrap">
+      <p class="eyebrow" id="church-eyebrow">Your church</p>
+      <h1>Your church has a plan<br /><span class="accent">for the phone.</span></h1>
+      <p class="lede">
+        <span class="cname">Your church</span> is bringing Phone License to its families —
+        a calm, six-module plan for handing over a phone and keeping the trust.
+        Whether it’s their first phone or a fresh start on the one they already
+        have. Because your church partnered with us, you join for
+        <b>${church.familyPrice} instead of ${church.retailPrice}</b>.
+      </p>
+
+      <a
+        href={checkoutUrl}
+        class="btn btn-primary join"
+        id="join-btn"
+        data-kajabi
+        data-offer-value={offers.courseChurch.pixelValue}
+        data-offer-name="Church family"
+        data-todo={checkoutUrl.startsWith('#') ? 'true' : undefined}
+        rel="noopener"
+      >
+        Join for ${church.familyPrice} →
+      </a>
+      <p class="save">You save ${familySavings}. Your church already did the hard part.</p>
+
+      <ul class="incl">
+        <li>Six short video modules — watched parent and kid together</li>
+        <li>Hands-on Road Tests they actually complete on the real device</li>
+        <li>The nine-section Family Agreement you both sign</li>
+        <li>The License and the handoff ceremony they’ll remember</li>
+      </ul>
+
+      <p class="leader">
+        Church leader? <a href="#" id="kit-link">Get your share kit →</a>
+      </p>
+      <p class="help">
+        Questions? <a href={`mailto:${church.supportEmail}`}>{church.supportEmail}</a>
+      </p>
+    </div>
+
+    {/*
+      Two things about this block, both deliberate and both easy to break:
+
+      1. It is `is:inline` rather than a normal Astro script tag. A normal one is
+         bundled into a DEFERRED module, which would paint the "Your church"
+         fallback and then swap — a visible flash on the one page a pastor is
+         judging us by. Inline runs during parse, before this section paints.
+      2. It lives INSIDE the layout slot, directly after the markup it fills.
+         Moved outside `<Base>` it gets emitted after `</html>` and runs too
+         late, which silently defeats point 1.
+
+      Cost of the above: the slug/name logic is duplicated in vanilla JS. Keep it
+      in sync with slugify / slugToName / familyCheckoutUrl in lib/church.ts.
+    */}
+    <script
+      is:inline
+      define:vars={{
+        couponCode: church.familyCode,
+        couponParam: church.couponParam,
+        attributionParam: church.attributionParam,
+      }}
+    >
+  (function () {
+    var parts = window.location.pathname.split('/').filter(Boolean);
+    var slug = parts[0] === 'c' && parts[1] ? parts[1].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : '';
+    if (!slug) return;
+
+    var name = slug
+      .split('-')
+      .filter(Boolean)
+      .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+      .join(' ');
+
+    document.querySelectorAll('.cname').forEach(function (el) { el.textContent = name; });
+    var eyebrow = document.getElementById('church-eyebrow');
+    if (eyebrow) eyebrow.textContent = name;
+    document.title = name + ' — Phone License';
+
+    var kit = document.getElementById('kit-link');
+    if (kit) kit.href = '/c/' + slug + '/kit';
+
+    // Attribution on the checkout link. `ref` is ours alone; the UTMs are what
+    // shows up in Kajabi's own reporting. Set before Base.astro's deferred
+    // appendUtms runs — it only fills params that aren't already present, so a
+    // family's first-touch ad UTMs can never overwrite the church's.
+    var join = document.getElementById('join-btn');
+    if (join && join.dataset.todo !== 'true') {
+      try {
+        var u = new URL(join.href);
+        if (couponCode) u.searchParams.set(couponParam, couponCode);
+        u.searchParams.set(attributionParam, slug);
+        u.searchParams.set('utm_source', 'church');
+        u.searchParams.set('utm_medium', 'partner');
+        u.searchParams.set('utm_campaign', slug);
+        join.href = u.toString();
+      } catch (e) {
+        /* leave the plain checkout link — it still works, just unattributed */
+      }
+    }
+  })();
+    </script>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .cpage {
+    padding-block: 64px 80px;
+    text-align: center;
+  }
+  .cpage .wrap {
+    max-width: 620px;
+  }
+  h1 {
+    margin: 12px 0 18px;
+  }
+  .accent {
+    color: var(--blue-deep);
+  }
+  .lede {
+    color: var(--ink-2);
+    margin-bottom: 30px;
+  }
+  .join {
+    width: 100%;
+    max-width: 380px;
+  }
+  .save {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .incl {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 38px auto 0;
+    padding-top: 30px;
+    border-top: 1px solid var(--line);
+    max-width: 460px;
+    text-align: left;
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+  .incl li {
+    padding-left: 26px;
+    position: relative;
+  }
+  .incl li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--blue-deep);
+  }
+
+  .leader,
+  .help {
+    margin-top: 26px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .help {
+    margin-top: 8px;
+  }
+  .leader a,
+  .help a {
+    color: var(--blue-deep);
+  }
+</style>

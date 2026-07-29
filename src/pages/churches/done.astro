@@ -1,0 +1,334 @@
+---
+/**
+ * /churches/done — the payoff page. Kajabi's post-purchase thank-you for the
+ * Church License redirects here.
+ *
+ * THE ONE THING IAN HAS TO DO: point that thank-you redirect at this URL.
+ * Everything else is automatic.
+ *
+ * This page renders entirely from localStorage written on /churches/setup, so
+ * the pastor sees their link + QR the instant they land — no tag, no Zap, no
+ * waiting on an email, no lookup that could fail. If storage is empty (they
+ * paid on a different device, or private browsing) a one-field form recreates
+ * exactly the same thing.
+ */
+import Base from '../../layouts/Base.astro';
+import Footer from '../../components/Footer.astro';
+import { church, familySavings } from '../../config/church';
+import { site } from '../../config/site';
+---
+
+<Base
+  title={`Your church is ready — ${site.name}`}
+  description="Your church’s share link, QR code, and kit."
+  announcement={false}
+  noindex
+>
+  <main class="done">
+    <div class="wrap">
+      {/* ---------- Result: here's your link + kit ---------- */}
+      <section id="result" hidden>
+        <p class="eyebrow">You’re all set</p>
+        <h1><span id="church-name">Your church</span> is ready.</h1>
+        <p class="lede">
+          Share this link (or the QR code) with your families. Anyone who joins
+          through it pays <b>${church.familyPrice} instead of ${church.retailPrice}</b>,
+          and we automatically know they came from you.
+        </p>
+
+        <div class="card linkcard">
+          <div class="linkside">
+            <p class="label">Your church link</p>
+            <p class="link mono" id="link-text">phonelicense.co/c/…</p>
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" id="copy-btn">Copy link</button>
+              <a class="btn btn-ghost" id="open-link" href="#">Open it →</a>
+            </div>
+          </div>
+          <div class="qrbox">
+            <img id="qr-img" alt="QR code for your church link" width="180" height="180" />
+          </div>
+        </div>
+
+        <a class="btn btn-dark kit-btn" id="kit-link" href="#">Open your full share kit →</a>
+
+        <ul class="next">
+          <li>Text or email the link to your parents.</li>
+          <li>Put the QR on a slide, or print it for a table on Sunday.</li>
+          <li>Each family taps it and checks out at ${church.familyPrice} — that’s it.</li>
+        </ul>
+      </section>
+
+      {/* ---------- Fallback: name your church ---------- */}
+      <section id="fallback" hidden>
+        <p class="eyebrow">License activated · one quick step</p>
+        <h1>Set up your church.</h1>
+        <p class="lede">
+          Tell us your church name and we’ll generate your share link and QR code
+          right now — then send it to your families so they join for
+          <b>${church.familyPrice}</b> and save ${familySavings} each.
+        </p>
+        <form id="fallback-form">
+          <div class="field">
+            <label for="fb_church">Your church name</label>
+            <input id="fb_church" name="church_name" type="text" required autocomplete="organization" placeholder="e.g. Grace Community Church" />
+          </div>
+          <div class="field">
+            <label for="fb_name">Your name</label>
+            <input id="fb_name" name="leader_name" type="text" autocomplete="name" placeholder="Leader / point person" />
+          </div>
+          <div class="field">
+            <label for="fb_email">Your email</label>
+            <input id="fb_email" name="email" type="email" autocomplete="email" placeholder="Where we’ll keep you posted" />
+          </div>
+          <button type="submit" class="btn btn-primary" id="fb-submit">Get my church link →</button>
+        </form>
+      </section>
+
+      <p class="help">
+        Questions? <a href={`mailto:${church.supportEmail}`}>{church.supportEmail}</a>
+      </p>
+    </div>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  import {
+    slugify,
+    slugToName,
+    STORE,
+    PRODUCT,
+    kitPath,
+    displayLink,
+    fullLink,
+    qrUrl,
+    captureChurchSignup,
+  } from '../../lib/church';
+
+  const result = document.getElementById('result')!;
+  const fallback = document.getElementById('fallback')!;
+
+  function render(slug: string, name: string) {
+    const display = displayLink(slug);
+    const full = fullLink(slug, window.location.origin);
+
+    document.getElementById('church-name')!.textContent = name || slugToName(slug) || 'Your church';
+    document.getElementById('link-text')!.textContent = display;
+    (document.getElementById('open-link') as HTMLAnchorElement).href = full;
+    (document.getElementById('kit-link') as HTMLAnchorElement).href = kitPath(slug);
+    (document.getElementById('qr-img') as HTMLImageElement).src = qrUrl(full, 520);
+
+    fallback.hidden = true;
+    result.hidden = false;
+  }
+
+  // Read the church stashed on /churches/setup before the Kajabi round-trip.
+  let restored = false;
+  try {
+    if (localStorage.getItem(STORE.product) === PRODUCT) {
+      const slug = localStorage.getItem(STORE.slug);
+      if (slug) {
+        render(slug, localStorage.getItem(STORE.name) || '');
+        restored = true;
+      }
+    }
+  } catch {
+    /* storage blocked — fall through to the form */
+  }
+  if (!restored) fallback.hidden = false;
+
+  // Copy button.
+  const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement | null;
+  copyBtn?.addEventListener('click', async () => {
+    const text = document.getElementById('link-text')?.textContent || '';
+    try {
+      await navigator.clipboard.writeText(`https://${text}`);
+      copyBtn.textContent = 'Copied ✓';
+      setTimeout(() => (copyBtn.textContent = 'Copy link'), 2000);
+    } catch {
+      copyBtn.textContent = 'Press ⌘C to copy';
+    }
+  });
+
+  // Fallback: recreate the same link from just a church name.
+  const form = document.getElementById('fallback-form') as HTMLFormElement | null;
+  const fbBtn = document.getElementById('fb-submit') as HTMLButtonElement | null;
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const name = String(data.get('church_name') || '').trim();
+    const slug = slugify(name);
+    if (!slug || fbBtn?.disabled) return;
+
+    if (fbBtn) {
+      fbBtn.disabled = true;
+      fbBtn.textContent = 'Setting up…';
+    }
+
+    try {
+      localStorage.setItem(STORE.product, PRODUCT);
+      localStorage.setItem(STORE.slug, slug);
+      localStorage.setItem(STORE.name, name);
+    } catch {
+      /* fine — the link below still works, it just won't persist */
+    }
+
+    // Best-effort, and deliberately not awaited into the render path: the
+    // pastor gets their link whether or not this lands.
+    captureChurchSignup({
+      church_name: name,
+      leader_name: String(data.get('leader_name') || '').trim(),
+      role: '',
+      email: String(data.get('email') || '').trim(),
+      city: '',
+      size: '',
+      slug,
+      tier: 'license',
+      source: 'done-fallback',
+    }).catch(() => {});
+
+    render(slug, name);
+  });
+</script>
+
+<style>
+  .done {
+    padding-block: 56px 80px;
+  }
+  .done .wrap {
+    max-width: 640px;
+  }
+  h1 {
+    margin: 10px 0 14px;
+  }
+  .lede {
+    color: var(--ink-2);
+    margin-bottom: 30px;
+  }
+
+  .linkcard {
+    display: grid;
+    gap: 24px;
+    align-items: center;
+    padding: 26px;
+    margin-bottom: 16px;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .link {
+    font-family: var(--font-mono);
+    font-size: clamp(15px, 2.4vw, 19px);
+    color: var(--ink);
+    word-break: break-all;
+    margin-bottom: 16px;
+  }
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .qrbox {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 11px;
+    line-height: 0;
+    width: fit-content;
+    justify-self: center;
+  }
+  .qrbox img {
+    display: block;
+    width: 180px;
+    height: 180px;
+  }
+  .kit-btn {
+    width: 100%;
+  }
+
+  .next {
+    list-style: none;
+    counter-reset: n;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+  .next li {
+    counter-increment: n;
+    padding-left: 28px;
+    position: relative;
+  }
+  .next li::before {
+    content: counter(n);
+    position: absolute;
+    left: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--blue-deep);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 440px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+  }
+  input:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 1px;
+  }
+  button[disabled] {
+    opacity: 0.65;
+    cursor: default;
+  }
+
+  .help {
+    margin-top: 30px;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .help a {
+    color: var(--blue-deep);
+  }
+
+  @media (min-width: 620px) {
+    .linkcard {
+      grid-template-columns: 1fr auto;
+    }
+  }
+</style>

@@ -1,0 +1,303 @@
+---
+/**
+ * /churches/setup — the pastor's signup, and the last page before checkout.
+ *
+ * On submit, in this order:
+ *   1. Derive a slug from the church name.
+ *   2. Stash {product, slug, name} in localStorage — this is how the church
+ *      survives the round-trip through Kajabi. NOT a query string: the pastor
+ *      comes back on a URL Kajabi controls, so we can't put anything on it.
+ *   3. Fire the capture (best-effort, time-capped).
+ *   4. Redirect to the license checkout.
+ *
+ * Step 3 can fail completely and step 4 still happens. That is the point.
+ */
+import Base from '../../layouts/Base.astro';
+import Footer from '../../components/Footer.astro';
+import { church, licenseTier, familySavings } from '../../config/church';
+import { offers } from '../../config/offers';
+import { site } from '../../config/site';
+
+const checkoutUrl = offers.churchLicense.url;
+// Until Ian pastes the real Kajabi URL, send people to /churches/done anyway so
+// the whole funnel is testable end to end today.
+const isPlaceholder = checkoutUrl.startsWith('#');
+---
+
+<Base
+  title={`Set up your church — ${site.name}`}
+  description={`Get your church's own share link and QR code. Your families join at $${church.familyPrice} instead of $${church.retailPrice}.`}
+  announcement={false}
+  noindex
+>
+  <main class="setup">
+    <div class="wrap">
+      <a href="/churches" class="back">← Back to licensing</a>
+
+      <p class="eyebrow">Church License · ${church.licensePrice}/year</p>
+      <h1>Set up your church.</h1>
+      <p class="lede">
+        A few details, then secure checkout. The moment you check out, your
+        church’s link, QR code, and share kit appear on screen — instantly, with
+        nothing to wait for.
+      </p>
+
+      <form id="church-form" data-checkout={checkoutUrl} data-placeholder={isPlaceholder ? 'true' : undefined}>
+        <div class="field">
+          <label for="church_name">Church or ministry name</label>
+          <input id="church_name" name="church_name" type="text" required autocomplete="organization" placeholder="e.g. Grace Community Church" />
+          <p class="hint">This becomes your link: <span class="mono" id="slug-preview">phonelicense.co/c/your-church</span></p>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="leader_name">Your name</label>
+            <input id="leader_name" name="leader_name" type="text" required autocomplete="name" placeholder="Point person" />
+          </div>
+          <div class="field">
+            <label for="role">Your role</label>
+            <input id="role" name="role" type="text" required placeholder="e.g. Family Pastor" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required autocomplete="email" placeholder="Where we’ll send your receipt" />
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="city">City &amp; state</label>
+            <input id="city" name="city" type="text" required placeholder="Nashville, TN" />
+          </div>
+          <div class="field">
+            <label for="size">Approximate size</label>
+            <select id="size" name="size" required>
+              <option value="" disabled selected>Choose one…</option>
+              <option>Under 100</option>
+              <option>100–500</option>
+              <option>500–1,500</option>
+              <option>1,500+</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          Continue — ${church.licensePrice} license →
+        </button>
+        <p class="fine" id="form-note">
+          Next: secure checkout. Your church link, QR code &amp; kit appear
+          instantly right after — no waiting on an email.
+        </p>
+      </form>
+
+      <ul class="reassure">
+        <li><b>Unlimited families.</b> No seats to count, nothing to run out of.</li>
+        <li><b>Every family saves ${familySavings}.</b> ${church.familyPrice} instead of ${church.retailPrice}.</li>
+        <li><b>Renews annually.</b> Cancel any time.</li>
+      </ul>
+
+      <p class="help">
+        Questions? <a href={`mailto:${church.supportEmail}`}>{church.supportEmail}</a>
+      </p>
+    </div>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  import { slugify, STORE, PRODUCT, captureChurchSignup } from '../../lib/church';
+
+  const form = document.getElementById('church-form') as HTMLFormElement | null;
+  const btn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const note = document.getElementById('form-note');
+  const preview = document.getElementById('slug-preview');
+  const nameInput = document.getElementById('church_name') as HTMLInputElement | null;
+
+  // Show the pastor their link forming as they type — it makes the thing they're
+  // buying concrete before they've paid for it.
+  nameInput?.addEventListener('input', () => {
+    const slug = slugify(nameInput.value);
+    if (preview) preview.textContent = `phonelicense.co/c/${slug || 'your-church'}`;
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form || btn?.disabled) return;
+
+    const data = new FormData(form);
+    const churchName = String(data.get('church_name') || '').trim();
+    const slug = slugify(churchName);
+    if (!slug) return;
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Taking you to checkout…';
+    }
+
+    // 1. Remember the church across the Kajabi round-trip. This is the single
+    //    piece of state /churches/done needs, so it is written FIRST — before
+    //    any network call that could fail.
+    try {
+      localStorage.setItem(STORE.product, PRODUCT);
+      localStorage.setItem(STORE.slug, slug);
+      localStorage.setItem(STORE.name, churchName);
+    } catch {
+      /* storage blocked (private mode) — /churches/done has a fallback form */
+    }
+
+    // 2. Capture. Time-capped and fully swallowed: nothing here may strand the
+    //    pastor short of checkout.
+    try {
+      await captureChurchSignup({
+        church_name: churchName,
+        leader_name: String(data.get('leader_name') || '').trim(),
+        role: String(data.get('role') || '').trim(),
+        email: String(data.get('email') || '').trim(),
+        city: String(data.get('city') || '').trim(),
+        size: String(data.get('size') || '').trim(),
+        slug,
+        tier: 'license',
+        source: 'churches-setup',
+      });
+    } catch {
+      /* proceed to checkout regardless */
+    }
+
+    // 3. Go. If the Kajabi URL hasn't landed yet, skip straight to /churches/done
+    //    so the funnel is still walkable end to end.
+    const checkout = form.dataset.checkout || '';
+    if (form.dataset.placeholder === 'true' || !checkout || checkout.startsWith('#')) {
+      if (note) note.textContent = 'Checkout URL not configured yet — showing your church link.';
+      window.location.href = '/churches/done';
+      return;
+    }
+    window.location.href = checkout;
+  });
+</script>
+
+<style>
+  .setup {
+    padding-block: 48px 72px;
+  }
+  .setup .wrap {
+    max-width: 620px;
+  }
+  .back {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 28px;
+  }
+  .back:hover {
+    color: var(--blue-deep);
+  }
+  h1 {
+    margin: 10px 0 14px;
+  }
+  .lede {
+    color: var(--ink-2);
+    margin-bottom: 36px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .row {
+    display: grid;
+    gap: 18px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  input,
+  select {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 16px; /* 16px prevents iOS zoom-on-focus */
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+  }
+  input:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 1px;
+  }
+  .hint {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .hint .mono {
+    font-family: var(--font-mono);
+    color: var(--blue-deep);
+    word-break: break-all;
+  }
+  button[type='submit'] {
+    width: 100%;
+    margin-top: 6px;
+  }
+  button[disabled] {
+    opacity: 0.65;
+    cursor: default;
+  }
+  .fine {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .reassure {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 34px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    font-size: 14.5px;
+    color: var(--ink-2);
+  }
+  .reassure li {
+    padding-left: 24px;
+    position: relative;
+  }
+  .reassure li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--blue-deep);
+  }
+
+  .help {
+    margin-top: 26px;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .help a {
+    color: var(--blue-deep);
+  }
+
+  @media (min-width: 600px) {
+    .row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

@@ -35,13 +35,15 @@ export const offers = {
   course: {
     id: 'course',
     label: 'Phone License course',
-    price: 49,
+    price: 99,
     url: TODO,
-    pixelValue: 49,
+    pixelValue: 99,
   },
 
   // Second pricing tier shown on the sales page ("Premium Kit"). Its own Kajabi
-  // offer. TODO(inputs): confirm price + paste URL (or fold into the $24 bump).
+  // offer. TODO(inputs): $79 was drafted against the old $49 course and is now
+  // BELOW the base price — needs a new number (≈$149?) or to be folded into the
+  // $24 order bump. Nothing links to it yet, so it is inert until decided.
   premiumKit: {
     id: 'premiumKit',
     label: 'Phone License + Premium Kit',
@@ -55,10 +57,20 @@ export const offers = {
   upsell: { id: 'upsell', label: 'One-click upsell', price: 199, url: '', pixelValue: 199, kajabiInternal: true },
   downsell: { id: 'downsell', label: 'Downsell', price: 99, url: '', pixelValue: 99, kajabiInternal: true },
 
-  // ── Church licensing tiers ──
-  church25: { id: 'church25', label: 'Church license · 25 seats', price: 349, url: TODO, pixelValue: 349 },
-  church100: { id: 'church100', label: 'Church license · 100 seats', price: 899, url: TODO, pixelValue: 899 },
-  church250: { id: 'church250', label: 'Church license · 250 seats', price: 1999, url: TODO, pixelValue: 1999 },
+  // ── Church program ──
+  // Terms (who pays what, and why) live in src/config/church.ts. These are just
+  // the two checkout URLs that program needs.
+  //
+  // The license is a RECURRING annual subscription in Kajabi, not a one-time
+  // charge. Its thank-you page must redirect to /churches/done — that is the
+  // single manual setup step for the whole self-serve funnel.
+  churchLicense: { id: 'churchLicense', label: 'Church License · annual', price: 495, url: TODO, pixelValue: 495 },
+
+  // What a church family checks out through. If Ian creates a dedicated $49
+  // offer, paste it here and the universal coupon becomes unnecessary. If he'd
+  // rather use one coupon on the main $99 offer, point this at `course.url` and
+  // set `church.familyCode` — familyCheckoutUrl() appends it either way.
+  courseChurch: { id: 'courseChurch', label: 'Phone License course · church family', price: 49, url: TODO, pixelValue: 49 },
 
   // ── Live events ──
   // Early-bird discount is applied via a Kajabi COUPON on the same conference

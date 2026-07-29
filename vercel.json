@@ -9,5 +9,9 @@
       "destination": "https://phonelicense.co/:path*",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    { "source": "/c/:slug/kit", "destination": "/c/kit" },
+    { "source": "/c/:slug", "destination": "/c" }
   ]
 }
