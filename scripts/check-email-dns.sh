@@ -18,11 +18,13 @@ note() { echo "  ⚠️  $1"; warn=$((warn+1)); }
 echo "── MX ───────────────────────────────────────────"
 MX=$(dig +short MX $D)
 echo "$MX" | sed 's/^/     /'
-if grep -qi "smtp.google.com" <<<"$MX"; then ok "Google MX present"
+# Google has two valid shapes: the modern single `smtp.google.com` and the
+# classic 5-record `aspmx.l.google.com` set that Squarespace's preset adds.
+if grep -qiE "smtp\.google\.com|aspmx\.l\.google\.com" <<<"$MX"; then ok "Google MX present"
 elif grep -qi "mailgun" <<<"$D$MX"; then bad "still pointing at Mailgun — inbound mail is not yours yet"
 else note "no recognised MX"; fi
 # Only a conflict once Google is actually there — a domain can have one receiver.
-if grep -qi "smtp.google.com" <<<"$MX" && grep -qi "mailgun" <<<"$MX"; then
+if grep -qiE "smtp\.google\.com|aspmx\.l\.google\.com" <<<"$MX" && grep -qi "mailgun" <<<"$MX"; then
   bad "Mailgun AND Google MX both present — delete the Mailgun pair, mail will be split otherwise"
 fi
 
