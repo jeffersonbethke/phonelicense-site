@@ -32,14 +32,56 @@ plain-English guide.
 |---|------|---------------|--------|
 | 1 | **Zapier/Make webhook URL** (the form inbox) | `.env` → `PUBLIC_WEBHOOK_URL` | ⬜ waiting |
 | 2 | **Meta Pixel ID** (~15-digit number) | `.env` → `PUBLIC_META_PIXEL_ID` | ⬜ waiting |
-| 3 | **Kajabi offer URLs** — $49 course | `src/config/offers.ts` | ⬜ waiting |
+| 3 | **Kajabi offer URLs** — $99 course | `src/config/offers.ts` | ⬜ waiting |
 | 4 | **Exact Kajabi tag names + expected field keys** (what the Zap maps into Kajabi) | `src/config/*` tags | ⬜ waiting |
+
+## ⛪ Church funnel — self-serve (built, needs 4 values)
+
+Pastor journey: `/churches` → `/churches/setup` → Kajabi → `/churches/done`
+(link + QR appear instantly) → shares `/c/{slug}` → families check out at $49.
+
+**Model:** church pays **$495/year**, families pay **$49** (vs $99 retail).
+Prepaid alternative — $25/family, families free, 20-family minimum — is
+deliberately *not* self-serve and routes to `PUBLIC_CALENDLY_URL`.
+All terms live in one file: `src/config/church.ts`.
+
+| # | Item | Where it goes | Status |
+|---|------|---------------|--------|
+| 1 | **Church License checkout URL** ($495/yr recurring) | `offers.ts` → `churchLicense.url` | ⬜ waiting |
+| 2 | **Church-family checkout URL** ($49) — either a dedicated offer, or the $99 offer + coupon | `offers.ts` → `courseChurch.url` | ⬜ waiting |
+| 3 | **The universal coupon code** + confirm Kajabi's coupon query param (`coupon` vs `coupon_code`) | `church.ts` → `familyCode` / `couponParam` | ⬜ waiting |
+| 4 | **Kickoff Night talk** — film it, then set `kickoff.filmed = true` + swap the placeholder video frame | `church.ts` → `kickoff` | ⬜ waiting |
+
+### 🔑 The ONE thing Ian must do
+Set the Church License offer's **post-purchase thank-you redirect → `/churches/done`**
+in Kajabi. Nothing else about the funnel needs a human. Without it the pastor
+still gets their link (the `/churches/done` fallback form rebuilds it from the
+church name), but the magic moment is lost.
+
+### Why there is no per-church coupon
+Attribution rides on the **slug**, never on a code — that's what keeps this
+zero-touch. One universal 50%-off code is safe in the wild (worst case someone
+pays $49 instead of $99). A 100%-off code would not be, which is exactly why the
+free-families option stays a talk-to-us deal. Don't "improve" this by minting a
+coupon per church; it reintroduces the manual step the whole system removes.
+
+### Notes for whoever touches this next
+- `/c/{slug}` and `/c/{slug}/kit` work for **any** slug, instantly, with no
+  directory or database — the name is title-cased from the slug. Two rewrites in
+  `vercel.json` make that true at the CDN. Verified: Vercel checks the filesystem
+  *before* these rewrites, so real pages still win.
+- Capture is best-effort and time-capped everywhere. A dead webhook must never
+  block a pastor reaching checkout. Optional second inbox:
+  `.env` → `PUBLIC_CHURCH_WEBHOOK_URL` (falls back to the main webhook).
+- The two `is:inline` scripts on the `/c` pages must stay **inside** the layout
+  slot. Moved outside, Astro emits them after `</html>` and the church name
+  flashes. (This bit us once already.)
 
 ## 🟡 Needed per-phase (not yet)
 
 | Item | Needed for | Where |
 |------|-----------|-------|
-| Church tier offer URLs ($349 / $899 / $1,999) | Phase 5 | `offers.ts` |
+| **Premium Kit price** — $79 was set against the old $49 course and is now *below* the $99 base. Needs a new number or folding into the $24 bump. Inert until then (nothing links to it). | Phase 2 | `offers.ts` |
 | Conference offer URL + how early-bird $399 is applied (coupon vs offer) | Phase 4 | `offers.ts` |
 | Summit + All-Access offer URLs | Phase 4 | `offers.ts` |
 | Calendly URL / mailto for church "planning something bigger" | Phase 5 | `.env` → `PUBLIC_CALENDLY_URL` |

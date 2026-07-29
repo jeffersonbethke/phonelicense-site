@@ -19,6 +19,10 @@ export const site = {
 
   // ── Integration endpoints (env-driven, safe placeholders) ──
   webhookUrl: env.PUBLIC_WEBHOOK_URL ?? '',
+  // Optional second inbox for church-license records (e.g. a Basin form → its
+  // own Google Sheet), so partner deals don't sit in the consumer lead stream.
+  // Blank = church signups just go to the main webhook like every other form.
+  churchWebhookUrl: env.PUBLIC_CHURCH_WEBHOOK_URL ?? '',
   metaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
   ga4Id: env.PUBLIC_GA4_ID ?? '',
   calendlyUrl: env.PUBLIC_CALENDLY_URL ?? 'mailto:hello@phonelicense.co',

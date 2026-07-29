@@ -68,9 +68,9 @@ const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewCon
     {/* Integration config for the client libs (safe if blank). */}
     <script
       is:inline
-      define:vars={{ webhookUrl: site.webhookUrl, pixelId: site.metaPixelId }}
+      define:vars={{ webhookUrl: site.webhookUrl, pixelId: site.metaPixelId, churchWebhookUrl: site.churchWebhookUrl }}
     >
-      window.__PL = { webhookUrl: webhookUrl, pixelId: pixelId };
+      window.__PL = { webhookUrl: webhookUrl, pixelId: pixelId, churchWebhookUrl: churchWebhookUrl };
       window._plPixelId = pixelId;
     </script>
 

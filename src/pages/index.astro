@@ -126,7 +126,10 @@ const promoModal = `
 let body = rawBody.replace(/^\s*<body[^>]*>/, '').replace(/<\/body>\s*$/, '');
 body = announcementBar + body;
 // buy buttons → Kajabi course offer (UTM + InitiateCheckout wired client-side)
-body = body.replaceAll('<a href="#pricing" class="cta">Start — $49</a>', `<a href="${course.url}" class="cta" data-kajabi data-offer-value="${course.pixelValue}" data-offer-name="Phone License course"${course.url.startsWith('#') ? ' data-todo="true"' : ''}>Start — $49</a>`);
+// The match string keeps the original "$49" because that is what the verbatim
+// body.html literally says — do not edit that file. The PRICE SHOWN comes from
+// offers.course, so raising it is a one-line config change, not an HTML edit.
+body = body.replaceAll('<a href="#pricing" class="cta">Start — $49</a>', `<a href="${course.url}" class="cta" data-kajabi data-offer-value="${course.pixelValue}" data-offer-name="Phone License course"${course.url.startsWith('#') ? ' data-todo="true"' : ''}>Start — $${course.price}</a>`);
 // after hero
 body = body.replace('<!-- ============================ FELT NEED', beHonest + twoDoor + '\n<!-- ============================ FELT NEED');
 // live events before curriculum

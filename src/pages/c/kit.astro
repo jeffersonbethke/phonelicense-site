@@ -1,0 +1,244 @@
+---
+/**
+ * /c/{slug}/kit — the church leader's share kit: link, big QR, and how to use it.
+ *
+ * Same no-404 contract as /c/{slug}: reached via a vercel.json rewrite, name
+ * derived from the slug, nothing looked up. A leader who just paid can open
+ * this immediately, and so can one who bookmarked it a year ago.
+ */
+import Base from '../../layouts/Base.astro';
+import Footer from '../../components/Footer.astro';
+import { church, familySavings } from '../../config/church';
+import { site } from '../../config/site';
+---
+
+<Base
+  title={`Your share kit — ${site.name}`}
+  description="Your church’s share link, QR code, and how to use them."
+  announcement={false}
+  noindex
+>
+  <main class="kit">
+    <div class="wrap">
+      <p class="eyebrow">Your share kit · <span class="cname">Your church</span></p>
+      <h1>Share this with your families.</h1>
+      <p class="lede">
+        Anyone who joins through this link (or the QR code) pays
+        <b>${church.familyPrice} instead of ${church.retailPrice}</b> — a ${familySavings} saving —
+        and we automatically know they came from <span class="cname">your church</span>.
+        Text it, put it on a slide, print the QR for a table.
+      </p>
+
+      <div class="card linkcard">
+        <div>
+          <p class="label">Your church link</p>
+          <p class="link mono" id="link-text">phonelicense.co/c/…</p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="copy-btn">Copy link</button>
+            <a class="btn btn-ghost" id="open-link" href="#">Open the page →</a>
+          </div>
+        </div>
+        <div class="qrbox">
+          <img id="qr-img" alt="QR code for your church link" width="200" height="200" />
+        </div>
+      </div>
+
+      <div class="card how">
+        <p class="label accent">How to share it</p>
+        <ol>
+          <li>Text or email the link to the parents in your church.</li>
+          <li>Drop it on a slide, or print the QR for a table on Sunday.</li>
+          <li>Each family taps it, and checks out at ${church.familyPrice} — that’s it.</li>
+        </ol>
+      </div>
+
+      <div class="card how">
+        <p class="label accent">Copy you can paste</p>
+        <blockquote id="paste-copy">
+          Parents — we’ve partnered with Phone License to give every family in our
+          church a real plan for the first phone (or a fresh start on the one they
+          already have). Six short videos you watch with your kid, a family
+          agreement you both sign, and a handoff that actually means something.
+          It’s ${church.familyPrice} for our families instead of ${church.retailPrice}. Here’s the link:
+          <span class="mono cname-link">phonelicense.co/c/…</span>
+        </blockquote>
+        <button type="button" class="btn btn-ghost small" id="copy-blurb">Copy this message</button>
+      </div>
+
+      <p class="help">
+        Questions? <a href={`mailto:${church.supportEmail}`}>{church.supportEmail}</a>
+      </p>
+    </div>
+
+    {/* Inline, and inside the layout slot, for the same two reasons as
+        /c/{slug} — see the longer note there. Keep in sync with lib/church.ts. */}
+    <script is:inline>
+  (function () {
+    var parts = window.location.pathname.split('/').filter(Boolean);
+    var slug = parts[0] === 'c' && parts[1] ? parts[1].toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : '';
+    if (!slug) return;
+
+    var name = slug
+      .split('-')
+      .filter(Boolean)
+      .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+      .join(' ');
+
+    var display = 'phonelicense.co/c/' + slug;
+    var full = window.location.origin + '/c/' + slug;
+
+    document.querySelectorAll('.cname').forEach(function (el) { el.textContent = name; });
+    document.querySelectorAll('.cname-link').forEach(function (el) { el.textContent = display; });
+    document.title = name + ' · Share kit — Phone License';
+
+    document.getElementById('link-text').textContent = display;
+    document.getElementById('open-link').href = full;
+    document.getElementById('qr-img').src =
+      'https://api.qrserver.com/v1/create-qr-code/?size=520x520&margin=12&data=' + encodeURIComponent(full);
+
+    function copyTo(btn, getText, done) {
+      btn.addEventListener('click', function () {
+        try {
+          navigator.clipboard.writeText(getText());
+          var was = btn.textContent;
+          btn.textContent = done;
+          setTimeout(function () { btn.textContent = was; }, 2000);
+        } catch (e) {
+          btn.textContent = 'Press ⌘C to copy';
+        }
+      });
+    }
+    copyTo(document.getElementById('copy-btn'), function () { return 'https://' + display; }, 'Copied ✓');
+    copyTo(
+      document.getElementById('copy-blurb'),
+      function () { return document.getElementById('paste-copy').innerText.replace(/\s+/g, ' ').trim(); },
+      'Copied ✓'
+    );
+  })();
+    </script>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .kit {
+    padding-block: 56px 80px;
+  }
+  .kit .wrap {
+    max-width: 700px;
+  }
+  h1 {
+    margin: 10px 0 14px;
+  }
+  .lede {
+    color: var(--ink-2);
+    margin-bottom: 32px;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .label.accent {
+    color: var(--blue-deep);
+    margin-bottom: 16px;
+  }
+
+  .linkcard {
+    display: grid;
+    gap: 26px;
+    align-items: center;
+    padding: 28px;
+    margin-bottom: 18px;
+  }
+  .link {
+    font-family: var(--font-mono);
+    font-size: clamp(15px, 2.4vw, 20px);
+    color: var(--ink);
+    word-break: break-all;
+    margin-bottom: 16px;
+  }
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .qrbox {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 12px;
+    line-height: 0;
+    width: fit-content;
+    justify-self: center;
+  }
+  .qrbox img {
+    display: block;
+    width: 200px;
+    height: 200px;
+  }
+
+  .how {
+    padding: 26px 28px;
+    margin-bottom: 18px;
+  }
+  .how ol {
+    list-style: none;
+    counter-reset: n;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .how li {
+    counter-increment: n;
+    padding-left: 28px;
+    position: relative;
+    font-size: 15px;
+    color: var(--ink-2);
+  }
+  .how li::before {
+    content: counter(n);
+    position: absolute;
+    left: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--blue-deep);
+  }
+  blockquote {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    padding-left: 16px;
+    border-left: 2px solid var(--blue-tint-2);
+    margin-bottom: 18px;
+  }
+  blockquote .mono {
+    font-family: var(--font-mono);
+    color: var(--blue-deep);
+    word-break: break-all;
+  }
+  .btn.small {
+    font-size: 13px;
+    padding: 10px 18px;
+  }
+
+  .help {
+    margin-top: 26px;
+    font-size: 13.5px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .help a {
+    color: var(--blue-deep);
+  }
+
+  @media (min-width: 640px) {
+    .linkcard {
+      grid-template-columns: 1fr auto;
+    }
+  }
+</style>

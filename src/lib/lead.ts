@@ -22,7 +22,7 @@ function webhookUrl(): string {
 
 declare global {
   interface Window {
-    __PL?: { webhookUrl: string; pixelId: string };
+    __PL?: { webhookUrl: string; pixelId: string; churchWebhookUrl?: string };
   }
 }
 
