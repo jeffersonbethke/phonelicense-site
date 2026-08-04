@@ -34,17 +34,16 @@ export const church = {
   licensePrice: 495,
 
   /**
-   * The ONE universal discount code for church families.
-   * TODO(inputs): confirm the real Kajabi coupon code.
+   * The ONE universal discount code for church families. CONFIRMED live in
+   * Kajabi 2026-08-04. Must be a fixed $50-off (not 50%) so checkout reads
+   * exactly $49.00 — 50% of $99 is $49.50 and makes the site copy wrong.
    */
   familyCode: 'CHURCH50',
   /**
    * Query param Kajabi reads a coupon from at checkout.
-   * TODO(inputs): confirm — Kajabi has used both `coupon` and `coupon_code`.
-   * If Ian gives us a dedicated $49 offer URL instead, set `offers.courseChurch`
-   * and leave this alone; the code is then unnecessary.
+   * VERIFIED 2026-08-04 against the live checkout: `coupon_code` auto-applies.
    */
-  couponParam: 'coupon',
+  couponParam: 'coupon_code',
   /**
    * Query param that carries the church slug to the payment processor — this is
    * how a family's purchase gets credited to their church.

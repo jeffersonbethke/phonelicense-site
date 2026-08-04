@@ -36,7 +36,7 @@ export const offers = {
     id: 'course',
     label: 'Phone License course',
     price: 99,
-    url: TODO,
+    url: 'https://darren-whitehead.mykajabi.com/offers/kVt4MdFq/checkout',
     pixelValue: 99,
   },
 
@@ -64,13 +64,15 @@ export const offers = {
   // The license is a RECURRING annual subscription in Kajabi, not a one-time
   // charge. Its thank-you page must redirect to /churches/done — that is the
   // single manual setup step for the whole self-serve funnel.
-  churchLicense: { id: 'churchLicense', label: 'Church License · annual', price: 495, url: TODO, pixelValue: 495 },
+  churchLicense: { id: 'churchLicense', label: 'Church License · annual', price: 495, url: 'https://darren-whitehead.mykajabi.com/offers/9YVRGAYJ/checkout', pixelValue: 495 },
 
   // What a church family checks out through. If Ian creates a dedicated $49
   // offer, paste it here and the universal coupon becomes unnecessary. If he'd
   // rather use one coupon on the main $99 offer, point this at `course.url` and
   // set `church.familyCode` — familyCheckoutUrl() appends it either way.
-  courseChurch: { id: 'courseChurch', label: 'Phone License course · church family', price: 49, url: TODO, pixelValue: 49 },
+  // Coupon route (chosen 2026-08-04): same checkout as `course`; the CHURCH50
+  // code + church slug are appended by familyCheckoutUrl() in lib/church.ts.
+  courseChurch: { id: 'courseChurch', label: 'Phone License course · church family', price: 49, url: 'https://darren-whitehead.mykajabi.com/offers/kVt4MdFq/checkout', pixelValue: 49 },
 
   // ── Live events ──
   // Early-bird discount is applied via a Kajabi COUPON on the same conference
