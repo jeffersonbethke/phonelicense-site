@@ -25,7 +25,9 @@ export const site = {
   churchWebhookUrl: env.PUBLIC_CHURCH_WEBHOOK_URL ?? '',
   metaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
   ga4Id: env.PUBLIC_GA4_ID ?? '',
-  calendlyUrl: env.PUBLIC_CALENDLY_URL ?? 'mailto:hello@phonelicense.co',
+  // "Planning something bigger" contact door. Decision (2026-08-04): no
+  // Calendly — email is the door. Not env-driven on purpose.
+  contactUrl: 'mailto:hello@phonelicense.co',
 
   // ── Feature flags ──
   /**

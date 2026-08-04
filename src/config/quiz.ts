@@ -1,11 +1,10 @@
 /**
  * The Smartphone Readiness Assessment — all copy + weighted scoring.
  *
- * DRAFT COPY (2026-07-02): written in brand voice as a working first pass so
- * the flow is real and testable. Jeff to replace with final copy — every string
- * lives here, so edits need no code changes. Point values are editable too;
- * band thresholds are computed from the max achievable score, so re-weighting
- * never breaks the results.
+ * APPROVED (2026-08-04): Jeff signed off on this copy and scoring as final —
+ * no longer a draft. Every string lives here, so future edits need no code
+ * changes. Point values are editable too; band thresholds are computed from
+ * the max achievable score, so re-weighting never breaks the results.
  *
  * COPPA: we only ever ask about the PARENT (name, email) and the child's AGE
  * RANGE. Never the child's name or contact info.

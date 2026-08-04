@@ -40,10 +40,11 @@ plain-English guide.
 Pastor journey: `/churches` → `/churches/setup` → Kajabi → `/churches/done`
 (link + QR appear instantly) → shares `/c/{slug}` → families check out at $49.
 
-**Model:** church pays **$495/year**, families pay **$49** (vs $99 retail).
-Prepaid alternative — $25/family, families free, 20-family minimum — is
-deliberately *not* self-serve and routes to `PUBLIC_CALENDLY_URL`.
-All terms live in one file: `src/config/church.ts`.
+**Model (final, 2026-08-04):** ONE model — church pays **$495/year**, families
+pay **$49** (vs $99 retail) through the church link. There is NO free-for-
+families/prepaid product (removed on purpose — see `src/config/church.ts`
+header for the rationale). "Cover it for our families" is a talk-to-us email
+conversation, not a product. All terms live in one file: `src/config/church.ts`.
 
 | # | Item | Where it goes | Status |
 |---|------|---------------|--------|
@@ -84,9 +85,7 @@ coupon per church; it reintroduces the manual step the whole system removes.
 | **Premium Kit price** — $79 was set against the old $49 course and is now *below* the $99 base. Needs a new number or folding into the $24 bump. Inert until then (nothing links to it). | Phase 2 | `offers.ts` |
 | Conference offer URL + how early-bird $399 is applied (coupon vs offer) | Phase 4 | `offers.ts` |
 | Summit + All-Access offer URLs | Phase 4 | `offers.ts` |
-| Calendly URL / mailto for church "planning something bigger" | Phase 5 | `.env` → `PUBLIC_CALENDLY_URL` |
 | Optional GA4 Measurement ID | any | `.env` → `PUBLIC_GA4_ID` |
-| Final quiz copy + weighted scoring — **DRAFT in place, needs Jeff's review/replace** | Phase 1 ✅ built | `src/config/quiz.ts` |
 | Free "Family Phone Contract" PDF — delivered by Kajabi email on `Lead - Contract PDF` tag (or ask Claude to draft) | Phase 2 ✅ built | Kajabi automation |
 | **Premium Kit** offer URL + confirm price (drafted at $79) | Phase 2 ✅ built | `offers.ts` |
 
@@ -101,6 +100,13 @@ coupon per church; it reintroduces the manual step the whole system removes.
 | "Refund at the door" guarantee + included supper | copy commitments | Business sign-off |
 | Conference capacity | 200 | Confirm 200 vs 250 |
 | Event dates / venues / prices / current status / real seat count / early-bird deadline | seed guesses in `events.ts` | Confirm each |
+
+## Decisions locked 2026-08-04 (don't re-open without Jeff)
+- **Quiz copy + scoring: APPROVED as final.** No longer a draft.
+- **No Calendly.** The church "planning something bigger" door is
+  `mailto:hello@phonelicense.co` by design. `PUBLIC_CALENDLY_URL` removed.
+- **No order bump / upsell / downsell / Premium Kit at launch.** Just the $99
+  course, the $495/yr church license, and the CHURCH50 coupon.
 
 ## Notes
 - **Route names in use:** `/quiz`, `/conference`, `/summit-spring`, `/summit-fall`,

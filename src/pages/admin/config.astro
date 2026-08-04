@@ -14,7 +14,6 @@ const stateList: EventState[] = ['interest', 'earlybird', 'onsale', 'almostfull'
 const envReady = {
   webhook: site.webhookReady,
   pixel: site.pixelReady,
-  calendly: site.calendlyUrl && !site.calendlyUrl.startsWith('mailto:'),
 };
 ---
 
@@ -36,7 +35,6 @@ const envReady = {
         <tr><th>Setting</th><th>What it does</th><th>Status</th></tr>
         <tr><td><code>PUBLIC_WEBHOOK_URL</code></td><td>Where every form (quiz, contract PDF, event interest, church) sends its lead → your Zapier/Kajabi.</td><td>{envReady.webhook ? '🟢 set' : '🔴 not set yet'}</td></tr>
         <tr><td><code>PUBLIC_META_PIXEL_ID</code></td><td>Turns on Meta/Facebook tracking (Lead, ViewContent, InitiateCheckout).</td><td>{envReady.pixel ? '🟢 set' : '🔴 not set yet'}</td></tr>
-        <tr><td><code>PUBLIC_CALENDLY_URL</code></td><td>The “planning something bigger?” link on the churches page.</td><td>{envReady.calendly ? '🟢 set' : '🟡 using email fallback'}</td></tr>
         <tr><td><code>PUBLIC_GA4_ID</code></td><td>Optional Google Analytics.</td><td>optional</td></tr>
       </table>
     </section>

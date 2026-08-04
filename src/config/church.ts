@@ -14,7 +14,7 @@
  * point loose on the internet is a giveaway with no floor. Capping it per
  * church requires either manual coupon-minting or a Stripe-webhook backend —
  * neither of which this "for now" model wants. A church that insists on
- * covering the cost is a human conversation (Calendly), not a product. If that
+ * covering the cost is a human conversation (email), not a product. If that
  * demand becomes real, the plan of record is auto-minted seat-capped Stripe
  * codes — see the Aug 4 desktop-session discussion before building.
  *
