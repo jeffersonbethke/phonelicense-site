@@ -78,7 +78,7 @@ const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewCon
     {
       announcement && barKey && (
         <script is:inline define:vars={{ barKey }}>
-          {`try{if(localStorage.getItem(barKey)==='1')document.documentElement.classList.add('abar-hide');}catch(e){}`}
+          try{if(localStorage.getItem(barKey)==='1')document.documentElement.classList.add('abar-hide');}catch(e){}
         </script>
       )
     }
@@ -87,7 +87,7 @@ const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewCon
     {
       site.metaPixelId && (
         <script is:inline define:vars={{ pixelId: site.metaPixelId }}>
-          {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', pixelId);fbq('track','PageView');`}
+          !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', pixelId);fbq('track','PageView');
         </script>
       )
     }
@@ -124,6 +124,6 @@ const vc = viewContent === true ? '' : typeof viewContent === 'string' ? viewCon
       if (vcName !== null) fireViewContent(vcName || undefined);
     </script>
 
-    {vc !== null && <script is:inline define:vars={{ vc }}>{`document.documentElement.setAttribute('data-viewcontent', vc);`}</script>}
+    {vc !== null && <script is:inline define:vars={{ vc }}>document.documentElement.setAttribute('data-viewcontent', vc);</script>}
   </body>
 </html>
