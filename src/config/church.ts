@@ -1,32 +1,29 @@
 /**
  * The church program — the ONE place its commercial terms are defined.
  *
- * ONE license, then ONE choice:
+ * ONE model, decided 2026-08-04 — deliberately nothing else:
  *
- *   License   $495/year   EVERY church, no exceptions. Link, QR, share kit,
- *                         kickoff night. Fully self-serve:
- *                         /churches/setup → Kajabi → /churches/done.
+ *   License   $495/year   EVERY church. Link, QR, share kit, kickoff night.
+ *                         Fully self-serve: /churches/setup → Kajabi →
+ *                         /churches/done.
+ *   Families  $49         Half off the $99 retail price, through the church's
+ *                         link/QR. Families pay it themselves.
  *
- *   Then: who pays for the families?
- *     They pay  $49/family  (half off $99). Nothing more for the church.
- *     You pay   $25/family  Church covers it, families join free.
- *                           20-family minimum. Talk-to-us only — an UPGRADE
- *                           after the license, never a separate front door,
- *                           so no church bypasses the self-serve funnel.
- *
- * Why "you pay" can't be self-serve: free families need a 100%-off coupon, and
- * a universal 100%-off code loose on the internet is a giveaway with no floor.
- * That path needs a per-church, seat-limited coupon — a human step, which is
- * fine because those deals already involve a conversation.
+ * There is NO free-for-families / prepaid-seats product. That was removed on
+ * purpose: free families need a 100%-off coupon, and any universal $0 entry
+ * point loose on the internet is a giveaway with no floor. Capping it per
+ * church requires either manual coupon-minting or a Stripe-webhook backend —
+ * neither of which this "for now" model wants. A church that insists on
+ * covering the cost is a human conversation (Calendly), not a product. If that
+ * demand becomes real, the plan of record is auto-minted seat-capped Stripe
+ * codes — see the Aug 4 desktop-session discussion before building.
  *
  * The $49 path is safe on ONE universal code: the worst a leak can do is let
  * someone pay $49 instead of $99, and attribution rides on the SLUG, not the
- * code. That is what makes the whole funnel zero-touch. Never mint a
- * per-church coupon for the license path — it would reintroduce the manual
- * step this system exists to remove.
+ * code. That is what makes the whole funnel zero-touch. Never mint
+ * per-church coupons — that reintroduces the manual step this system exists
+ * to remove.
  */
-
-import { site } from './site';
 
 export const church = {
   /** What a family pays on their own — the anchor the discount is measured against. */
@@ -35,11 +32,6 @@ export const church = {
   familyPrice: 49,
   /** Annual, recurring. What a church pays for its link + QR + kit. */
   licensePrice: 495,
-
-  /** Prepaid (enterprise) path: per-family bulk rate, families join free. */
-  prepaidPerFamily: 25,
-  /** Floor on prepaid, so enterprise plumbing isn't spun up for $75. */
-  prepaidMinFamilies: 20,
 
   /**
    * The ONE universal discount code for church families.
@@ -117,10 +109,7 @@ export const kickoff = {
   ],
 } as const;
 
-/**
- * What the $495/year license includes — every church gets this, before (and
- * regardless of) the who-pays-for-families choice below.
- */
+/** What the $495/year license includes — every church gets exactly this. */
 export const licenseIncludes = [
   'Your church’s own share link + QR code',
   'Printable share kit for Sundays',
@@ -129,64 +118,10 @@ export const licenseIncludes = [
   'Renews annually, cancel anytime',
 ] as const;
 
-export interface FamilyPlan {
-  id: string;
-  /** The column label — the actual choice: "They pay" / "You pay". */
-  name: string;
-  /** Who this is for. */
-  who: string;
-  /** Price shown, already formatted. Same unit both columns: per family. */
-  price: string;
-  /** Billing note under the price. */
-  per: string;
-  blurb: string;
-  features: string[];
-  /** Self-serve plans go through /churches/setup; others go to `href`. */
-  selfServe: boolean;
-  href?: string;
-  cta: string;
-  featured?: boolean;
-}
-
-/**
- * The ONE choice a church makes, in the SAME unit (dollars per family) so the
- * columns are actually comparable. The $495 license is shared context above,
- * never a competing option.
- */
-export const familyPlans: FamilyPlan[] = [
-  {
-    id: 'they-pay',
-    name: 'They pay',
-    who: 'Families cover their own',
-    price: `$${church.familyPrice}`,
-    per: 'per family — they pay it',
-    blurb: 'Share your link; every family unlocks the half-off price themselves.',
-    features: [
-      `Half off — $${church.familyPrice} instead of $${church.retailPrice}`,
-      'Nothing more for the church — ever',
-      'Families check out through your link in two minutes',
-      'Working the moment you license',
-    ],
-    selfServe: true,
-    cta: 'Get your church link',
-    featured: true,
-  },
-  {
-    id: 'you-pay',
-    name: 'You pay',
-    who: 'Church covers it',
-    price: `$${church.prepaidPerFamily}`,
-    per: 'per family — you cover it',
-    blurb: 'Your families join free. The big-push, highest-participation option.',
-    features: [
-      'Families pay nothing at all',
-      `$${church.prepaidPerFamily} a family, billed to the church`,
-      `${church.prepaidMinFamilies}-family minimum`,
-      'Progress summaries for your group',
-      'We set it up with you after you license',
-    ],
-    selfServe: false,
-    href: site.calendlyUrl,
-    cta: 'Talk to us',
-  },
-];
+/** The family side of the deal, shown beside the license. */
+export const familyIncludes = [
+  `Half off — $${church.familyPrice} instead of $${church.retailPrice}`,
+  'They pay it themselves — nothing billed to the church',
+  'Tap your link or scan your QR, done in two minutes',
+  'First-phone and reset families alike',
+] as const;
