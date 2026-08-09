@@ -116,10 +116,13 @@ export async function captureChurchSignup(rec: ChurchRecord, budgetMs = 1500): P
     (async () => {
       const url = typeof window !== 'undefined' ? window.__PL?.churchWebhookUrl : '';
       if (!url) return;
+      // Form-encoded simple request — see the preflight note in lead.ts.
       await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rec),
+        mode: 'no-cors',
+        body: new URLSearchParams(
+          Object.fromEntries(Object.entries(rec).map(([k, v]) => [k, String(v ?? '')])),
+        ),
         // Survives the navigation to Kajabi that happens milliseconds later.
         keepalive: true,
       });

@@ -76,12 +76,25 @@ export async function submitLead(input: LeadInput): Promise<LeadResult> {
   }
 
   try {
+    // MUST stay a CORS "simple request" (form-encoded, no custom headers):
+    // a JSON content-type forces an OPTIONS preflight, which Zapier's catch
+    // hook logs as an empty run and never answers with CORS headers — so the
+    // real POST silently never happens. Found live 2026-08-09. `no-cors`
+    // makes delivery unconditional; the response is opaque by design.
+    const form = new URLSearchParams({
+      name: payload.name,
+      email: payload.email,
+      tags: payload.tags.join(','),
+      utms: JSON.stringify(payload.utms ?? {}),
+      fields: JSON.stringify(payload.fields ?? {}),
+      eventId,
+      submittedFrom: payload.submittedFrom,
+    });
     await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      // Zapier catch-hooks accept simple CORS POSTs; keepalive lets the
-      // request survive a navigation right after submit.
+      mode: 'no-cors',
+      body: form,
+      // keepalive lets the request survive a navigation right after submit.
       keepalive: true,
     });
     return { ok: true, eventId };
