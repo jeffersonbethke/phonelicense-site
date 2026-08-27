@@ -39,7 +39,7 @@ const trailerVimeoId = '1221827154';
 // Poster resolves at build time to the video's CURRENT Vimeo thumbnail — change
 // the thumbnail on Vimeo and redeploy to change the poster here. Falls back to
 // a snapshot URL if the oEmbed call fails during build.
-let trailerPoster = 'https://i.vimeocdn.com/video/2194634559-f0161b16e3a1f8505661e45b10baf19c9beec9b05baf187a528abca4f99f4ade-d_1280x720?region=us';
+let trailerPoster = 'https://i.vimeocdn.com/video/2194638644-d0f663dd9fe073350a7c038fa3c825e29fe781c3607b8955d79fdd935df5efdc-d_1280x720?region=us';
 try {
   const oembed = await fetch(`https://vimeo.com/api/oembed.json?url=https%3A%2F%2Fvimeo.com%2F${trailerVimeoId}`).then((r) => r.json());
   if (oembed?.thumbnail_url) trailerPoster = oembed.thumbnail_url.replace(/_\d+x\d+/, '_1280x720');
