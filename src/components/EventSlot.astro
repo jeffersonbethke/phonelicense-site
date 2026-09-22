@@ -1,31 +1,25 @@
 ---
 /**
- * The config-driven "next event" card that appears on every thank-you state
- * (quiz results, PDF download, church confirmation). Renders the next upcoming
- * event from /config/events, or nothing if none is upcoming.
+ * The config-driven event card on every thank-you state (quiz results, church
+ * confirmation). In the 2027 model there is no "next dated event", so it
+ * carries the season: three events, first access, one doorway → /events.
  */
-import { nextEvent, badgeFor } from '../config/events';
-import StatusBadge from './StatusBadge.astro';
-
-const ev = nextEvent();
+import { season } from '../config/events';
 ---
 
-{
-  ev && (
-    <a class="evslot card" href={`/${ev.slug}`}>
-      <div class="top">
-        <span class="mono">{ev.kind === 'workshop' ? 'In-person workshop' : 'Live virtual summit'}</span>
-        <StatusBadge state={ev.state} />
-      </div>
-      <h4>{ev.title} <span class="ed">{ev.edition}</span></h4>
-      <p class="meta">
-        {ev.dateDisplay}
-        {ev.timeDisplay ? ` · ${ev.timeDisplay}` : ''} · {ev.city}
-      </p>
-      <span class="go">See the event →</span>
-    </a>
-  )
-}
+<a class="evslot card" href="/events">
+  <div class="top">
+    <span class="mono">Live events · The 2027 season</span>
+    <span class="pill">Waitlist open</span>
+  </div>
+  <h4>A few days a year, we get in a room.</h4>
+  <p class="meta">
+    {season.map((e, i) => (
+      <span>{e.season.split(' ')[0]} · {e.shortName}{i < season.length - 1 ? ' · ' : ''}</span>
+    ))}
+  </p>
+  <span class="go">Get first access →</span>
+</a>
 
 <style>
   .evslot {
@@ -47,12 +41,19 @@ const ev = nextEvent();
     gap: 12px;
     margin-bottom: 12px;
   }
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blue-deep);
+    background: var(--blue-tint);
+    padding: 4px 9px;
+    border-radius: var(--r-pill);
+    white-space: nowrap;
+  }
   h4 {
     margin-bottom: 6px;
-  }
-  .ed {
-    color: var(--muted);
-    font-weight: 500;
   }
   .meta {
     font-size: 14px;

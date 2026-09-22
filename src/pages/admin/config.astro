@@ -6,11 +6,10 @@
  */
 import Base from '../../layouts/Base.astro';
 import { offers } from '../../config/offers';
-import { events as evts, type EventState } from '../../config/events';
+import { events as evts } from '../../config/events';
 import { site } from '../../config/site';
 
 const offerRows = Object.values(offers).filter((o) => !o.kajabiInternal);
-const stateList: EventState[] = ['interest', 'earlybird', 'onsale', 'almostfull', 'soldout', 'replay'];
 const envReady = {
   webhook: site.webhookReady,
   pixel: site.pixelReady,
@@ -52,35 +51,27 @@ const envReady = {
 
     <section class="block">
       <h2>3. Events (one place controls everything)</h2>
-      <p>File: <code>src/config/events.ts</code>. Change an event’s <b>status</b> and the announcement bar, homepage, hub, and event page all update together. The <b>page wording</b> (agenda, sessions) is in <code>src/config/event-content.ts</code>.</p>
+      <p>File: <code>src/config/events.ts</code>. Every event surface — homepage, /events, the three event pages, the quiz’s event card, titles and link previews — reads from this one file.</p>
 
-      <h3>The status values</h3>
-      <ul class="states">
-        <li><b>interest</b> — not on sale yet; buttons collect emails (“get first access”).</li>
-        <li><b>earlybird</b> — on sale at the early-bird price, with the discount + deadline shown.</li>
-        <li><b>onsale</b> — on sale at full price.</li>
-        <li><b>almostfull</b> — on sale, shows the amber “almost full” urgency.</li>
-        <li><b>soldout</b> — full; buttons become a waitlist signup.</li>
-        <li><b>replay</b> — past event; shows “watch the replay”.</li>
-      </ul>
+      <h3>The 2027 model</h3>
+      <p>Every event is in <code>waitlist</code> status until a room is booked: no dates, venues, prices or seat counts appear anywhere on the site. The copy names seasons (Spring · Summer · Fall 2027), never months, so the order can change without touching a word. Booking a date is a Kajabi email to the list first (“The date is set”), then a status change here.</p>
 
       <h3>Current events</h3>
       <table>
-        <tr><th>Event</th><th>Status</th><th>Seats left</th><th>In the top bar?</th></tr>
+        <tr><th>Event</th><th>Season</th><th>Format</th><th>Status</th><th>Waitlist tag</th></tr>
         {Object.values(evts).map((e) => (
           <tr>
-            <td>{e.title} · {e.edition}{e.season ? ` (${e.season})` : ''}</td>
-            <td><code>{e.state}</code></td>
-            <td>{e.seatsRemaining === null ? '— (hidden)' : `${e.seatsRemaining} of ${e.capacity}`}</td>
-            <td>{e.promote ? 'yes' : 'no'}</td>
+            <td>{e.name}</td>
+            <td>{e.season}</td>
+            <td>{e.format === 'online' ? 'Online' : `In person · ${e.place}`}</td>
+            <td><code>{e.status}</code></td>
+            <td><code>{e.tag}</code></td>
           </tr>
         ))}
       </table>
 
-      <div class="rule">
-        <b>⚠️ The one hard rule — seat counts.</b> <code>seatsRemaining</code> is typed by a human and must be true. Set the real number to show a live counter + progress bar, or leave it <code>null</code> to hide the count entirely. It is never guessed and never counts down on its own.
-      </div>
-      <p class="tip"><b>To promote a different event in the top bar:</b> set <code>promote: true</code> on it (and <code>false</code> on the others). Only one at a time.</p>
+      <h3>The announcement bar</h3>
+      <p>File: <code>src/config/announcement.ts</code>. Two bars and a switch date: the launch bar shows until <code>switchDate</code>, the season bar after. It switches on the visitor’s clock, so nobody has to redeploy on the day.</p>
     </section>
 
     <section class="block">
@@ -95,7 +86,7 @@ const envReady = {
 
     <section class="block">
       <h2>6. Placeholders to finalize before launch</h2>
-      <p>See <code>INPUTS-NEEDED.md</code> in the project. Highlights: real testimonials, the invite video, the alumni discount %, confirming summit guest names, the refund/supper wording sign-off, and the real seat counts.</p>
+      <p>See <code>INPUTS-NEEDED.md</code> in the project. Highlights: real testimonials, the kickoff-night talk, the Premium Kit checkout link, and the Family Phone Contract PDF.</p>
     </section>
   </main>
 </Base>

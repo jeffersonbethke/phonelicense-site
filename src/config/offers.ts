@@ -75,12 +75,9 @@ export const offers = {
   courseChurch: { id: 'courseChurch', label: 'Phone License course · church family', price: 49, url: 'https://darren-whitehead.mykajabi.com/offers/kVt4MdFq/checkout', pixelValue: 49 },
 
   // ── Live events ──
-  // Early-bird discount is applied via a Kajabi COUPON on the same conference
-  // offer (per contract). If Kajabi instead uses a separate offer URL for
-  // early-bird, add a `conferenceEarlyBird` entry and point config/events at it.
-  conference: { id: 'conference', label: 'Conference · couple ticket', price: 499, url: TODO, pixelValue: 499 },
-  summit: { id: 'summit', label: 'Summit · family seat', price: 99, url: TODO, pixelValue: 99 },
-  allAccess: { id: 'allAccess', label: 'All-Access', price: 0, url: TODO, pixelValue: 0 },
+  // None for sale. The 2027 season is waitlist-only (see config/events): no
+  // ticket offers exist until a date is booked, and founding families on the
+  // list are priced by email before anything goes public.
 } satisfies Record<string, Offer>;
 
 export type OfferId = keyof typeof offers;

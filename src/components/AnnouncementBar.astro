@@ -1,67 +1,51 @@
 ---
 /**
- * Site-wide announcement bar. Renders the single event flagged promote:true in
- * /config/events, or nothing. Two styles: quiet tint (default) and louder ink
- * (auto-selected for earlybird/almostfull windows). Dismissal persists per
- * event+state, so it reappears when the state changes. Elegant, not car-dealer.
+ * Site-wide announcement bar. Both entries from /config/announcement are
+ * rendered; the pre-paint script in Base (see barPrepaintScript) sets
+ * html[data-bar] to the active one, and the CSS below shows only that bar.
+ * Dismissal is remembered per bar key. Elegant, not car-dealer.
  */
-import { promotedEvent, badgeFor } from '../config/events';
+import { announcement } from '../config/announcement';
 
-const e = promotedEvent();
-const loud = e ? e.state === 'earlybird' || e.state === 'almostfull' : false;
-const kindWord = e?.kind === 'workshop' ? 'Workshop' : 'Summit';
-
-// CTA label per state.
-const ctaLabel = e
-  ? {
-      interest: 'Get first access',
-      earlybird: 'Claim early-bird',
-      onsale: 'Get tickets',
-      almostfull: 'Reserve seats',
-      soldout: 'Join the waitlist',
-      replay: 'Watch the replay',
-    }[e.state]
-  : '';
-
-const dismissKey = e ? `pl_bar_${e.slug}_${e.state}` : '';
+const bars = [
+  { id: 'launch', ...announcement.launch },
+  { id: 'season', ...announcement.season },
+];
 ---
 
 {
-  e && (
-    <div
-      class:list={['abar', loud ? 'ink' : 'tint']}
-      id="announcement-bar"
-      data-dismiss-key={dismissKey}
-    >
-      <a class="abar-in wrap" href={`/${e.slug}`}>
+  bars.map((b) => (
+    <div class="abar tint" data-bar-id={b.id} data-dismiss-key={b.key}>
+      <a class="abar-in wrap" href={b.href}>
         <span class="dot" aria-hidden="true" />
-        {loud && <span class="pill">{e.edition} Edition</span>}
         <span class="msg">
-          <b>{`The ${e.edition} ${kindWord} is coming.`}</b>
-          <span class="meta">
-            {e.dateDisplay} · {e.city}
-          </span>
+          <b>{b.strong}</b>
+          <span class="meta">{b.text}</span>
         </span>
-        <span class="cta">{ctaLabel} →</span>
+        <span class="cta">{b.cta} →</span>
       </a>
-      <button class="abar-x" id="abar-close" aria-label="Dismiss">×</button>
+      <button class="abar-x" aria-label="Dismiss" data-abar-close>
+        ×
+      </button>
     </div>
-  )
+  ))
 }
 
 <style>
+  /* Hidden until <head> picks the active bar — no flash, no layout shift. */
   .abar {
+    display: none;
     position: relative;
     font-size: 14px;
+  }
+  :global(html[data-bar='launch']) .abar[data-bar-id='launch'],
+  :global(html[data-bar='season']) .abar[data-bar-id='season'] {
+    display: block;
   }
   .abar.tint {
     background: var(--blue-tint);
     color: var(--ink);
     border-bottom: 1px solid var(--blue-tint-2);
-  }
-  .abar.ink {
-    background: var(--ink);
-    color: #fff;
   }
   .abar-in {
     display: flex;
@@ -80,20 +64,6 @@ const dismissKey = e ? `pl_bar_${e.slug}_${e.state}` : '';
     flex: none;
     animation: pulse 1.8s ease-in-out infinite;
   }
-  .abar.ink .dot {
-    background: var(--blue-on-dark);
-  }
-  .pill {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    background: var(--blue);
-    color: #fff;
-    padding: 3px 8px;
-    border-radius: var(--r-pill);
-    flex: none;
-  }
   .msg {
     min-width: 0;
     overflow: hidden;
@@ -104,17 +74,11 @@ const dismissKey = e ? `pl_bar_${e.slug}_${e.state}` : '';
     color: var(--muted);
     margin-left: 8px;
   }
-  .abar.ink .msg .meta {
-    color: rgba(255, 255, 255, 0.6);
-  }
   .cta {
     margin-left: auto;
     font-weight: 600;
     white-space: nowrap;
     color: var(--blue-deep);
-  }
-  .abar.ink .cta {
-    color: var(--blue-on-dark);
   }
   .abar-x {
     position: absolute;
@@ -157,14 +121,15 @@ const dismissKey = e ? `pl_bar_${e.slug}_${e.state}` : '';
 </style>
 
 <script>
-  // Dismissed state is applied pre-paint in <head> (no flash / layout shift).
-  // This only handles the click-to-dismiss.
-  const bar = document.getElementById('announcement-bar');
-  document.getElementById('abar-close')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const key = bar?.dataset.dismissKey || '';
-    if (key) localStorage.setItem(key, '1');
-    document.documentElement.classList.add('abar-hide');
+  document.querySelectorAll<HTMLElement>('[data-abar-close]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const key = btn.closest<HTMLElement>('.abar')?.dataset.dismissKey || '';
+      try {
+        if (key) localStorage.setItem(key, '1');
+      } catch {}
+      document.documentElement.removeAttribute('data-bar');
+    });
   });
 </script>

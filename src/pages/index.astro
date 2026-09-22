@@ -12,25 +12,25 @@ import homeCss from '../styles/home.css?raw';
 import rawBody from '../home/body.html?raw';
 import { site } from '../config/site';
 import { offers } from '../config/offers';
-import { events, promotedEvent } from '../config/events';
+import { events, season } from '../config/events';
+import { announcement, barPrepaintScript } from '../config/announcement';
 import { conference } from '../config/event-content';
 
 const course = offers.course;
 const conf = events['conference'];
-const promo = promotedEvent();
-const barKey = promo ? `pl_bar_${promo.slug}_${promo.state}` : '';
-const announcementBar = promo
-  ? `<div class="add-bar" id="announcement-bar" data-key="${barKey}">
-      <a class="add-bar-in" href="/${promo.slug}">
+// Two bars, one switch date (config/announcement). Both render; the pre-paint
+// script in <head> sets html[data-bar] to the active one and the CSS shows it.
+const announcementBar = [
+  { id: 'launch', ...announcement.launch },
+  { id: 'season', ...announcement.season },
+].map((b) => `<div class="add-bar" data-bar-id="${b.id}" data-key="${b.key}">
+      <a class="add-bar-in" href="${b.href}">
         <span class="add-bar-dot"></span>
-        <span class="add-bar-msg"><b>The ${promo.edition} Workshop is coming.</b> <span class="add-bar-meta">${promo.dateDisplay} · ${promo.city}</span></span>
-        <span class="add-bar-cta">Get first access →</span>
+        <span class="add-bar-msg"><b>${b.strong}</b> <span class="add-bar-meta">${b.text}</span></span>
+        <span class="add-bar-cta">${b.cta} →</span>
       </a>
-      <button class="add-bar-x" id="abar-close" aria-label="Dismiss">×</button>
-    </div>`
-  : '';
-const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-const rows = Object.values(events).filter((e) => e.state !== 'replay').sort((a, b) => a.dateISO.localeCompare(b.dateISO));
+      <button class="add-bar-x" data-abar-close aria-label="Dismiss">×</button>
+    </div>`).join('');
 
 // ── Addition sections, styled with the original classes (.container/.eyebrow/.accent) ──
 // Trailer — Vimeo embed, click-to-play: the styled facade (poster + play button)
@@ -105,17 +105,13 @@ const midCta = `
 const liveEvents = `
 <section class="add-live">
   <div class="container">
-    <div class="section-head"><p class="eyebrow" style="color:var(--blue)">Live events · The 2026 Season</p>
-      <h2 style="color:#fff">We also run a few <span class="accent">live intensives</span> a year.</h2>
-      <p class="add-lsub">Two virtual summits and one in-person workshop, every year — the annual briefing on what actually changed, for parents who don't want to figure it out alone.</p></div>
-    <div class="add-rows">
-      ${rows.map((e) => {
-        const [, m, d] = e.dateISO.split('-').map(Number);
-        const kind = e.kind === 'workshop' ? 'In-person workshop · once a year' : `Live virtual summit · ${e.season === 'fall' ? 'Fall' : 'Spring'} ${e.edition}`;
-        return `<a class="add-row" href="/${e.slug}"><span class="add-date"><span class="mo">${MONTHS[(m||1)-1]}</span><span class="dy">${d}</span></span><span class="add-mid"><span class="add-kind">${kind}</span><span class="add-title">${e.title}${e.themeLine ? ': ' + e.themeLine : ''}</span></span><span class="add-arrow">→</span></a>`;
-      }).join('')}
+    <div class="section-head"><p class="eyebrow" style="color:var(--blue)">Live events · The 2027 season</p>
+      <h2 style="color:#fff">A few days a year, <span class="accent">we get in a room.</span></h2>
+      <p class="add-lsub">Two online summits and one in-person workshop, every year. Nothing to buy yet. Join the list and you'll hear first, at a founding-family price.</p></div>
+    <div class="add-season">
+      ${season.map((e) => `<a class="add-ev" href="/${e.slug}"><span class="add-kind">${e.season} · ${e.format === 'online' ? 'Online' : e.place}</span><span class="add-title">${e.name}</span><span class="add-line">${e.homeLine}</span><span class="add-go">Get first access →</span></a>`).join('')}
     </div>
-    <div class="add-lfoot"><span class="add-note">One workshop a year · capped at 200 couples</span><a href="/events" class="btn-ghost">See the full season →</a></div>
+    <div class="add-lfoot" style="justify-content:center"><a href="/events" class="btn-ghost">See the whole season →</a></div>
   </div>
 </section>`;
 
@@ -124,11 +120,10 @@ const workshop = `
   <img class="add-ws-bg" src="/assets/couple-embrace.jpg" alt="" loading="lazy" decoding="async" />
   <div class="add-ws-scrim"></div>
   <div class="container add-ws-in">
-    <p class="eyebrow" style="color:var(--blue)">The ${conf.edition} in-person workshop · once a year</p>
+    <p class="eyebrow" style="color:var(--blue)">${conf.season} · in person · once a year</p>
     <h2 style="color:#fff">Spend one day with us. <span class="accent">Parent the whole year on purpose.</span></h2>
-    <p class="add-ws-lede">${conf.title} is the annual, in-person briefing for parents — both of you in one room in ${conf.city}, then a long-table supper in Leipers Fork. It's the day couples talk about on the drive home.</p>
-    <p class="add-ws-meta">${conf.dateDisplay} · ${conf.venue} · Capped at ${conf.capacity} couples</p>
-    <div class="add-ws-cta"><a href="/conference" class="btn-white">See the full day →</a></div>
+    <p class="add-ws-lede">${conf.theme} is the annual, in-person briefing for parents: both of you in one room in ${conf.place}, then a long-table supper in Leipers Fork. It's the day couples talk about on the drive home. The list picks the weekend. Founding families sit first.</p>
+    <div class="add-ws-cta"><a href="/conference" class="btn-white">Get first access →</a></div>
   </div>
 </section>`;
 
@@ -175,7 +170,6 @@ const navMenu = `
   <div class="add-nav-menu" id="nav-menu" hidden>
     <a href="#course">Course</a>
     <a href="/quiz">Free quiz</a>
-    <a href="/conference">The Workshop</a>
     <a href="/events">Events</a>
     <a href="/churches">For churches</a>
   </div>`;
@@ -231,12 +225,8 @@ if (site.contractLead) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style is:inline set:html={homeCss}></style>
 
-    {/* Announcement bar: hide pre-paint if this event+state was dismissed */}
-    {barKey && (
-      <script is:inline define:vars={{ barKey }}>
-        try{if(localStorage.getItem(barKey)==='1')document.documentElement.classList.add('abar-hide');}catch(e){}
-      </script>
-    )}
+    {/* Announcement bar: pick launch vs season by the visitor's clock, pre-paint */}
+    <script is:inline set:html={barPrepaintScript} />
 
     {/* Integration config for the client libs */}
     <script is:inline define:vars={{ webhookUrl: site.webhookUrl, pixelId: site.metaPixelId }}>
@@ -255,7 +245,8 @@ if (site.contractLead) {
 
     {/* ── Styles for the injected additions (original tokens/classes) ── */}
     <style is:inline>
-      .abar-hide .add-bar{display:none}
+      .add-bar{display:none}
+      html[data-bar="launch"] .add-bar[data-bar-id="launch"],html[data-bar="season"] .add-bar[data-bar-id="season"]{display:block}
       .add-bar{position:relative;background:var(--blue-tint,#eef2fa);border-bottom:1px solid var(--blue-tint-2,#dde7f7);font-size:14px}
       .add-bar-in{display:flex;align-items:center;gap:10px;max-width:1180px;margin:0 auto;padding:10px 44px 10px 28px;text-decoration:none;color:var(--ink);min-height:40px}
       .add-bar-dot{width:7px;height:7px;border-radius:50%;background:var(--blue,#4f83cc);flex:none}
@@ -316,24 +307,20 @@ if (site.contractLead) {
       .add-k{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-deep,#3a68b5)}
       .add-live{background:var(--ink);color:#fff}
       .add-live .add-lsub{color:rgba(255,255,255,.72);max-width:580px;margin:12px auto 0}
-      .add-rows{margin-top:28px}
-      .add-row{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:16px;padding:22px 4px;border-top:1px solid rgba(255,255,255,.12);color:#fff;text-decoration:none}
-      .add-row:hover{background:rgba(255,255,255,.04)}
-      .add-date{display:flex;flex-direction:column;align-items:center;line-height:1}
-      .add-date .mo{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.1em;color:var(--blue,#4f83cc)}
-      .add-date .dy{font-family:var(--font-display,Inter);font-weight:700;font-size:30px;letter-spacing:-.03em}
-      .add-mid{display:flex;flex-direction:column;gap:3px;min-width:0}
+      .add-season{display:grid;gap:14px;margin-top:32px}
+      @media(min-width:820px){.add-season{grid-template-columns:repeat(3,1fr)}}
+      .add-ev{display:flex;flex-direction:column;gap:8px;padding:22px;border:1px solid rgba(255,255,255,.14);border-radius:18px;color:#fff;text-decoration:none;background:rgba(255,255,255,.04);transition:background .18s ease,transform .18s ease}
+      .add-ev:hover{background:rgba(255,255,255,.08);transform:translateY(-2px)}
+      .add-line{color:rgba(255,255,255,.72);font-size:15px}
+      .add-go{margin-top:auto;padding-top:8px;font-weight:600;color:var(--blue,#4f83cc)}
       .add-kind{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.55)}
       .add-title{font-family:var(--font-display,Inter);font-weight:600;font-size:17px;letter-spacing:-.02em}
-      .add-arrow{color:rgba(255,255,255,.6);font-size:18px}
       .add-lfoot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding-top:26px}
-      .add-note{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5)}
       .add-ws{position:relative;overflow:hidden;color:#fff;background:var(--ink)}
       .add-ws-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
       .add-ws-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,15,16,.72),rgba(15,15,16,.86))}
       .add-ws-in{position:relative;text-align:center}
       .add-ws-lede{max-width:640px;margin:16px auto 0;color:rgba(255,255,255,.82);font-size:clamp(16px,2.2vw,19px)}
-      .add-ws-meta{font-family:var(--font-mono,monospace);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:18px}
       .add-ws-cta{margin-top:30px}
       .btn-white{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--ink);font-weight:500;font-size:15.5px;padding:15px 26px;border-radius:999px;text-decoration:none}
       .add-pdf{background:var(--bg-2)}
@@ -371,14 +358,15 @@ if (site.contractLead) {
       captureUtms();
       viewContent('Sales Page');
 
-      // Announcement bar dismiss
-      const abar = document.getElementById('announcement-bar');
-      document.getElementById('abar-close')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const k = abar?.dataset.key || '';
-        if (k) { try { localStorage.setItem(k, '1'); } catch {} }
-        document.documentElement.classList.add('abar-hide');
+      // Announcement bar dismiss (remembered per bar key)
+      document.querySelectorAll<HTMLElement>('[data-abar-close]').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const k = btn.closest<HTMLElement>('.add-bar')?.dataset.key || '';
+          if (k) { try { localStorage.setItem(k, '1'); } catch {} }
+          document.documentElement.removeAttribute('data-bar');
+        });
       });
 
       // Mobile hamburger menu

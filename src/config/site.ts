@@ -51,7 +51,6 @@ export const nav = [
   { label: 'How it works', href: '/#how' },
   { label: 'The course', href: '/#pricing' },
   { label: 'Free quiz', href: '/quiz' },
-  { label: 'The Workshop', href: '/conference' },
   { label: 'Events', href: '/events' },
   { label: 'For churches', href: '/churches' },
 ] as const;

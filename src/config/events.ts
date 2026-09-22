@@ -1,302 +1,215 @@
 /**
- * Event data — the SINGLE source of truth for every event surface:
- * announcement bar, homepage Live Events section, hub cards, and the full
- * event pages. Flip one `state` value here and the bar, homepage, cards, and
- * page all update with zero component edits (that's the whole contract).
+ * Event data — the SINGLE source of truth for every event surface: the
+ * announcement bar (see ./announcement), the homepage season section, /events,
+ * the three event pages, the quiz/church "event slot", titles and OG tags.
+ * No event copy lives in a component.
  *
- * Scarcity honesty: `seatsRemaining` is set MANUALLY by a human and is never
- * faked or decremented client-side. Set it to `null` when the true number is
- * unknown — the UI then hides seat counts and progress bars.
+ * THE 2027 MODEL (reset 2026-09-22): three events, one per season, all in
+ * `waitlist` state until a room is booked. No dates, venues, seat caps or
+ * prices anywhere on the site — the copy names seasons, never months, so the
+ * order can be shuffled without touching a word. The energy comes from first
+ * access + a founding-family price, not a countdown.
  *
- * TODO(inputs): confirm dates/venues/prices, set the real `state` per event,
- * the true `seatsRemaining`, `earlyBirdDeadline`, and paste Kajabi `ticketsUrl`.
+ * When a date IS booked: that's a Kajabi email ("The date is set") to the
+ * list first, then a status change here. Until then, nothing else to flip.
  */
 
-import type { OfferId } from './offers';
-
-export type EventState =
-  | 'interest' // list-building, not on sale — CTAs open email capture
-  | 'earlybird' // on sale at early-bird price
-  | 'onsale' // on sale at full price
-  | 'almostfull' // on sale, low seats (amber urgency)
-  | 'soldout' // full — waitlist capture
-  | 'replay'; // past — replay available
-
-export type EventKind = 'workshop' | 'summit';
+export type EventFormat = 'online' | 'in-person';
+export type EventStatus = 'waitlist';
 
 export interface EventConfig {
-  slug: string; // route path, e.g. 'conference'
-  kind: EventKind;
-  title: string;
-  edition: string; // year mark, e.g. '2026'
-  season?: 'spring' | 'fall'; // summits only
-  themeLine?: string; // summit topic, e.g. 'AI, chatbots & what’s coming'
-
-  dateISO: string; // machine date (for .ics, sorting)
-  dateDisplay: string; // human date
-  timeDisplay?: string;
-  venue: string;
-  city: string;
-
-  offerId: OfferId; // which Kajabi offer this ticket buys
-  price: number;
-  priceUnit: string; // 'per couple' | 'per family'
-  earlyBirdPrice?: number;
-  earlyBirdDeadline?: string; // ISO date; drives "ends July 31" copy
-
-  capacity: number | null;
-  seatsRemaining: number | null; // MANUAL. null = unknown → hide scarcity
-
-  state: EventState;
-  promote: boolean; // show in the site-wide announcement bar?
-
-  ticketsUrl: string; // Kajabi checkout (TODO until provided)
-  interestTag: string; // webhook tag when capturing interest/waitlist
+  slug: string; // route path
+  /** Full name, e.g. "The Parent Summit: AI, chatbots & what’s coming". */
+  name: string;
+  /** Short name for cards/nav, e.g. "The Parent Summit". */
+  shortName: string;
+  /** Subtitle for headings that split name/theme, e.g. "AI, chatbots & what’s coming". */
+  theme: string;
+  season: 'Spring 2027' | 'Summer 2027' | 'Fall 2027';
+  format: EventFormat;
+  place: string; // 'Online' | 'Franklin, TN'
+  /** Format line for cards, e.g. "Online, live, half a day". */
+  formatLine: string;
+  /** One-line promise used on /events cards. */
+  oneLine: string;
+  /** Shorter one-liner for the homepage season cards. */
+  homeLine: string;
+  /** The /events season-card paragraph. */
+  cardBlurb: string;
+  /** Condensed "You’ll leave with" for the /events card. */
+  cardLeaveWith: [string, string, string];
+  /** Promise line under the page heading. */
+  promise: string;
+  /** Two short paragraphs — the page body. */
+  body: string[];
+  leaveWith: [string, string, string];
+  whoFor: string;
+  recorded: boolean;
+  /** Workshop only: travel note. */
+  travel?: string;
+  status: EventStatus;
+  /** Kajabi tag applied when this event is ticked on the waitlist form. */
+  tag: string;
+  /** Label of this event's checkbox on the waitlist form. */
+  formLabel: string;
+  /** Third status-strip cell. */
+  seatsLine: string;
+  ogImage: string;
+  description: string; // meta description
 }
 
-const TODO_TICKETS = '#TODO-kajabi-tickets-url';
-
-// ── Seed data from the approved mockups (flag placeholders per README) ──
 export const events: Record<string, EventConfig> = {
-  conference: {
-    slug: 'conference',
-    kind: 'workshop',
-    title: 'Raising Kids in a Digital World',
-    edition: '2026',
-    dateISO: '2026-10-17',
-    dateDisplay: 'Sat, Oct 17 2026',
-    venue: 'The Factory at Franklin',
-    city: 'Franklin, TN',
-    offerId: 'conference',
-    price: 499,
-    priceUnit: 'per couple',
-    earlyBirdPrice: 399,
-    earlyBirdDeadline: '2026-07-31',
-    capacity: 200, // README flag: client mentioned possibly 250
-    seatsRemaining: null, // TODO: set the real number, or leave null to hide
-    state: 'interest', // TODO: confirm current state
-    promote: true,
-    ticketsUrl: TODO_TICKETS,
-    interestTag: 'Conference-2026-Interested',
-  },
-
-  'summit-fall': {
-    slug: 'summit-fall',
-    kind: 'summit',
-    season: 'fall',
-    title: 'The Parent Summit',
-    edition: '2026',
-    themeLine: 'AI, chatbots & what’s coming',
-    dateISO: '2026-09-12',
-    dateDisplay: 'Sat, Sept 12 2026',
-    timeDisplay: '9am–1pm CT',
-    venue: 'Live virtual',
-    city: 'Online',
-    offerId: 'summit',
-    price: 99,
-    priceUnit: 'per family',
-    capacity: null,
-    seatsRemaining: null,
-    state: 'interest', // TODO: confirm (README seed showed onsale)
-    promote: false,
-    ticketsUrl: TODO_TICKETS,
-    interestTag: 'Summit-Fall-Interested',
-  },
-
   'summit-spring': {
     slug: 'summit-spring',
-    kind: 'summit',
-    season: 'spring',
-    title: 'The Parent Summit',
-    edition: '2026',
-    themeLine: 'Social media readiness',
-    dateISO: '2026-03-14', // TODO: confirm real spring date
-    dateDisplay: 'Spring 2026',
-    timeDisplay: '9am–1pm CT',
-    venue: 'Live virtual',
-    city: 'Online',
-    offerId: 'summit',
-    price: 99,
-    priceUnit: 'per family',
-    capacity: null,
-    seatsRemaining: null,
-    state: 'replay', // spring already happened in README seed
-    promote: false,
-    ticketsUrl: TODO_TICKETS,
-    interestTag: 'Summit-Spring-Interested',
+    name: 'The Parent Summit: AI, chatbots & what’s coming',
+    shortName: 'The Parent Summit',
+    theme: 'AI, chatbots & what’s coming',
+    season: 'Spring 2027',
+    format: 'online',
+    place: 'Online',
+    formatLine: 'Online, live, half a day',
+    oneLine: 'The annual briefing on what changed on your kid’s phone this year, and what to do about it.',
+    homeLine: 'The annual briefing on what changed.',
+    cardBlurb: 'The annual briefing. Half a day, both parents, on what your kid’s phone can do this year that it couldn’t last year, and what to do about it. Darren and Jeff live, a live Q&A, and one worksheet you’ll actually use.',
+    cardLeaveWith: ['The three settings that matter this year', 'A plain-English map of AI companions and chatbots', 'The 2027 update to your Family Agreement'],
+    promise: 'The annual briefing on what changed on your kid’s phone this year, and what to do about it.',
+    body: [
+      'Every year the phone gets a new set of powers, and every year parents find out from their kids. The Parent Summit is the other way around. Half a day, live, both parents, in plain English: what AI companions and chatbots are actually doing in a teenager’s day, which new features matter and which are noise, and the three settings we’d change this year if we could only change three.',
+      'Then a long, live Q&A with Darren and Jeff.',
+    ],
+    leaveWith: [
+      'The 2027 settings list for iPhone and Android',
+      'A plain-English map of AI companions, chatbots and the apps that hide them',
+      'The 2027 addendum to your Family Agreement',
+    ],
+    whoFor: 'Parents of 10- to 18-year-olds, whether or not you’ve done the course. Licensed families get the addendum in the same format as their Agreement.',
+    recorded: true,
+    status: 'waitlist',
+    tag: 'Waitlist - Spring Summit',
+    formLabel: 'Spring summit, online',
+    seatsLine: 'Live and recorded',
+    ogImage: '/og-summit.png',
+    description: 'The annual briefing on what changed on your kid’s phone this year, and what to do about it. Spring 2027, online, live. Join the list and hear first, at a founding-family price.',
+  },
+
+  'summit-summer': {
+    slug: 'summit-summer',
+    name: 'The Summer Reset',
+    shortName: 'The Summer Reset',
+    theme: 'The Summer Reset',
+    season: 'Summer 2027',
+    format: 'online',
+    place: 'Online',
+    formatLine: 'Online, live, 90 minutes',
+    oneLine: 'The plan for the three months the phone has no schedule.',
+    homeLine: 'The plan for the three months the phone has no schedule.',
+    cardBlurb: 'Ninety minutes, right before school lets out. The plan for the three months the phone has no bedtime, no bus and no teacher: a summer addendum to your agreement, the boredom problem, sleep, the road trip, the cousins.',
+    cardLeaveWith: ['A one-page summer addendum', 'The boredom list', 'The road-trip rules'],
+    promise: 'The plan for the three months the phone has no schedule.',
+    body: [
+      'School gives a phone a rhythm without anyone trying: a bus, a bell, a bedtime that has to happen. Summer takes all of it away at once, and by July the agreement you signed in March is a memory.',
+      'The Summer Reset is ninety minutes, right before school lets out, to write the summer version on purpose: sleep when there’s no morning, the boredom problem and what to do instead of scrolling through it, the road trip, the cousins’ house, and the one week the phone comes off the table entirely.',
+    ],
+    leaveWith: [
+      'A one-page summer addendum to your Family Agreement',
+      'The boredom list (thirty things that aren’t a screen, chosen by your kid)',
+      'The road-trip and grandparents’-house rules',
+    ],
+    whoFor: 'Any family with a phone in the house and a summer coming.',
+    recorded: true,
+    status: 'waitlist',
+    tag: 'Waitlist - Summer Summit',
+    formLabel: 'Summer Reset, online',
+    seatsLine: 'Live and recorded',
+    ogImage: '/og-summer.png',
+    description: 'The plan for the three months the phone has no schedule. Ninety minutes, online, live, right before school lets out. Join the list and hear first.',
+  },
+
+  conference: {
+    slug: 'conference',
+    name: 'The Workshop: Raising Kids in a Digital World',
+    shortName: 'The Workshop',
+    theme: 'Raising Kids in a Digital World',
+    season: 'Fall 2027',
+    format: 'in-person',
+    place: 'Franklin, TN',
+    formatLine: 'In person, Franklin, TN, one Saturday and a long-table supper in Leipers Fork',
+    oneLine: 'Both of you in one room. The day couples talk about on the drive home.',
+    homeLine: 'Both of you in one room, then supper in Leipers Fork.',
+    cardBlurb: 'One Saturday. Both of you in a room small enough to talk in, then a long-table supper in Leipers Fork. It’s the day couples talk about on the drive home. Capped small; founding families sit first.',
+    cardLeaveWith: ['A plan for the year, written together', 'A table of parents who get it', 'A supper you’ll remember'],
+    promise: 'Both of you in one room. The day couples talk about on the drive home.',
+    body: [
+      'Once a year we stop doing this through a screen. One Saturday in Franklin, Tennessee, both parents, a room small enough to talk in. Darren teaches the framework from The Digital Fast; Jeff teaches the family rhythms that make it stick; the afternoon is the two of you at a table, writing the year.',
+      'Then everyone drives out to Leipers Fork for a long-table supper.',
+    ],
+    leaveWith: [
+      'A plan for the year, written together, in your own words',
+      'A table of parents who get it',
+      'A supper you’ll remember',
+    ],
+    whoFor: 'Couples. Bring the other parent. Single parents, bring the person who helps you raise them.',
+    recorded: false,
+    travel: 'Franklin is about half an hour south of Nashville. Hotels and details come with the date.',
+    status: 'waitlist',
+    tag: 'Waitlist - Fall Workshop',
+    formLabel: 'The Workshop, in person in Franklin',
+    seatsLine: 'Capped small',
+    ogImage: '/og-workshop.png',
+    description: 'Both of you in one room. The day couples talk about on the drive home. Fall 2027, one Saturday in Franklin, TN. The list picks the weekend; founding families sit first.',
   },
 };
 
 export type EventSlug = keyof typeof events;
 
+/** Season order for every list on the site. */
+export const season: EventConfig[] = [events['summit-spring'], events['summit-summer'], events['conference']];
+
 export function getEvent(slug: string): EventConfig | undefined {
   return events[slug];
 }
 
-/** The single event flagged for the announcement bar (or null). */
-export function promotedEvent(): EventConfig | null {
-  return Object.values(events).find((e) => e.promote) ?? null;
+/** The other two events, for an event page's "Also this season" block. */
+export function otherEvents(slug: string): EventConfig[] {
+  return season.filter((e) => e.slug !== slug);
 }
 
-/** Next upcoming, still-relevant event — for the "event slot" on thank-you pages. */
-export function nextEvent(): EventConfig | null {
-  const upcoming = Object.values(events)
-    .filter((e) => e.state !== 'replay')
-    .sort((a, b) => a.dateISO.localeCompare(b.dateISO));
-  return upcoming[0] ?? null;
+/** Eyebrow line for an event page/card: "SPRING 2027 · ONLINE · LIVE". */
+export function eyebrowFor(e: EventConfig): string {
+  const fmt = e.format === 'online' ? 'Online · Live' : `In person · ${e.place}`;
+  return `${e.season} · ${fmt}`;
 }
 
-// ── Badge presentation, derived from state (README badge set) ──
-export interface BadgeInfo {
-  label: string;
-  tone: 'blue' | 'amber' | 'red' | 'neutral';
-}
-
-export function badgeFor(state: EventState): BadgeInfo {
-  switch (state) {
-    case 'interest':
-      return { label: 'Get first access', tone: 'neutral' };
-    case 'earlybird':
-      return { label: 'Early-bird', tone: 'blue' };
-    case 'onsale':
-      return { label: 'On sale', tone: 'blue' };
-    case 'almostfull':
-      return { label: 'Almost full', tone: 'amber' };
-    case 'soldout':
-      return { label: 'Sold out', tone: 'red' };
-    case 'replay':
-      return { label: 'Replay available', tone: 'neutral' };
-  }
-}
-
-/** Only show a seat count / progress bar when it is truthful. */
-export function showScarcity(e: EventConfig): boolean {
-  return (
-    e.seatsRemaining !== null &&
-    e.capacity !== null &&
-    (e.state === 'earlybird' || e.state === 'almostfull' || e.state === 'onsale')
-  );
-}
-
-// ── State-driven display copy (keeps event pages free of conditionals) ──
-
-const unitWord = (e: EventConfig) => (e.kind === 'workshop' ? 'couples' : 'families');
-const nextEdition = (e: EventConfig) => String(Number(e.edition) + 1);
-
-export interface SeatChipView {
-  copy: string;
-  tone: 'blue' | 'amber' | 'red';
-  fill: number | null;
-}
-
-/** Seat chip copy + fill fraction. Only renders real numbers when truthful. */
-export function seatChipView(e: EventConfig): SeatChipView | null {
-  const sc = showScarcity(e);
-  const fill = sc ? (e.capacity! - e.seatsRemaining!) / e.capacity! : null;
-  const rem = e.seatsRemaining;
-  const u = unitWord(e);
-  switch (e.state) {
-    case 'interest':
-      return { copy: 'Doors open soon · first-access list forming', tone: 'blue', fill: null };
-    case 'earlybird':
-      return { copy: sc ? `Early-bird open · ${rem} of ${e.capacity} ${u} remaining` : 'Early-bird open now', tone: 'blue', fill };
-    case 'onsale':
-      return { copy: sc ? `On sale · ${rem} of ${e.capacity} ${u} remaining` : 'On sale now', tone: 'blue', fill };
-    case 'almostfull':
-      return { copy: sc ? `Almost full · only ${rem} ${u} left` : 'Almost full', tone: 'amber', fill };
-    case 'soldout':
-      return { copy: `Sold out · ${nextEdition(e)} waitlist now open`, tone: 'red', fill: null };
-    case 'replay':
-      return null;
-  }
-}
-
-/** Format an ISO date like 2026-07-31 → "July 31". */
-export function prettyDate(iso?: string): string {
-  if (!iso) return '';
-  const M = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const [, m, d] = iso.split('-').map(Number);
-  return `${M[(m || 1) - 1]} ${d}`;
-}
-
-export interface PriceView {
-  amount: string;
-  struck?: string;
-  note: string;
-  pin?: { label: string; tone: 'blue' | 'amber' | 'red' };
-}
-
-export function priceView(e: EventConfig): PriceView {
-  const u = e.priceUnit;
-  switch (e.state) {
-    case 'interest':
-      return { amount: `$${e.price}`, note: e.earlyBirdPrice ? `${u} · early-bird $${e.earlyBirdPrice}` : u };
-    case 'earlybird':
-      return {
-        amount: `$${e.earlyBirdPrice ?? e.price}`,
-        struck: e.earlyBirdPrice ? `$${e.price}` : undefined,
-        note: u,
-        pin: { label: `Early-bird · ends ${prettyDate(e.earlyBirdDeadline)}`, tone: 'blue' },
-      };
-    case 'onsale':
-      return { amount: `$${e.price}`, note: u };
-    case 'almostfull':
-      return { amount: `$${e.price}`, note: u, pin: { label: 'Final release', tone: 'blue' } };
-    case 'soldout':
-      return { amount: `$${e.price}`, note: `${e.edition} sold out`, pin: { label: 'Sold out', tone: 'red' } };
-    case 'replay':
-      return { amount: 'Replay', note: 'available now' };
-  }
-}
-
-/** State-driven final-CTA headline. */
-export function finalHeadline(e: EventConfig): string {
-  if (e.state === 'soldout') return `The room is full. Get first in line for ${nextEdition(e)}.`;
-  return 'Get a year ahead — together.';
-}
-
-/** State-driven final-CTA lede. */
-export function finalLede(e: EventConfig): string {
-  switch (e.state) {
-    case 'earlybird':
-      return `${e.capacity} couples, one room, one day. Early-bird pricing is live through ${prettyDate(e.earlyBirdDeadline)}.`;
-    case 'almostfull':
-      return `Only a handful of couples left in the ${e.capacity}-seat room. When it’s gone, it’s the waitlist.`;
-    case 'soldout':
-      return `The ${e.edition} Edition sold out. Get first access to the ${nextEdition(e)} Briefing and every event in between.`;
-    default:
-      return 'Doors open in July. Join the first-access list and you’ll hear before anyone else — at the early-bird rate.';
-  }
-}
-
-/** Short line for the sticky mobile CTA bar. */
-export function stickyLine(e: EventConfig): string {
-  const v = seatChipView(e);
-  if (e.state === 'soldout') return `${e.edition} sold out · ${nextEdition(e)} waitlist`;
-  if (e.state === 'earlybird' && e.earlyBirdPrice) return `Early-bird $${e.earlyBirdPrice}`;
-  if (e.state === 'interest') return `${e.city} · ${e.dateDisplay} · first access`;
-  return v?.copy ?? e.dateDisplay;
-}
-
-/** A downloadable .ics calendar file as a data URI (all-day event). */
-export function icsDataUri(e: EventConfig): string {
-  const dt = e.dateISO.replace(/-/g, '');
-  const [y, m, d] = e.dateISO.split('-').map(Number);
-  const end = new Date(Date.UTC(y, (m || 1) - 1, (d || 1) + 1));
-  const endStr = `${end.getUTCFullYear()}${String(end.getUTCMonth() + 1).padStart(2, '0')}${String(end.getUTCDate()).padStart(2, '0')}`;
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Phone License//Events//EN',
-    'BEGIN:VEVENT',
-    `UID:${e.slug}-${e.edition}@phonelicense.co`,
-    `DTSTART;VALUE=DATE:${dt}`,
-    `DTEND;VALUE=DATE:${endStr}`,
-    `SUMMARY:${e.title} ${e.edition}`,
-    `LOCATION:${e.venue}, ${e.city}`,
-    `DESCRIPTION:${e.title} — phonelicense.co/${e.slug}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
+/** The three-part status strip every event page shows while waitlisted. */
+export function statusStrip(e: EventConfig): { label: string; value: string }[] {
+  return [
+    { label: 'Date', value: 'The list picks the weekend' },
+    { label: 'Price', value: 'Founding families first' },
+    { label: e.format === 'online' ? 'Seats' : 'Room', value: e.seatsLine },
   ];
-  return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(lines.join('\r\n'));
+}
+
+/** Per-event FAQ (when · how much · recorded). */
+export function eventFaqs(e: EventConfig): { q: string; a: string }[] {
+  return [
+    {
+      q: 'When exactly?',
+      a: 'We don’t know yet, and we won’t pretend to. The list picks the weekend, and founding families get the date first.',
+    },
+    {
+      q: 'How much?',
+      a: 'Not set. Founding families on the list get the best price we ever offer on this event. Nothing is charged until there’s a date and a room.',
+    },
+    {
+      q: 'Will it be recorded?',
+      a: e.recorded
+        ? 'Yes, for everyone registered.'
+        : 'No. That’s the point of the room.',
+    },
+  ];
+}
+
+/** Title tag for an event page. */
+export function eventTitle(e: EventConfig): string {
+  return `${e.name} — ${e.season} · Phone License`;
 }
