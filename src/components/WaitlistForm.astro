@@ -1,0 +1,359 @@
+---
+/**
+ * The 2027 waitlist form — used on /events and on every event page (pass the
+ * event's slug as `preselect` so it arrives already ticked).
+ *
+ * Posts through the same lead webhook the quiz uses (lib/lead → Zapier →
+ * Kajabi forms → tags). The tags ARE the data; every string comes from
+ * config/waitlist + config/events. The visitor always reaches the success
+ * state — capture is best-effort by contract.
+ *
+ * Anti-abuse: a honeypot field (bots fill it; humans never see it) and inline
+ * validation. COPPA: ages only, never a child's name.
+ */
+import { waitlist } from '../config/waitlist';
+import { season } from '../config/events';
+import { offers } from '../config/offers';
+
+interface Props {
+  /** Event slug to pre-tick (event pages). */
+  preselect?: string;
+  id?: string;
+}
+const { preselect, id = 'waitlist' } = Astro.props;
+const course = offers.course;
+const workshopTicked = preselect === 'conference';
+---
+
+<div class="wl card" id={id} data-waitlist>
+  <form
+    class="wl-form"
+    novalidate
+    data-base-tag={waitlist.baseTag}
+    data-church-tag={waitlist.churchTag}
+    data-pixel={waitlist.pixelName}
+  >
+    <div class="wl-head">
+      <h3>{waitlist.heading}</h3>
+      <p class="sub">{waitlist.sub}</p>
+    </div>
+
+    <div class="row2">
+      <label class="field">
+        <span class="lbl">First name</span>
+        <input type="text" name="name" autocomplete="given-name" required />
+      </label>
+      <label class="field">
+        <span class="lbl">Email</span>
+        <input type="email" name="email" autocomplete="email" inputmode="email" required />
+      </label>
+    </div>
+
+    <fieldset>
+      <legend>Kids’ ages <span class="hint">pick all that apply</span></legend>
+      <div class="chips">
+        {waitlist.ages.map((a) => (
+          <label class="chip">
+            <input type="checkbox" name="ages" value={a.tag} />
+            <span>{a.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Which would you come to?</legend>
+      <div class="chips stack">
+        {season.map((e) => (
+          <label class="chip">
+            <input type="checkbox" name="events" value={e.tag} data-slug={e.slug} checked={e.slug === preselect} />
+            <span>{e.formLabel}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset data-travel hidden={!workshopTicked}>
+      <legend>{waitlist.travel.label}</legend>
+      <div class="chips">
+        {waitlist.travel.options.map((t) => (
+          <label class="chip">
+            <input type="radio" name="travel" value={t.tag} />
+            <span>{t.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <label class="church">
+      <input type="checkbox" name="church" value={waitlist.churchTag} />
+      <span>{waitlist.churchLabel}</span>
+    </label>
+
+    {/* Honeypot: hidden from people, irresistible to bots. */}
+    <div class="hp" aria-hidden="true">
+      <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">{waitlist.button}</button>
+    <p class="err" role="alert" hidden></p>
+    <p class="micro">{waitlist.micro}</p>
+  </form>
+
+  <div class="wl-done" hidden>
+    <span class="seal" aria-hidden="true">✓</span>
+    <h3 tabindex="-1">{waitlist.success.heading}</h3>
+    <p>{waitlist.success.body}</p>
+    <div class="actions">
+      <a
+        href={course.url}
+        class="btn btn-dark"
+        data-kajabi
+        data-offer-value={course.pixelValue}
+        data-offer-name="Phone License course"
+      >
+        Start Phone License — ${course.price}
+      </a>
+      <a href={waitlist.success.backHref} class="btn btn-ghost">{waitlist.success.backLabel}</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .wl {
+    padding: 28px 24px;
+    max-width: 640px;
+    margin-inline: auto;
+  }
+  .wl-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .wl-head h3 {
+    margin-bottom: 6px;
+  }
+  .sub {
+    color: var(--muted);
+  }
+  .row2 {
+    display: grid;
+    gap: 12px;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lbl,
+  legend {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  legend {
+    margin-bottom: 10px;
+  }
+  .hint {
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+  }
+  fieldset {
+    border: 0;
+    min-width: 0;
+  }
+  input[type='text'],
+  input[type='email'] {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+  }
+  input:focus-visible {
+    border-color: var(--blue);
+    outline: none;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chips.stack {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-pill);
+    font-size: 15px;
+    color: var(--ink);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .chip input {
+    accent-color: var(--blue);
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    flex: none;
+  }
+  .chip:has(input:checked) {
+    background: var(--blue-tint);
+    border-color: var(--blue);
+  }
+  .church {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .church input {
+    accent-color: var(--blue);
+    width: 16px;
+    height: 16px;
+    margin: 0;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .err {
+    color: var(--red-pin);
+    font-size: 14px;
+    margin: 0;
+  }
+  .micro {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .wl-form .btn {
+    width: 100%;
+  }
+  .wl-done {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .wl-done p {
+    color: var(--ink-2);
+  }
+  .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 20px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  @media (min-width: 560px) {
+    .wl {
+      padding: 34px 32px;
+    }
+    .row2 {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { submitLead } from '../lib/lead';
+
+  document.querySelectorAll<HTMLElement>('[data-waitlist]').forEach((root) => {
+    const form = root.querySelector<HTMLFormElement>('.wl-form');
+    const done = root.querySelector<HTMLElement>('.wl-done');
+    if (!form || !done) return;
+
+    const err = form.querySelector<HTMLElement>('.err')!;
+    const travel = form.querySelector<HTMLElement>('[data-travel]')!;
+    const workshop = form.querySelector<HTMLInputElement>('input[name="events"][data-slug="conference"]');
+    const eventBoxes = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="events"]'));
+
+    // The travel question only makes sense once the in-person day is ticked.
+    const syncTravel = () => {
+      travel.hidden = !workshop?.checked;
+    };
+    eventBoxes.forEach((b) => b.addEventListener('change', syncTravel));
+    syncTravel();
+
+    const fail = (msg: string) => {
+      err.textContent = msg;
+      err.hidden = false;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+      const data = new FormData(form);
+      const name = String(data.get('name') || '').trim();
+      const email = String(data.get('email') || '').trim();
+      const events = data.getAll('events').map(String);
+      const ages = data.getAll('ages').map(String);
+      const travelTag = String(data.get('travel') || '');
+      const church = data.get('church') ? String(data.get('church')) : '';
+
+      if (!name) return fail('Your first name, so we know who to write to.');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail('Please enter a valid email.');
+      if (events.length === 0) return fail('Pick at least one event you’d come to.');
+
+      const btn = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+      btn.disabled = true;
+      btn.textContent = 'Adding you…';
+
+      const showDone = () => {
+        form.hidden = true;
+        done.hidden = false;
+        done.querySelector<HTMLElement>('h3')?.focus();
+      };
+
+      // Honeypot filled → a bot. Show success, send nothing.
+      if (String(data.get('website') || '').trim()) return showDone();
+
+      const tags = [form.dataset.baseTag!, ...events, ...ages];
+      if (workshop?.checked && travelTag) tags.push(travelTag);
+      if (church) tags.push(church);
+
+      await submitLead({
+        name,
+        email,
+        tags,
+        pixelName: form.dataset.pixel,
+        fields: {
+          events,
+          ages,
+          travel: workshop?.checked ? travelTag : '',
+          churchLeader: Boolean(church),
+          source: 'waitlist-2027',
+        },
+      });
+      showDone();
+    });
+  });
+</script>
