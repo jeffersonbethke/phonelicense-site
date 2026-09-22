@@ -40,16 +40,16 @@ export const offers = {
     pixelValue: 99,
   },
 
-  // Second pricing tier shown on the sales page ("Premium Kit"). Its own Kajabi
-  // offer. TODO(inputs): $79 was drafted against the old $49 course and is now
-  // BELOW the base price — needs a new number (≈$149?) or to be folded into the
-  // $24 order bump. Nothing links to it yet, so it is inert until decided.
+  // Second pricing tier shown on the sales page ("Premium Kit").
+  // Priced 2026-09-22 by Jeff: $149 — the +50% good/better spread over the
+  // $99 core. TODO(inputs): needs its own Kajabi offer; paste the checkout
+  // URL here (the homepage card's button is data-todo until then).
   premiumKit: {
     id: 'premiumKit',
     label: 'Phone License + Premium Kit',
-    price: 79,
+    price: 149,
     url: TODO,
-    pixelValue: 79,
+    pixelValue: 149,
   },
 
   // ── Inside Kajabi checkout (documented, not linked from this site) ──
