@@ -2,10 +2,9 @@
 /**
  * /churches — church & ministry licensing.
  *
- * The commercial model lives in src/config/church.ts, not here. Two paths,
- * priced by WHO pays:
- *   License  $495/yr  → self-serve at /churches/setup, families pay $49.
- *   Prepaid  $25/family → talk to us, families free.
+ * The commercial model lives in src/config/church.ts, not here: one license
+ * (self-serve at /churches/setup) and families join at half off through the
+ * church's link. There is no prepaid/free-families product — see church.ts.
  *
  * Positioning unchanged: works for first-phone AND reset families — most
  * groups are a mix.
@@ -266,7 +265,7 @@ const faqs = [
           {[
             ['Six video modules', 'Driver’s Ed for the device, watched parent + kid together.'],
             ['Hands-on Road Tests', 'They configure the real device; parents verify.'],
-            ['The Family Agreement', 'A 9-section agreement each family signs.'],
+            ['The Family Agreement', 'Articles I–V, signed at each family’s Issuance Ceremony.'],
             ['The License + Ceremony', 'A real certificate and a handoff moment kids remember.'],
           ].map(([h, d]) => (
             <div class="card cpreview">

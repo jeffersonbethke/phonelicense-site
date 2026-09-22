@@ -101,6 +101,37 @@ coupon per church; it reintroduces the manual step the whole system removes.
 | Conference capacity | 200 | Confirm 200 vs 250 |
 | Event dates / venues / prices / current status / real seat count / early-bird deadline | seed guesses in `events.ts` | Confirm each |
 
+## 🗓 The 2027 season — waitlist model (reset 2026-09-22)
+
+No fall 2026 events. Three events, one per season, all in `waitlist` state until
+a room is booked. `src/config/events.ts` is the single source of truth; the
+announcement bar is `src/config/announcement.ts` (launch bar through Oct 4,
+season bar after — switches on the visitor's clock). The waitlist form
+(`WaitlistForm`, copy in `src/config/waitlist.ts`) posts through the same lead
+webhook as every other form; **the tags are the data.**
+
+### Kajabi + Zapier setup for the waitlist (Ian, ~15 min)
+
+1. **Tags to create** (exact strings, "space hyphen space" like every other tag):
+   `Waitlist - 2027` · `Waitlist - Spring Summit` · `Waitlist - Summer Summit` ·
+   `Waitlist - Fall Workshop` · `Kids - Under 10` · `Kids - 10-12` · `Kids - 13-15` ·
+   `Kids - 16-18` · `Travel - Yes` · `Travel - Maybe` · `Travel - No`.
+   (`Church - Lead` already exists and is reused for the "I lead a church" box.)
+2. **One Kajabi form per tag** with a published "add tag" automation, and a row
+   for each in the Zap's `FORMS` map (the Code step). Until the rows exist, these
+   tags route to `Unmatched - Review` — nothing is lost, just unlabeled.
+3. **Sequence "Events Waitlist 2027"**, triggered by `Waitlist - 2027`, subscribe
+   once: Day 0 (Jeff, one question), Day 3 (Darren), Day 10 (Jeff, three tracked
+   links → tags `Prefers - Saturday` / `Prefers - Friday` / `Prefers - Sunday`),
+   Day 20 (Jeff, course pitch — skip contacts who hold the buyer tag).
+4. **Draft now, send later**: "The date is set" — opens a seven-day founding-family
+   window before anything goes public.
+
+### Still placeholder
+- The `/summit-fall` URL 308s to `/summit-summer` (vercel.json + astro redirect).
+- Premium Kit checkout URL (`offers.premiumKit.url`) — the homepage button is
+  `data-todo` until Ian's $149 offer exists.
+
 ## Decisions locked 2026-08-04 (don't re-open without Jeff)
 - **Quiz copy + scoring: APPROVED as final.** No longer a draft.
 - **No Calendly.** The church "planning something bigger" door is

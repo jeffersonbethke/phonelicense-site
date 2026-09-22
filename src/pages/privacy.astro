@@ -1,0 +1,95 @@
+---
+/**
+ * /privacy — a plain-English privacy page. Written from what the site
+ * actually does (see lib/lead, lib/pixel, lib/utm): the footer linked to
+ * "Privacy" with nowhere to go, and a site that collects emails and runs the
+ * Meta Pixel should say so.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../config/site';
+
+const updated = 'September 2026';
+---
+
+<Base title="Privacy — Phone License" description="What Phone License collects, why, and how to opt out." announcement={false}>
+  <Nav cta={{ label: 'Start — $99', href: '/#pricing' }} />
+  <main class="wrap doc">
+    <p class="eyebrow">Privacy</p>
+    <h1>Plain-English privacy.</h1>
+    <p class="lede">The short version: we ask for as little as we can, we never ask for your child’s name, and you can leave any list with one click.</p>
+
+    <h2>What we collect, and when</h2>
+    <ul>
+      <li><b>When you fill in a form</b> (the free quiz, the events waitlist, a church signup, a download): your first name and email, plus whatever the form asks — for the quiz, your answers and your child’s age range; for the waitlist, your kids’ age ranges and which events you’d come to. <b>We never ask for a child’s name or contact details.</b></li>
+      <li><b>When you buy</b>: checkout happens on Kajabi, our course platform. Kajabi handles your payment details; we never see your card number.</li>
+      <li><b>How you found us</b>: if you arrived from an ad or a link with tracking parameters, we remember that so we know which channels work.</li>
+    </ul>
+
+    <h2>What we do with it</h2>
+    <ul>
+      <li>Send you what you asked for (quiz results, event news, your church link) and, if you opt in, a short series of emails about the course. Every email has an unsubscribe link that works.</li>
+      <li>Give you access to the course and events you’ve bought.</li>
+      <li>Measure whether our ads are worth running, using the Meta Pixel (see below).</li>
+    </ul>
+
+    <h2>Cookies and the Meta Pixel</h2>
+    <p>This site uses the Meta (Facebook) Pixel to understand which visitors came from our ads and what they did next — for example that someone took the quiz or started checkout. Meta may use cookies to do that. You can limit this in your browser settings or through Meta’s ad preferences. We don’t run other advertising trackers, and we don’t sell your data.</p>
+
+    <h2>Who else touches your data</h2>
+    <p>Kajabi (courses, email and checkout), Zapier (moves form submissions into Kajabi), Vercel (hosts this site) and Meta (ad measurement). Each is bound by its own privacy terms and only gets what it needs to do its job.</p>
+
+    <h2>Your choices</h2>
+    <ul>
+      <li>Unsubscribe from any email with the link at the bottom.</li>
+      <li>Ask us to delete what we hold about you: email <a href={site.contactUrl}>hello@phonelicense.co</a> and we’ll do it.</li>
+    </ul>
+
+    <h2>Kids</h2>
+    <p>Phone License is bought and run by parents. Our forms are for adults; we don’t knowingly collect personal information from anyone under 13, and we design every form so a child’s name never enters the system.</p>
+
+    <p class="fine">Last updated {updated}. Questions: <a href={site.contactUrl}>hello@phonelicense.co</a>.</p>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .doc {
+    max-width: 720px;
+    padding-block: 48px 80px;
+  }
+  .doc h1 {
+    margin-top: 12px;
+  }
+  .doc .lede {
+    margin: 18px 0 8px;
+  }
+  .doc h2 {
+    font-size: 22px;
+    margin: 36px 0 10px;
+  }
+  .doc p,
+  .doc li {
+    color: var(--ink-2);
+  }
+  .doc ul {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .doc b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .doc a {
+    color: var(--blue-deep);
+    text-decoration: underline;
+  }
+  .fine {
+    margin-top: 40px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+</style>

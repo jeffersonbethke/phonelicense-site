@@ -53,7 +53,7 @@ const trailer = `
       <p>What the course actually looks like — and why families finish it saying the fight finally stopped.</p>
     </div>
     <div class="pl-trailer-stage">
-      <div class="pl-trailer-frame" id="trailer-frame" role="button" tabindex="0" aria-label="Play the Phone License trailer" data-vimeo-id="${trailerVimeoId}">
+      <div class="pl-trailer-frame" id="trailer-frame" role="button" tabindex="0" aria-label="The Trailer 0:58 — play the Phone License trailer" data-vimeo-id="${trailerVimeoId}">
         <img class="pl-trailer-poster" src="${trailerPoster}" alt="" loading="lazy" decoding="async" />
         <span class="pl-trailer-chip">The Trailer</span>
         <span class="pl-trailer-play" aria-hidden="true"><span class="pl-trailer-ring"></span></span>
@@ -201,6 +201,9 @@ body = body.replace('<!-- ============================ PRICING', workshop + '\n<
 if (site.contractLead) {
   body = body.replace('<!-- ============================ FOOTER', pdfCapture + '\n<!-- ============================ FOOTER');
 }
+// a <main> landmark around everything between the nav and the footer (a11y)
+body = body.replace('<!-- ============================ HERO', '<main>\n<!-- ============================ HERO');
+body = body.replace('<!-- ============================ FOOTER', '</main>\n<!-- ============================ FOOTER');
 ---
 
 <!doctype html>
@@ -209,6 +212,9 @@ if (site.contractLead) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Phone License — Earn the phone. Keep the trust.</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="description" content="A parent + teen course that turns phone access into earned trust — first phone or a fresh start on the one they already have." />
     <meta property="og:title" content="Phone License — Earn the phone. Keep the trust." />
     <meta property="og:description" content="A parent + teen course that turns phone access into earned trust — first phone or a fresh start on the one they already have." />
@@ -222,7 +228,17 @@ if (site.contractLead) {
     <meta name="twitter:image" content="https://phonelicense.co/og.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    {/* Fonts load async (never render-blocking); the system-font fallback in
+        the stack makes the swap effectively invisible. Same pattern as Base. */}
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
+    </noscript>
     <style is:inline set:html={homeCss}></style>
 
     {/* Announcement bar: pick launch vs season by the visitor's clock, pre-paint */}

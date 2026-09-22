@@ -13,6 +13,11 @@
  * result keyed on band × path.
  */
 
+import { offers } from './offers';
+
+/** Result CTAs quote the live course price — never hardcode a dollar figure here. */
+const PRICE = offers.course.price;
+
 export type Path = 'first-phone' | 'reset';
 export type Band = 'not-yet' | 'almost' | 'ready';
 
@@ -188,7 +193,7 @@ const firstPhone: Record<Band, Result> = {
     pitchHead: 'Give them a confident yes.',
     pitch:
       'The Phone License course walks you through the exact agreement, the settings, and the handoff conversation — so the first phone starts on trust instead of guesswork. One time, yours forever.',
-    cta: 'Start the course — $49',
+    cta: `Start the course — $${PRICE}`,
   },
   almost: {
     eyebrow: 'First phone · Almost',
@@ -203,7 +208,7 @@ const firstPhone: Record<Band, Result> = {
     pitchHead: 'Turn “almost” into a confident yes.',
     pitch:
       'The course gives you the readiness runway and the agreement to hand over when they’re there — Pass, Prove, Verify. No subscription, yours forever.',
-    cta: 'Start the course — $49',
+    cta: `Start the course — $${PRICE}`,
   },
   'not-yet': {
     eyebrow: 'First phone · Not yet',
@@ -218,7 +223,7 @@ const firstPhone: Record<Band, Result> = {
     pitchHead: 'Build the path to yes.',
     pitch:
       'The Phone License course gives you the step-by-step readiness plan and the exact agreement for the day they’re ready — so “not yet” has a finish line they can see. One time, yours forever.',
-    cta: 'Get the plan — $49',
+    cta: `Get the plan — $${PRICE}`,
   },
 };
 
@@ -236,7 +241,7 @@ const reset: Record<Band, Result> = {
     pitchHead: 'Re-issue the phone the right way.',
     pitch:
       'The course gives you the exact re-set agreement and conversation — the phone stays, the terms get clear. Nothing confiscated. One time, yours forever.',
-    cta: 'Start the reset — $49',
+    cta: `Start the reset — $${PRICE}`,
   },
   almost: {
     eyebrow: 'Fresh start · Rebuilding',
@@ -251,7 +256,7 @@ const reset: Record<Band, Result> = {
     pitchHead: 'Start over without the standoff.',
     pitch:
       'The Phone License course is built for exactly this — the re-issue conversation, the new agreement, and the Pass/Prove/Verify rhythm that rebuilds trust without a war. Yours forever.',
-    cta: 'Start the reset — $49',
+    cta: `Start the reset — $${PRICE}`,
   },
   'not-yet': {
     eyebrow: 'Fresh start · Time to reset',
@@ -266,7 +271,7 @@ const reset: Record<Band, Result> = {
     pitchHead: 'Get your calm back.',
     pitch:
       'The course gives you the whole re-set: the conversation that lands, the agreement they sign, and the week-by-week path back to trust — without taking the phone away. One time, yours forever.',
-    cta: 'Start the reset — $49',
+    cta: `Start the reset — $${PRICE}`,
   },
 };
 
