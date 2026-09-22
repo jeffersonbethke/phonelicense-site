@@ -48,8 +48,6 @@ export interface EventConfig {
   /** Workshop only: travel note. */
   travel?: string;
   status: EventStatus;
-  /** Kajabi tag applied when this event is ticked on the waitlist form. */
-  tag: string;
   /** Label of this event's checkbox on the waitlist form. */
   formLabel: string;
   /** Third status-strip cell. */
@@ -85,7 +83,6 @@ export const events: Record<string, EventConfig> = {
     whoFor: 'Parents of 10- to 18-year-olds, whether or not you’ve done the course. Licensed families get the addendum in the same format as their Agreement.',
     recorded: true,
     status: 'waitlist',
-    tag: 'Waitlist - Spring Summit',
     formLabel: 'Spring summit, online',
     seatsLine: 'Live and recorded',
     ogImage: '/og-summit.png',
@@ -118,7 +115,6 @@ export const events: Record<string, EventConfig> = {
     whoFor: 'Any family with a phone in the house and a summer coming.',
     recorded: true,
     status: 'waitlist',
-    tag: 'Waitlist - Summer Summit',
     formLabel: 'Summer Reset, online',
     seatsLine: 'Live and recorded',
     ogImage: '/og-summer.png',
@@ -152,7 +148,6 @@ export const events: Record<string, EventConfig> = {
     recorded: false,
     travel: 'Franklin is about half an hour south of Nashville. Hotels and details come with the date.',
     status: 'waitlist',
-    tag: 'Waitlist - Fall Workshop',
     formLabel: 'The Workshop, in person in Franklin',
     seatsLine: 'Capped small',
     ogImage: '/og-workshop.png',

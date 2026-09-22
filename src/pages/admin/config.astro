@@ -58,14 +58,13 @@ const envReady = {
 
       <h3>Current events</h3>
       <table>
-        <tr><th>Event</th><th>Season</th><th>Format</th><th>Status</th><th>Waitlist tag</th></tr>
+        <tr><th>Event</th><th>Season</th><th>Format</th><th>Status</th></tr>
         {Object.values(evts).map((e) => (
           <tr>
             <td>{e.name}</td>
             <td>{e.season}</td>
             <td>{e.format === 'online' ? 'Online' : `In person · ${e.place}`}</td>
             <td><code>{e.status}</code></td>
-            <td><code>{e.tag}</code></td>
           </tr>
         ))}
       </table>

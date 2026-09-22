@@ -90,6 +90,13 @@ export async function submitLead(input: LeadInput): Promise<LeadResult> {
       eventId,
       submittedFrom: payload.submittedFrom,
     });
+    // Also flatten simple field values to top-level keys so Zapier shows them
+    // as plain columns (e.g. a Google Sheet row) with no parsing step.
+    for (const [k, v] of Object.entries(payload.fields ?? {})) {
+      if (v === null || v === undefined) continue;
+      if (typeof v === 'object') continue; // stays inside `fields` as JSON
+      if (!form.has(k)) form.set(k, String(v));
+    }
     await fetch(url, {
       method: 'POST',
       mode: 'no-cors',

@@ -3,10 +3,11 @@
  * The 2027 waitlist form — used on /events and on every event page (pass the
  * event's slug as `preselect` so it arrives already ticked).
  *
- * Posts through the same lead webhook the quiz uses (lib/lead → Zapier →
- * Kajabi forms → tags). The tags ARE the data; every string comes from
- * config/waitlist + config/events. The visitor always reaches the success
- * state — capture is best-effort by contract.
+ * Posts through the same lead webhook the quiz uses (lib/lead → Zapier).
+ * ONE tag ("Waitlist - 2027") puts the contact on the list in Kajabi; what
+ * they picked (events, ages, travel, church leader) rides along as plain
+ * columns — a Google Sheet row in the Zap is the whole "dump". The visitor
+ * always reaches the success state — capture is best-effort by contract.
  *
  * Anti-abuse: a honeypot field (bots fill it; humans never see it) and inline
  * validation. COPPA: ages only, never a child's name.
@@ -30,7 +31,6 @@ const workshopTicked = preselect === 'conference';
     class="wl-form"
     novalidate
     data-base-tag={waitlist.baseTag}
-    data-church-tag={waitlist.churchTag}
     data-pixel={waitlist.pixelName}
   >
     <div class="wl-head">
@@ -54,8 +54,8 @@ const workshopTicked = preselect === 'conference';
       <div class="chips">
         {waitlist.ages.map((a) => (
           <label class="chip">
-            <input type="checkbox" name="ages" value={a.tag} />
-            <span>{a.label}</span>
+            <input type="checkbox" name="ages" value={a} />
+            <span>{a}</span>
           </label>
         ))}
       </div>
@@ -66,7 +66,7 @@ const workshopTicked = preselect === 'conference';
       <div class="chips stack">
         {season.map((e) => (
           <label class="chip">
-            <input type="checkbox" name="events" value={e.tag} data-slug={e.slug} checked={e.slug === preselect} />
+            <input type="checkbox" name="events" value={e.formLabel} data-slug={e.slug} checked={e.slug === preselect} />
             <span>{e.formLabel}</span>
           </label>
         ))}
@@ -78,15 +78,15 @@ const workshopTicked = preselect === 'conference';
       <div class="chips">
         {waitlist.travel.options.map((t) => (
           <label class="chip">
-            <input type="radio" name="travel" value={t.tag} />
-            <span>{t.label}</span>
+            <input type="radio" name="travel" value={t} />
+            <span>{t}</span>
           </label>
         ))}
       </div>
     </fieldset>
 
     <label class="church">
-      <input type="checkbox" name="church" value={waitlist.churchTag} />
+      <input type="checkbox" name="church" value="yes" />
       <span>{waitlist.churchLabel}</span>
     </label>
 
@@ -316,8 +316,8 @@ const workshopTicked = preselect === 'conference';
       const email = String(data.get('email') || '').trim();
       const events = data.getAll('events').map(String);
       const ages = data.getAll('ages').map(String);
-      const travelTag = String(data.get('travel') || '');
-      const church = data.get('church') ? String(data.get('church')) : '';
+      const travel = String(data.get('travel') || '');
+      const church = Boolean(data.get('church'));
 
       if (!name) return fail('Your first name, so we know who to write to.');
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail('Please enter a valid email.');
@@ -336,20 +336,17 @@ const workshopTicked = preselect === 'conference';
       // Honeypot filled → a bot. Show success, send nothing.
       if (String(data.get('website') || '').trim()) return showDone();
 
-      const tags = [form.dataset.baseTag!, ...events, ...ages];
-      if (workshop?.checked && travelTag) tags.push(travelTag);
-      if (church) tags.push(church);
-
+      // One tag marks the contact as on the list; the rest are plain columns.
       await submitLead({
         name,
         email,
-        tags,
+        tags: [form.dataset.baseTag!],
         pixelName: form.dataset.pixel,
         fields: {
-          events,
-          ages,
-          travel: workshop?.checked ? travelTag : '',
-          churchLeader: Boolean(church),
+          events: events.join(', '),
+          ages: ages.join(', '),
+          travel: workshop?.checked ? travel : '',
+          church_leader: church ? 'yes' : 'no',
           source: 'waitlist-2027',
         },
       });

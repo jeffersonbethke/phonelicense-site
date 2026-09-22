@@ -108,24 +108,23 @@ a room is booked. `src/config/events.ts` is the single source of truth; the
 announcement bar is `src/config/announcement.ts` (launch bar through Oct 4,
 season bar after — switches on the visitor's clock). The waitlist form
 (`WaitlistForm`, copy in `src/config/waitlist.ts`) posts through the same lead
-webhook as every other form; **the tags are the data.**
+webhook as every other form.
 
-### Kajabi + Zapier setup for the waitlist (Ian, ~15 min)
+**Kept deliberately simple (Jeff, 2026-09-22): it's just a list.** ONE tag
+(`Waitlist - 2027`) marks a contact as on it. What they picked — `events`,
+`ages`, `travel`, `church_leader` — arrives as plain top-level fields in the
+webhook payload (so a Google Sheet row is the whole "dump"). **No email
+sequence yet** — what to send is a later decision.
 
-1. **Tags to create** (exact strings, "space hyphen space" like every other tag):
-   `Waitlist - 2027` · `Waitlist - Spring Summit` · `Waitlist - Summer Summit` ·
-   `Waitlist - Fall Workshop` · `Kids - Under 10` · `Kids - 10-12` · `Kids - 13-15` ·
-   `Kids - 16-18` · `Travel - Yes` · `Travel - Maybe` · `Travel - No`.
-   (`Church - Lead` already exists and is reused for the "I lead a church" box.)
-2. **One Kajabi form per tag** with a published "add tag" automation, and a row
-   for each in the Zap's `FORMS` map (the Code step). Until the rows exist, these
-   tags route to `Unmatched - Review` — nothing is lost, just unlabeled.
-3. **Sequence "Events Waitlist 2027"**, triggered by `Waitlist - 2027`, subscribe
-   once: Day 0 (Jeff, one question), Day 3 (Darren), Day 10 (Jeff, three tracked
-   links → tags `Prefers - Saturday` / `Prefers - Friday` / `Prefers - Sunday`),
-   Day 20 (Jeff, course pitch — skip contacts who hold the buyer tag).
-4. **Draft now, send later**: "The date is set" — opens a seven-day founding-family
-   window before anything goes public.
+### Kajabi + Zapier setup for the waitlist (Ian, ~5 min)
+
+1. **One tag**: `Waitlist - 2027` (exact string).
+2. **One Kajabi form** named the same, with the "add tag" automation, plus one
+   line for it in the Zap's `FORMS` map — identical to the quiz forms from August.
+   Until that line exists, signups land in `Unmatched - Review` (nothing lost).
+3. **Optional dump**: a "Google Sheets → Create Spreadsheet Row" step in the same
+   Zap, mapping `name`, `email`, `events`, `ages`, `travel`, `church_leader`,
+   `submittedFrom`. Zero parsing — they're plain fields on the trigger.
 
 ### Still placeholder
 - The `/summit-fall` URL 308s to `/summit-summer` (vercel.json + astro redirect).
