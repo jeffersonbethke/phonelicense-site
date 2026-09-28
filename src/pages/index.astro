@@ -15,6 +15,7 @@ import { offers } from '../config/offers';
 import { events, season } from '../config/events';
 import { announcement, barPrepaintScript } from '../config/announcement';
 import { conference } from '../config/event-content';
+import { church } from '../config/church';
 
 const course = offers.course;
 const conf = events['conference'];
@@ -201,6 +202,8 @@ body = body.replace('<!-- ============================ PRICING', workshop + '\n<
 if (site.contractLead) {
   body = body.replace('<!-- ============================ FOOTER', pdfCapture + '\n<!-- ============================ FOOTER');
 }
+// church prices in the verbatim body come from config, never typed by hand
+body = body.replaceAll('{{familyPrice}}', String(church.familyPrice)).replaceAll('{{licensePrice}}', String(church.licensePrice)).replaceAll('{{retailPrice}}', String(church.retailPrice));
 // a <main> landmark around everything between the nav and the footer (a11y)
 body = body.replace('<!-- ============================ HERO', '<main>\n<!-- ============================ HERO');
 body = body.replace('<!-- ============================ FOOTER', '</main>\n<!-- ============================ FOOTER');

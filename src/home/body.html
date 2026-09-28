@@ -656,37 +656,20 @@
         <h2 style="margin-top:14px">Pastor families through a major modern milestone.</h2>
         <p class="lede" style="margin-top:20px">Phone License gives churches a turnkey, theologically thoughtful framework for a conversation every parent in your congregation is already losing sleep over.</p>
         <ul class="church-bullets">
-          <li><span class="ic">✓</span> Bulk family codes (25 / 50 / 100 packs)</li>
+          <li><span class="ic">✓</span> Your church’s own link + QR code — families join at ${{familyPrice}}, half off</li>
+          <li><span class="ic">✓</span> Phone License Sunday: a 45-minute talk, run sheet, table cards, promo copy — one volunteer can run it</li>
+          <li><span class="ic">✓</span> The Group Issuance Night ceremony + church-edition certificates</li>
           <li><span class="ic">✓</span> Optional 4-week small group plan + facilitator guide</li>
-          <li><span class="ic">✓</span> Sermon bumpers, slides, social templates</li>
-          <li><span class="ic">✓</span> Group "Issuance Night" kit + printable certificates</li>
-          <li><span class="ic">✓</span> Co-branded landing page for your church</li>
+          <li><span class="ic">✓</span> Unlimited families — nothing to count, nothing to administer</li>
         </ul>
-        <p class="small">Annual unlimited license available — admin dashboard, reporting, "Phone License Sunday" kit included.</p>
+        <p class="small">${{licensePrice}} a year. Everything above is included, and your link is live the moment you check out.</p>
       </div>
-      <form class="church-form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Thanks — we\\'ll be in touch.'">
+      <div class="church-form">
         <h4>Bring it to your church</h4>
-        <p>We'll send pricing, pilot options, and the facilitator preview.</p>
-        <div class="field"><label>Church name</label><input type="text" placeholder="First Baptist of Newark" required=""></div>
-        <div class="field"><label>Your role</label>
-          <select aria-label="Your role">
-            <option>Senior Pastor</option>
-            <option>Family / Youth Pastor</option>
-            <option>Children's Director</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="field"><label>Email</label><input type="email" placeholder="pastor@church.org" required=""></div>
-        <div class="field"><label>Estimated families</label>
-          <select aria-label="Church size">
-            <option>Under 25</option>
-            <option>25–50</option>
-            <option>50–100</option>
-            <option>100+</option>
-          </select>
-        </div>
-        <button type="submit">Request the church kit</button>
-      </form>
+        <p>License your church in a few clicks. Your link, QR code, and the full Phone License Sunday kit appear the moment you check out.</p>
+        <a href="/churches/setup" class="btn btn-dark" style="justify-content:center; width:100%">Get your church link →</a>
+        <a href="/churches" class="btn btn-ghost" style="justify-content:center; width:100%; margin-top:10px">See what’s included →</a>
+      </div>
     </div>
   </div>
 </section>
@@ -726,7 +709,7 @@
       </div>
       <div class="faq">
         <button class="faq-head"><span class="faq-q">Can churches buy this for families in their congregation?</span><span class="faq-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg></span></button>
-        <div class="faq-body"><p>Yes — see the church partnership section above. Bulk family packs, annual licenses, and a turnkey "Issuance Night" kit are all available.</p></div>
+        <div class="faq-body"><p>Yes. Your church licenses Phone License for ${{licensePrice}} a year, gets its own link + QR code, and every family joins at ${{familyPrice}} instead of ${{retailPrice}}. Phone License Sunday — the parent-night kit — is included. <a href="/churches">See how it works for churches →</a></p></div>
       </div>
     </div>
   </div>
@@ -778,9 +761,9 @@
         </div>
         <div>
           <div class="h">For churches</div>
-          <a href="#church">Partnership</a>
-          <a href="#church">Bulk pricing</a>
-          <a href="#church">Issuance Night kit</a>
+          <a href="/churches">How it works</a>
+          <a href="/churches#tiers">${{licensePrice}}/year license</a>
+          <a href="/churches#kickoff">Phone License Sunday kit</a>
         </div>
         <div>
           <div class="h">Company</div>

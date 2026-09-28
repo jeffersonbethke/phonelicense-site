@@ -17,7 +17,9 @@
  */
 import Base from '../../layouts/Base.astro';
 import Footer from '../../components/Footer.astro';
-import { church, familySavings } from '../../config/church';
+import { church, familySavings, kickoff } from '../../config/church';
+
+const downloads = kickoff.includes.filter((k) => k.file);
 import { site } from '../../config/site';
 
 const steps = [
@@ -105,6 +107,46 @@ const steps = [
             <button type="submit" class="btn btn-primary wide" id="fb-submit">Get my church link →</button>
           </form>
         </div>
+      </div>
+    </section>
+
+    {/* ── The kit: the talk + every file, right here after checkout ── */}
+    <section class="kit-section">
+      <div class="wrap">
+        <p class="eyebrow center">Your {kickoff.name} kit</p>
+        <h2>The night, in a box.</h2>
+        <p class="how-lede">
+          Everything you need to host a parent night is below — the talk to press
+          play on, and every file to print. It’s also on your share kit page, so
+          you can come back any time.
+        </p>
+
+        <div class="video">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${kickoff.videoId}?rel=0&modestbranding=1`}
+            title={`${kickoff.name} — the talk (${kickoff.runtime})`}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <p class="video-cap mono">The talk · {kickoff.runtime} · play it at room volume</p>
+
+        <div class="downloads">
+          {downloads.map((k) => (
+            <a class="card dl" href={k.file} download>
+              <span class="mono">{k.meta}</span>
+              <h4>{k.title}</h4>
+              <p>{k.detail}</p>
+              <span class="get">Download →</span>
+            </a>
+          ))}
+        </div>
+
+        <p class="help">
+          Your share kit page has all of this plus the promo copy with your church’s link already filled in:
+          <a data-kit-link href="/churches">open your share kit →</a>
+        </p>
       </div>
     </section>
 
@@ -205,6 +247,7 @@ const steps = [
     document.getElementById('link-text')!.textContent = display;
     (document.getElementById('open-link') as HTMLAnchorElement).href = full;
     (document.getElementById('kit-link') as HTMLAnchorElement).href = kitPath(slug);
+    document.querySelectorAll<HTMLAnchorElement>('[data-kit-link]').forEach((a) => (a.href = kitPath(slug)));
     (document.getElementById('qr-img') as HTMLImageElement).src = qrUrl(full, 520);
 
     fallback.hidden = true;
@@ -561,6 +604,76 @@ const steps = [
   @media (min-width: 760px) {
     .steps {
       grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ── Kit ── */
+  .kit-section {
+    padding-block: 56px 64px;
+  }
+  .kit-section h2 {
+    text-align: center;
+    margin-top: 10px;
+  }
+  .video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    max-width: 880px;
+    margin: 28px auto 0;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: #000;
+    box-shadow: var(--shadow-lg);
+  }
+  .video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-cap {
+    text-align: center;
+    margin-top: 12px;
+  }
+  .downloads {
+    display: grid;
+    gap: 14px;
+    margin-top: 32px;
+  }
+  .dl {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .dl:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+  .dl h4 {
+    margin-top: 2px;
+  }
+  .dl p {
+    color: var(--ink-2);
+    font-size: 14.5px;
+  }
+  .dl .get {
+    margin-top: auto;
+    padding-top: 8px;
+    font-weight: 600;
+    color: var(--blue-deep);
+  }
+  @media (min-width: 720px) {
+    .downloads {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1000px) {
+    .downloads {
+      grid-template-columns: 1fr 1fr 1fr;
     }
   }
 </style>

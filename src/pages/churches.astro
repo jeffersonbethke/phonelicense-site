@@ -33,8 +33,8 @@ const steps = [
   },
   {
     n: '03',
-    h: 'Host your kickoff night',
-    d: 'Play the talk, run the table questions, put your QR on the screen. Families leave with it already in hand.',
+    h: 'Host Phone License Sunday',
+    d: 'Press play on the talk, run the table cards, put your QR on the screen. Families scan before they stand up. One volunteer can run the whole night.',
   },
 ];
 
@@ -73,7 +73,7 @@ const faqs = [
 <Base
   ogImage="/og-churches.png"
   title="For Churches & Ministries — Phone License"
-  description={`License Phone License for your whole ministry — $${church.licensePrice} a year, unlimited families, and a kickoff night package to launch it.`}
+  description={`License Phone License for your whole ministry — $${church.licensePrice} a year, unlimited families, and Phone License Sunday, a complete parent night, to launch it.`}
   viewContent="Churches"
 >
   <Nav cta={{ label: 'Get your church link', href: '/churches/setup' }} />
@@ -90,7 +90,7 @@ const faqs = [
         </p>
         <div class="cta-row">
           <a href="/churches/setup" class="btn btn-primary">Get your church link →</a>
-          <a href="#kickoff" class="btn btn-ghost">See the kickoff night</a>
+          <a href="#kickoff" class="btn btn-ghost">See Phone License Sunday</a>
         </div>
         <p class="hero-fine">
           ${church.licensePrice}/year · unlimited families · your link is live the moment you check out
@@ -128,22 +128,22 @@ const faqs = [
         <SectionHead eyebrow="Included with every license">
           Don’t just buy a course. <span class="accent">Host a night.</span>
           <Fragment slot="lede">
-            Every license comes with a complete kickoff event — a filmed
-            {' '}{kickoff.runtime} talk, a run sheet, table questions, and a promo kit.
-            You supply the room and the coffee. Families walk out with Phone
-            License already in hand.
+            Every license comes with {kickoff.name} — a complete parent night.
+            A {kickoff.runtime} talk you press play on, a run sheet one volunteer
+            can run, table cards, the handoff, and the promo copy to fill the room.
+            Plus the Group Issuance Night six weeks later, and an optional
+            small-group plan. You supply the room and the coffee.
           </Fragment>
         </SectionHead>
 
         <div class="kickoff-grid">
-          {/* Video preview frame. TODO(inputs): swap for the real embed +
-              poster frame once the talk is filmed. Labelled a preview on
-              purpose so nobody thinks it's downloadable today. */}
+          {/* The talk itself plays on the post-purchase pages (/churches/done and
+              the church's share kit) — here it's a frame, not the video. */}
           <figure class="video-frame">
             <div class="video-inner">
               <span class="play" aria-hidden="true">▶</span>
-              <p class="video-label">The kickoff talk</p>
-              <p class="video-sub">{kickoff.runtime} · filmed in studio</p>
+              <p class="video-label">The talk</p>
+              <p class="video-sub">{kickoff.runtime} · press play, no speaker to book</p>
             </div>
             <figcaption class="status">
               <span class="dot" aria-hidden="true"></span>
@@ -164,7 +164,7 @@ const faqs = [
         <div class="kickoff-photos">
           <img
             src="/assets/tables-laughing.jpg"
-            alt="Parents laughing together at round tables during a kickoff night"
+            alt="Parents laughing together at round tables on Phone License Sunday"
             loading="lazy"
             decoding="async"
           />
@@ -194,8 +194,8 @@ const faqs = [
               ${church.licensePrice}<span>per year — that's everything the church pays</span>
             </p>
             <p class="blurb">
-              Your own link, QR code, share kit, and kickoff night — live the
-              moment you check out.
+              Your own link, QR code, share kit, and Phone License Sunday — live
+              the moment you check out.
             </p>
             <a href="/churches/setup" class="btn btn-primary">Get your church link →</a>
           </div>
@@ -474,8 +474,8 @@ const faqs = [
     font-family: var(--font-mono);
     font-size: 11.5px;
     letter-spacing: 0.04em;
-    color: var(--amber-ink);
-    background: var(--amber-bg);
+    color: var(--blue-deep);
+    background: var(--blue-tint);
     border-radius: var(--r-pill);
     padding: 7px 14px;
     width: fit-content;

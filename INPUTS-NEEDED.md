@@ -51,7 +51,21 @@ conversation, not a product. All terms live in one file: `src/config/church.ts`.
 | 1 | **Church License checkout URL** ($495/yr recurring) | `offers.ts` → `churchLicense.url` | ⬜ waiting |
 | 2 | **Church-family checkout URL** ($49) — either a dedicated offer, or the $99 offer + coupon | `offers.ts` → `courseChurch.url` | ⬜ waiting |
 | 3 | **The universal coupon code** + confirm Kajabi's coupon query param (`coupon` vs `coupon_code`) | `church.ts` → `familyCode` / `couponParam` | ⬜ waiting |
-| 4 | **Kickoff Night talk** — film it, then set `kickoff.filmed = true` + swap the placeholder video frame | `church.ts` → `kickoff` | ⬜ waiting |
+| 4 | **Phone License Sunday kit** — the talk (YouTube, unlisted) + run sheet, table cards, handoff, promo copy, Group Issuance Night, small-group guide | `/public/kit` + `church.ts` → `kickoff` | ✅ delivered 2026-09-28 |
+
+### 📦 The kit (delivered 2026-09-28)
+Files live in `/public/kit`; they're served on `/churches/done` (right after
+checkout) and on every church's `/c/{slug}/kit` page, where the promo copy is
+rendered with the church's own link already filled in. The talk is the YouTube
+video `sh2ctSmbQNE` (keep it **Unlisted**). Config: `church.ts` → `kickoff`.
+
+**Copy conflict to resolve in the PDFs** (the site + promo text already say the
+right thing): the Handoff card, the run sheet's 1:18 host line and the Issuance
+Night guide were written for a "church already covered it / enter our church
+code" model. The live model is families pay $49 through the church link, no
+code. Missing files the Issuance guide references: `PL_certificate_print.pdf`,
+wallet cards, the Parent Statement card. Small-group guide, Group 2 header:
+"Night Driving" → "The Attention Trap".
 
 ### 🔑 The ONE thing Ian must do
 Set the Church License offer's **post-purchase thank-you redirect → `/churches/done`**

@@ -8,8 +8,30 @@
  */
 import Base from '../../layouts/Base.astro';
 import Footer from '../../components/Footer.astro';
-import { church, familySavings } from '../../config/church';
+import { church, familySavings, kickoff } from '../../config/church';
 import { site } from '../../config/site';
+import promoRaw from '../../../public/kit/phone-license-sunday-promo-copy.txt?raw';
+
+const downloads = kickoff.includes.filter((k) => k.file);
+
+// The promo copy file is the single source: split its "== TITLE ==" blocks and
+// swap the church placeholders for spans the inline script fills in. Other
+// placeholders ([date], [room], [RSVP link]) are the pastor's to replace.
+const promoBlocks = promoRaw
+  .split(/^== (.+?) ==$/m)
+  .slice(1)
+  .reduce<{ title: string; html: string }[]>((acc, part, i, arr) => {
+    if (i % 2 === 0) {
+      const text = (arr[i + 1] ?? '').trim();
+      const html = text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/\[church landing page\]/g, '<span class="mono cname-link">phonelicense.co/c/…</span>')
+        .replace(/\[Church\]/g, '<span class="cname">your church</span>')
+        .replace(/\n\n/g, '<br /><br />');
+      acc.push({ title: part.trim(), html });
+    }
+    return acc;
+  }, []);
 ---
 
 <Base
@@ -65,6 +87,51 @@ import { site } from '../../config/site';
         <button type="button" class="btn btn-ghost small" id="copy-blurb">Copy this message</button>
       </div>
 
+      {/* ── Phone License Sunday: the talk + every file ── */}
+      <div class="kit-block" id="sunday">
+        <p class="eyebrow">Your {kickoff.name} kit</p>
+        <h2>The night, in a box.</h2>
+        <p class="kit-lede">
+          A parent night one volunteer can run: press play on the talk, twenty
+          minutes at tables, then the handoff — your QR on the screen, families
+          scan before they stand up.
+        </p>
+        <div class="video">
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${kickoff.videoId}?rel=0&modestbranding=1`}
+            title={`${kickoff.name} — the talk (${kickoff.runtime})`}
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <p class="video-cap mono">The talk · {kickoff.runtime} · play it at room volume</p>
+        <div class="downloads">
+          {downloads.map((k) => (
+            <a class="card dl" href={k.file} download>
+              <span class="mono">{k.meta}</span>
+              <h4>{k.title}</h4>
+              <p>{k.detail}</p>
+              <span class="get">Download →</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Promo copy, with this church's link filled in ── */}
+      <div class="kit-block">
+        <p class="eyebrow">Promo copy · your link already filled in</p>
+        <h2>Fill the room.</h2>
+        <p class="kit-lede">Swap in your date, room and RSVP link. Your church link is already in place.</p>
+        {promoBlocks.map((b, i) => (
+          <div class="card how promo">
+            <p class="label accent">{b.title}</p>
+            <blockquote id={`promo-${i}`} set:html={b.html} />
+            <button type="button" class="btn btn-ghost small" data-copy-target={`promo-${i}`}>Copy this</button>
+          </div>
+        ))}
+      </div>
+
       <p class="help">
         Questions? <a href={`mailto:${church.supportEmail}`}>{church.supportEmail}</a>
       </p>
@@ -114,6 +181,9 @@ import { site } from '../../config/site';
       function () { return document.getElementById('paste-copy').innerText.replace(/\s+/g, ' ').trim(); },
       'Copied ✓'
     );
+    document.querySelectorAll('[data-copy-target]').forEach(function (btn) {
+      copyTo(btn, function () { return document.getElementById(btn.getAttribute('data-copy-target')).innerText.trim(); }, 'Copied ✓');
+    });
   })();
     </script>
   </main>
@@ -239,6 +309,79 @@ import { site } from '../../config/site';
   @media (min-width: 640px) {
     .linkcard {
       grid-template-columns: 1fr auto;
+    }
+  }
+
+  /* ── Kit ── */
+  .kit-block {
+    margin-top: 56px;
+  }
+  .kit-block h2 {
+    margin-top: 10px;
+  }
+  .kit-lede {
+    color: var(--ink-2);
+    max-width: 60ch;
+    margin: 12px 0 0;
+  }
+  .video {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    margin-top: 24px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: #000;
+    box-shadow: var(--shadow-lg);
+  }
+  .video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-cap {
+    margin-top: 10px;
+  }
+  .downloads {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+  }
+  .dl {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .dl:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+  .dl h4 {
+    margin-top: 2px;
+  }
+  .dl p {
+    color: var(--ink-2);
+    font-size: 14.5px;
+  }
+  .dl .get {
+    margin-top: auto;
+    padding-top: 8px;
+    font-weight: 600;
+    color: var(--blue-deep);
+  }
+  .promo {
+    margin-top: 14px;
+  }
+  .promo blockquote {
+    white-space: normal;
+  }
+  @media (min-width: 720px) {
+    .downloads {
+      grid-template-columns: 1fr 1fr;
     }
   }
 </style>

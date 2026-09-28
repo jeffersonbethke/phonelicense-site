@@ -3,7 +3,7 @@
  *
  * ONE model, decided 2026-08-04 — deliberately nothing else:
  *
- *   License   $495/year   EVERY church. Link, QR, share kit, kickoff night.
+ *   License   $495/year   EVERY church. Link, QR, share kit, Phone License Sunday.
  *                         Fully self-serve: /churches/setup → Kajabi →
  *                         /churches/done.
  *   Families  $49         Half off the $99 retail price, through the church's
@@ -64,46 +64,70 @@ export const church = {
 export const familySavings = church.retailPrice - church.familyPrice;
 
 /**
- * The Kickoff Night package — a church's launch event in a box, included with
- * every license. This is the closer: it turns "buy a discount code" into "host
- * a night," which is a thing a family pastor already knows how to say yes to.
+ * Phone License Sunday — the church's launch night in a box, included with
+ * every license. It turns "buy a discount link" into "host a night," which is
+ * a thing a family pastor already knows how to say yes to.
  *
- * HONESTY GUARD: the talk is not filmed yet. `status` is printed on the page so
- * no church can think it's downloadable today, and the video frame is labelled
- * a preview. Update `status` (and set `filmed: true`) the day it ships — that
- * flips the copy and the badge everywhere it appears.
- *
- * TODO(inputs): replace `status` with the real month once the studio date is set.
+ * The files live in /public/kit and are delivered on /churches/done (right
+ * after checkout) and on every church's /c/{slug}/kit page. The talk is a
+ * YouTube embed for now — swap `videoId` the day the studio cut lands.
  */
 export const kickoff = {
-  filmed: false,
-  status: 'In production — included free when it lands',
+  name: 'Phone License Sunday',
+  filmed: true,
+  status: 'Included with your license · ready today',
   runtime: '45 minutes',
+  /** The talk. Keep the video Unlisted on YouTube — it's for licensed churches. */
+  videoId: 'sh2ctSmbQNE',
   includes: [
     {
       title: 'The talk',
       detail:
-        'A 45-minute message on phones, adolescence, and what parents are actually up against — filmed in studio, ready to play. No guest speaker to book, no fee, no travel.',
+        'A 45-minute message on phones, adolescence, and what parents are actually up against — you press play. No guest speaker to book, no fee, no travel.',
+      file: null,
+      meta: 'Video · 45 min',
     },
     {
       title: 'The run sheet',
       detail:
-        'A minute-by-minute plan for the night: welcome, video, table time, close. Hand it to a volunteer and they can run it without you.',
+        'Ninety minutes, minute by minute: doors, the talk, twenty minutes at tables, the handoff, a blessing. Four volunteer roles — none of them the pastor.',
+      file: '/kit/phone-license-sunday-run-sheet.pdf',
+      meta: 'PDF · 2 pages',
     },
     {
-      title: 'Table discussion questions',
+      title: 'Table discussion cards',
       detail:
-        'Printable cards that get parents talking to each other instead of listening to a stranger. The part that makes the night land.',
-    },
-    {
-      title: 'Promo kit',
-      detail:
-        'Slides, a bulletin blurb, social graphics, and an invite text you can paste. Everything you need to fill the room.',
+        'Seven cards, twenty minutes, parents talking to parents instead of listening to a stranger. Print one deck per table; the host card carries the rules.',
+      file: '/kit/phone-license-sunday-table-cards.pdf',
+      meta: 'PDF · 3 pages · print 4-up',
     },
     {
       title: 'The handoff',
       detail:
-        'Families leave with Phone License already unlocked — your QR on the screen, they scan it before they stand up.',
+        'The QR slide for the screen and a card for every seat. Families scan before they stand up — forty seconds, and they’re in at half off.',
+      file: '/kit/phone-license-sunday-handoff.pdf',
+      meta: 'PDF · slide + 4-up cards',
+    },
+    {
+      title: 'Promo copy',
+      detail:
+        'Bulletin blurbs, a parent-to-parent invite text, an email from the church, and a 30-second stage announcement. Swap in your date and room.',
+      file: '/kit/phone-license-sunday-promo-copy.txt',
+      meta: 'Text · paste-ready',
+    },
+    {
+      title: 'The Group Issuance Night',
+      detail:
+        'Six weeks later, every family that finished crosses the line together: a sixty-minute ceremony, run sheet included, with the church-edition certificate.',
+      file: '/kit/group-issuance-night.pdf',
+      meta: 'PDF · 3 pages',
+    },
+    {
+      title: 'Small group plan + facilitator guide',
+      detail:
+        'Optional. Four parents-only meetings that run alongside the course. A norm held by one family is a fight; held by six, it’s just the rules.',
+      file: '/kit/small-group-guide.pdf',
+      meta: 'PDF · 6 pages',
     },
   ],
 } as const;
@@ -112,7 +136,7 @@ export const kickoff = {
 export const licenseIncludes = [
   'Your church’s own share link + QR code',
   'Printable share kit for Sundays',
-  'The kickoff night package',
+  'Phone License Sunday — the talk + the full kit',
   'Unlimited families — no seats to count',
   'Renews annually, cancel anytime',
 ] as const;
