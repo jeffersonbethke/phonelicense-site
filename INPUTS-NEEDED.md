@@ -32,7 +32,7 @@ plain-English guide.
 |---|------|---------------|--------|
 | 1 | **Zapier/Make webhook URL** (the form inbox) | `.env` → `PUBLIC_WEBHOOK_URL` | ⬜ waiting |
 | 2 | **Meta Pixel ID** (~15-digit number) | `.env` → `PUBLIC_META_PIXEL_ID` | ⬜ waiting |
-| 3 | **Kajabi offer URLs** — $99 course | `src/config/offers.ts` | ⬜ waiting |
+| 3 | **Kajabi offer URLs** — $99 course, $149 Premium Kit, $495/yr church license | `src/config/offers.ts` | ✅ live 2026-10-06 (`phonelicense.mykajabi.com`) |
 | 4 | **Exact Kajabi tag names + expected field keys** (what the Zap maps into Kajabi) | `src/config/*` tags | ⬜ waiting |
 
 ## ⛪ Church funnel — self-serve (built, needs 4 values)
@@ -48,9 +48,9 @@ conversation, not a product. All terms live in one file: `src/config/church.ts`.
 
 | # | Item | Where it goes | Status |
 |---|------|---------------|--------|
-| 1 | **Church License checkout URL** ($495/yr recurring) | `offers.ts` → `churchLicense.url` | ⬜ waiting |
-| 2 | **Church-family checkout URL** ($49) — either a dedicated offer, or the $99 offer + coupon | `offers.ts` → `courseChurch.url` | ⬜ waiting |
-| 3 | **The universal coupon code** + confirm Kajabi's coupon query param (`coupon` vs `coupon_code`) | `church.ts` → `familyCode` / `couponParam` | ⬜ waiting |
+| 1 | **Church License checkout URL** ($495/yr recurring) | `offers.ts` → `churchLicense.url` | ✅ live |
+| 2 | **Church-family checkout URL** ($49) — the $99 offer + `CHURCH50` (fixed $50 off), verified $49.00 | `offers.ts` → `courseChurch.url` | ✅ live |
+| 3 | **The universal coupon code** `CHURCH50`, param `coupon_code` | `church.ts` → `familyCode` / `couponParam` | ✅ live |
 | 4 | **Phone License Sunday kit** — the talk (YouTube, unlisted) + run sheet, table cards, handoff, promo copy, Group Issuance Night, small-group guide | `/public/kit` + `church.ts` → `kickoff` | ✅ delivered 2026-09-28 |
 
 ### 📦 The kit (delivered 2026-09-28)
@@ -142,8 +142,7 @@ sequence yet** — what to send is a later decision.
 
 ### Still placeholder
 - The `/summit-fall` URL 308s to `/summit-summer` (vercel.json + astro redirect).
-- Premium Kit checkout URL (`offers.premiumKit.url`) — the homepage button is
-  `data-todo` until Ian's $149 offer exists.
+- Premium Kit: live (`YFvNG2zn`, $149) as of 2026-10-06.
 
 ## Decisions locked 2026-08-04 (don't re-open without Jeff)
 - **Quiz copy + scoring: APPROVED as final.** No longer a draft.
