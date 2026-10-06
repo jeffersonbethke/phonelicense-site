@@ -36,19 +36,18 @@ export const offers = {
     id: 'course',
     label: 'Phone License course',
     price: 99,
-    url: 'https://darren-whitehead.mykajabi.com/offers/kVt4MdFq/checkout',
+    url: 'https://phonelicense.mykajabi.com/offers/kVt4MdFq/checkout',
     pixelValue: 99,
   },
 
   // Second pricing tier shown on the sales page ("Premium Kit").
   // Priced 2026-09-22 by Jeff: $149 — the +50% good/better spread over the
-  // $99 core. TODO(inputs): needs its own Kajabi offer; paste the checkout
-  // URL here (the homepage card's button is data-todo until then).
+  // $99 core. Kajabi offer live 2026-10-06.
   premiumKit: {
     id: 'premiumKit',
     label: 'Phone License + Premium Kit',
     price: 149,
-    url: TODO,
+    url: 'https://phonelicense.mykajabi.com/offers/YFvNG2zn/checkout',
     pixelValue: 149,
   },
 
@@ -64,7 +63,7 @@ export const offers = {
   // The license is a RECURRING annual subscription in Kajabi, not a one-time
   // charge. Its thank-you page must redirect to /churches/done — that is the
   // single manual setup step for the whole self-serve funnel.
-  churchLicense: { id: 'churchLicense', label: 'Church License · annual', price: 495, url: 'https://darren-whitehead.mykajabi.com/offers/9YVRGAYJ/checkout', pixelValue: 495 },
+  churchLicense: { id: 'churchLicense', label: 'Church License · annual', price: 495, url: 'https://phonelicense.mykajabi.com/offers/9YVRGAYJ/checkout', pixelValue: 495 },
 
   // What a church family checks out through. If Ian creates a dedicated $49
   // offer, paste it here and the universal coupon becomes unnecessary. If he'd
@@ -72,7 +71,7 @@ export const offers = {
   // set `church.familyCode` — familyCheckoutUrl() appends it either way.
   // Coupon route (chosen 2026-08-04): same checkout as `course`; the CHURCH50
   // code + church slug are appended by familyCheckoutUrl() in lib/church.ts.
-  courseChurch: { id: 'courseChurch', label: 'Phone License course · church family', price: 49, url: 'https://darren-whitehead.mykajabi.com/offers/kVt4MdFq/checkout', pixelValue: 49 },
+  courseChurch: { id: 'courseChurch', label: 'Phone License course · church family', price: 49, url: 'https://phonelicense.mykajabi.com/offers/kVt4MdFq/checkout', pixelValue: 49 },
 
   // ── Live events ──
   // None for sale. The 2027 season is waitlist-only (see config/events): no
