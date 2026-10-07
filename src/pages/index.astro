@@ -177,20 +177,23 @@ const navMenu = `
     <a href="/churches">For churches</a>
   </div>`;
 
-const giftHero = `
-    <p class="pl-launch-pill pl-launch-only"><span class="pl-pre-only">Opens Monday, Oct 12 at 7 AM CT</span><span class="pl-on-only">Launch week · Oct 12 to 18</span></p>
-    <h1>You wouldn't hand your kid car keys without training. <span class="accent">Why hand them a phone without it?</span></h1>
-    <p class="lede" style="margin-left:auto;margin-right:auto">A six week license your family runs together. Watch, pass, prove, verify, and the phone gets issued, not handed over. First phone or a reset.</p>
-    <div class="pl-gift pl-launch-only" id="launch-gift">
+const giftSection = `
+<section class="pl-gift-sec pl-launch-only" id="launch-gift-section">
+  <div class="container">
+    <div class="section-head">
+      <p class="pl-launch-pill"><span class="pl-pre-only">Opens Monday, Oct 12 at 7 AM CT</span><span class="pl-on-only">Launch week · Oct 12 to 18</span></p>
+      <h2>This week, the book is on us.</h2>
+    </div>
+    <div class="pl-gift" id="launch-gift">
       <div class="pl-gift-cover">
         <div class="pl-book">
-          <img src="${launch.gift.cover}" onerror="this.onerror=null;this.src='${launch.gift.coverFallback}'" alt="${launch.gift.title} by ${launch.gift.author}, hardcover" width="300" height="472" loading="eager" decoding="async" />
+          <img src="${launch.gift.cover}" onerror="this.onerror=null;this.src='${launch.gift.coverFallback}'" alt="${launch.gift.title} by ${launch.gift.author}, hardcover" width="300" height="472" loading="lazy" decoding="async" />
         </div>
         <div class="pl-medal" aria-hidden="true"><span class="pl-medal-ring"></span><span class="pl-medal-free">Free</span><span class="pl-medal-sub">hardcover</span></div>
       </div>
       <div class="pl-gift-body">
         <p class="pl-gift-k">Free gift · launch week only</p>
-        <h2 class="pl-gift-h">Join by ${launch.endLabel.split(' at ')[0]} and we mail you ${launch.gift.author}'s ${launch.gift.format}, <em>${launch.gift.title}</em>. On us.</h2>
+        <h3 class="pl-gift-h">Join by ${launch.endLabel.split(' at ')[0]} and we mail you ${launch.gift.author}'s ${launch.gift.format}, <em>${launch.gift.title}</em>. On us.</h3>
         <p class="pl-gift-sub">Premium Kit families get ${launch.gift.kit} copies: one for you, four to hand to friends. Church licenses get a case of ${launch.gift.church} for Phone License Sunday.</p>
         <div class="pl-cd" data-countdown="${launch.end}" role="timer" aria-live="off" aria-label="Time left to claim the free gift">
           <div class="pl-cd-box"><span class="pl-cd-num" data-cd="d">00</span><span class="pl-cd-lab">days</span></div>
@@ -199,12 +202,11 @@ const giftHero = `
           <div class="pl-cd-box"><span class="pl-cd-num" data-cd="s">00</span><span class="pl-cd-lab">sec</span></div>
         </div>
         <p class="pl-gift-foot">${launch.gift.shipping} Gift ends ${launch.endLabel}. The price never changes.</p>
+        <div class="pl-gift-ctas"><a href="#pricing" class="btn-white">Start Phone License — $${course.price}</a></div>
       </div>
     </div>
-    <div class="hero-ctas">
-      <a href="#pricing" class="btn btn-dark">Start Phone License — $${course.price}</a>
-      <a href="/quiz" class="btn btn-ghost">Not sure yet? Take the free quiz →</a>
-    </div>`;
+  </div>
+</section>`;
 
 const giftLine = (text: string) => `<div class="pl-price-gift pl-launch-only"><span class="pl-price-gift-tag">Launch week gift</span><span>${text}</span></div>`;
 const priceCards = `<div class="price-grid price-grid-3">
@@ -278,18 +280,13 @@ body = body.replaceAll('<a href="#pricing" class="cta">Start — $49</a>', `<a h
 body = body.replace('<a href="#" class="btn btn-ghost" style="justify-content:center; margin-top:auto">Start with Core</a>', `<a href="${course.url}" class="btn btn-ghost" style="justify-content:center; margin-top:auto" data-kajabi data-offer-value="${course.pixelValue}" data-offer-name="Phone License course">Start with Core</a>`);
 body = body.replace('<a href="#" class="btn btn-primary" style="justify-content:center; margin-top:auto; background:#fff; color:var(--ink)">Get the Premium Kit</a>', `<a href="${kit.url}" class="btn btn-primary" style="justify-content:center; margin-top:auto; background:#fff; color:var(--ink)" data-kajabi data-offer-value="${kit.pixelValue}" data-offer-name="Phone License + Premium Kit"${kit.url.startsWith('#') ? ' data-todo="true"' : ''}>Get the Premium Kit</a>`);
 {
-  const heroStart = body.indexOf('<h1>You wouldn\'t hand your kid car keys');
-  const heroEnd = body.indexOf('<div class="hero-meta">');
-  if (heroStart > -1 && heroEnd > heroStart) body = body.slice(0, heroStart) + giftHero.trimStart() + '\n    ' + body.slice(heroEnd);
-}
-{
   const gridStart = body.indexOf('<div class="price-grid">');
   const gridEnd = body.indexOf('<!-- ============================ CHURCH');
   if (gridStart > -1 && gridEnd > gridStart) body = body.slice(0, gridStart) + priceCards + body.slice(gridEnd);
   body = body.replace('<h2>Two ways in. One outcome.</h2>', '<h2>Three ways in. One outcome.</h2>');
 }
 // after hero
-body = body.replace('<!-- ============================ FELT NEED', trailer + beHonest + twoDoor + '\n<!-- ============================ FELT NEED');
+body = body.replace('<!-- ============================ FELT NEED', trailer + beHonest + giftSection + twoDoor + '\n<!-- ============================ FELT NEED');
 // buy band after before/after
 body = body.replace('<!-- ============================ MEET YOUR GUIDES', midCta + '\n<!-- ============================ MEET YOUR GUIDES');
 // live events before curriculum
@@ -366,9 +363,14 @@ body = body.replace('<!-- ============================ FOOTER', '</main>\n<!-- =
       html[data-launch="off"] .pl-launch-only{display:none !important}
       html:not([data-launch="pre"]) .pl-pre-only{display:none}
       html[data-launch="pre"] .pl-on-only{display:none}
-      .pl-launch-pill{display:inline-flex;align-items:center;gap:8px;margin:0 auto 22px;padding:8px 16px;border-radius:999px;background:var(--blue-tint);border:1px solid var(--blue-tint-2);color:var(--blue-deep);font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+      .pl-gift-sec{background:var(--bg-2)}
+      .pl-gift-sec .section-head{text-align:center}
+      .pl-gift-sec .section-head h2{margin-top:16px}
+      .pl-gift-sec .section-head .pl-launch-pill{font-size:12px;line-height:1;color:var(--blue-deep);max-width:none}
+      .pl-gift-ctas{margin-top:20px}
+      .pl-launch-pill{display:inline-flex;align-items:center;gap:8px;margin:0 auto;padding:8px 16px;border-radius:999px;background:var(--blue-tint);border:1px solid var(--blue-tint-2);color:var(--blue-deep);font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
       .pl-launch-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px var(--blue-tint-2)}
-      .pl-gift{position:relative;max-width:980px;margin:40px auto 0;padding:34px 36px 32px;border-radius:32px;background:var(--ink);color:#fff;text-align:left;box-shadow:0 30px 70px rgba(15,15,16,.25),0 8px 22px rgba(15,15,16,.12);overflow:visible;display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center}
+      .pl-gift{position:relative;max-width:980px;margin:36px auto 0;padding:34px 36px 32px;border-radius:32px;background:var(--ink);color:#fff;text-align:left;box-shadow:0 30px 70px rgba(15,15,16,.25),0 8px 22px rgba(15,15,16,.12);overflow:visible;display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:center}
       .pl-gift::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(ellipse at 18% 50%,oklch(0.62 0.14 250 / .38),transparent 55%),radial-gradient(ellipse at 90% 0%,rgba(255,255,255,.08),transparent 50%);pointer-events:none}
       .pl-gift>*{position:relative}
       .pl-gift-cover{position:relative;display:flex;justify-content:center;align-items:center;padding:10px 0}
