@@ -21,17 +21,14 @@ export interface BarEntry {
 }
 
 export const announcement = {
-  /** First day (local time) the season bar shows. Launch bar runs through Oct 4. */
-  switchDate: '2026-10-05',
+  /** First day (local time) the season bar shows. Launch bar runs through Oct 18. */
+  switchDate: '2026-10-19',
   launch: {
-    key: 'pl_bar_launch_2026',
-    strong: 'Launch week.',
-    text: 'Get licensed before Thanksgiving.',
+    key: 'pl_bar_launch_oct12_2026',
+    strong: 'Launch week, Oct 12 to 18.',
+    text: "Join by Sunday and Darren's hardcover The Digital Fast ships to you free.",
     cta: 'Start Phone License',
     href: '/#pricing',
-    // If the Oct 15 Family Q&A Night from the launch playbook is on for
-    // launch-week buyers, swap to:
-    //   strong: 'Launch week:', text: 'buy this week and join the live Family Q&A Night on Oct 15', cta: 'Start Phone License'
   },
   season: {
     key: 'pl_bar_season_2027',
